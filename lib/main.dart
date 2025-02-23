@@ -3,7 +3,8 @@ import 'services/location_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'db/country_adapter.dart';
 import 'services/country_service.dart';
-import 'widgets/country_chart.dart'; // Import the chart widget
+import 'widgets/country_chart.dart'; 
+import 'widgets/country_calendar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,8 +36,8 @@ class _MyAppState extends State<MyApp> {
     String? country = await LocationService.getCurrentCountry();
     if (country != null) {
       await CountryService.saveCountryVisit(country);
-      print('Saved country: $country');
-      setState(() {});
+      print('✅ Saved country: $country');
+      setState(() {}); // Refresh UI
     }
   }
 
@@ -47,11 +48,14 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(title: const Text('Location Tracker')),
         body: Column(
           children: [
-            ElevatedButton(
-              onPressed: _addCountry,
-              child: const Text("Get Country"),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: _addCountry,
+                child: const Text("Get Country"),
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             Expanded(
               child: ValueListenableBuilder(
                 valueListenable: box.listenable(),
@@ -61,21 +65,8 @@ class _MyAppState extends State<MyApp> {
                   }
                   return Column(
                     children: [
-                      Expanded(child: CountryChart(box: box)), // 📊 Show Chart
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: box.length,
-                          itemBuilder: (context, index) {
-                            final visit = box.getAt(index);
-                            return ListTile(
-                              title: Text("🇨🇳 ${visit?.countryCode}"),
-                              subtitle: Text(
-                                "Arrived: ${visit?.entryDate.toLocal()} - ${visit?.daysSpent} days",
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                      Expanded(child: CountryChart(box: box)),  // 📊 Chart
+                      Expanded(child: SingleChildScrollView(child: CountryCalendar(box: box))), // 📅 Calendar (Fixed)
                     ],
                   );
                 },
