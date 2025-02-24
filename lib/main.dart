@@ -12,7 +12,7 @@ import 'services/country_service.dart';
 // Global key for showing snackbars from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-const fetchBackground = "fetchBackground";
+const fetchLocationInBackgroundTask = "fetchLocationInBackgroundTask";
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,7 +33,7 @@ Future<void> main() async {
   Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
   Workmanager().registerPeriodicTask(
     "1",
-    fetchBackground,
+    fetchLocationInBackgroundTask,
     frequency: const Duration(minutes: 15),
     existingWorkPolicy: ExistingWorkPolicy.keep, // Avoid multiple instances
   );
@@ -63,7 +63,7 @@ void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter services are available
 
-    if (task == fetchBackground) {
+    if (task == fetchLocationInBackgroundTask) {
       try {
         await Hive.initFlutter();
         if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
