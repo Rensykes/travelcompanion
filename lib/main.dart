@@ -35,6 +35,7 @@ Future<void> main() async {
     "1",
     fetchBackground,
     frequency: const Duration(minutes: 15),
+    existingWorkPolicy: ExistingWorkPolicy.keep, // Avoid multiple instances
   );
 
   try {
@@ -49,42 +50,43 @@ Future<void> main() async {
 Future<void> initializeApp() async {
   try {
     if (!Hive.isBoxOpen('country_visits')) {
-      await Hive.openBox<CountryVisit>('country_visits');
+      var box = await Hive.openBox<CountryVisit>('country_visits');
+      await box.close(); // Ensure the box is closed after initialization
     }
   } catch (e, stackTrace) {
     throw AppInitializationException('Failed to initialize app: $e', stackTrace);
   }
 }
 
-
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    print("Executing background task: $task");
+    WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter services are available
 
     if (task == fetchBackground) {
       try {
-        // Reinitialize Hive in the background isolate
-        await Hive.initFlutter();  
-        
+        await Hive.initFlutter();
         if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
           Hive.registerAdapter(CountryVisitAdapter());
         }
 
-        var box = await Hive.openBox<CountryVisit>('country_visits');
+        bool hasPermission = await LocationService.requestPermission();
+        if (!hasPermission) {
+          print("Location permission denied in background task.");
+          return Future.value(false);
+        }
 
         String? country = await LocationService.getCurrentCountry();
         if (country != null) {
           await CountryService.saveCountryVisit(country);
           print("Saved country visit: $country");
         }
-
-        await box.close(); // Close the box after use
-      } catch (e) {
+      } catch (e, stackTrace) {
+        ErrorReporter.reportError(e, stackTrace);
         print("Error fetching location in background: $e");
+        return Future.value(false);
       }
     }
-
     return Future.value(true);
   });
 }

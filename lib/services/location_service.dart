@@ -7,11 +7,15 @@ class LocationService {
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return false; // Permission denied
-      }
     }
-    return permission != LocationPermission.deniedForever;
+
+    if (permission == LocationPermission.deniedForever) {
+      print("Location permission permanently denied. Redirecting to settings...");
+      await Geolocator.openAppSettings(); // Open settings page
+      return false;
+    }
+
+    return permission == LocationPermission.always || permission == LocationPermission.whileInUse;
   }
 
   // Get current country
@@ -19,17 +23,14 @@ class LocationService {
     bool hasPermission = await requestPermission();
     if (!hasPermission) return null;
 
-    Position position = await Geolocator.getCurrentPosition();
+    Position? position = await Geolocator.getLastKnownPosition();
+    position ??= await Geolocator.getCurrentPosition(); // Fallback to real-time lookup if no last known
 
-    // Reverse geocoding to get country from coordinates
     List<Placemark> placemarks = await placemarkFromCoordinates(
       position.latitude,
       position.longitude,
     );
 
-    if (placemarks.isNotEmpty) {
-      return placemarks.first.isoCountryCode; // Returns country code (e.g., "US", "IT")
-    }
-    return null;
+    return placemarks.isNotEmpty ? placemarks.first.isoCountryCode : null;
   }
 }
