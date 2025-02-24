@@ -41,6 +41,11 @@ dependencies:
   geocoding: ^3.0.0  # Add this for reverse geocoding
   fl_chart: ^0.70.2
   table_calendar: ^3.0.9
+  workmanager:
+    git:
+      url: https://github.com/fluttercommunity/flutter_workmanager.git
+      path: workmanager
+      ref: main
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -14,7 +14,7 @@ class CountryService {
     final box = await _openBox();
     final today = DateTime.now();
     final formattedToday = DateTime(today.year, today.month, today.day);
-
+    print("Country Visit");
     // Check if the last stored country is different
     if (box.isNotEmpty) {
       CountryVisit lastVisit = box.values.last;

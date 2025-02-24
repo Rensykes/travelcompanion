@@ -1,51 +1,77 @@
-// main.dart
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'dart:async'; // Add this for runZonedGuarded
+import 'package:workmanager/workmanager.dart';
+import 'dart:async';
 import 'db/country_adapter.dart';
 import 'screens/home_screen.dart';
 import 'screens/error_screen.dart';
 import 'utils/error_reporter.dart';
+import 'services/location_service.dart';
+import 'services/country_service.dart';
 
 // Global key for showing snackbars from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+const fetchBackground = "fetchBackground";
+
 Future<void> main() async {
-  await runZonedGuarded(() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-    // Initialize error handling
-    FlutterError.onError = (FlutterErrorDetails details) {
-      FlutterError.presentError(details);
-      ErrorReporter.reportError(details.exception, details.stack);
-    };
+  // Initialize error handling
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    ErrorReporter.reportError(details.exception, details.stack);
+  };
 
-    try {
-      await initializeApp();
-      runApp(const MyApp());
-    } catch (error, stackTrace) {
-      ErrorReporter.reportError(error, stackTrace);
-      runApp(ErrorApp(error: error.toString()));
-    }
-  }, (error, stackTrace) {
-    // Catch errors that happen outside of the Flutter framework
+  // Initialize Hive
+  await Hive.initFlutter();
+  if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
+    Hive.registerAdapter(CountryVisitAdapter());
+  }
+
+  // Initialize Workmanager
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  Workmanager().registerPeriodicTask(
+    "1",
+    fetchBackground,
+    frequency: const Duration(minutes: 15),
+  );
+
+  try {
+    await initializeApp();
+    runApp(const MyApp());
+  } catch (error, stackTrace) {
     ErrorReporter.reportError(error, stackTrace);
-  });
+    runApp(ErrorApp(error: error.toString()));
+  }
 }
 
 Future<void> initializeApp() async {
   try {
-    await Hive.initFlutter();
-    
-    if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
-      Hive.registerAdapter(CountryVisitAdapter());
-    }
-    
     await Hive.openBox<CountryVisit>('country_visits');
   } catch (e, stackTrace) {
     throw AppInitializationException('Failed to initialize app: $e', stackTrace);
   }
+}
+
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    print("In callback");
+    // Task to fetch the current location and save it to Hive
+    if (task == fetchBackground) {
+      try {
+        String? country = await LocationService.getCurrentCountry();
+        if (country != null) {
+          await CountryService.saveCountryVisit(country);
+        }
+      } catch (e) {
+        // Handle error
+        print("Error fetching location in background: $e");
+      }
+    }
+    return Future.value(true);
+  });
 }
 
 class MyApp extends StatelessWidget {
