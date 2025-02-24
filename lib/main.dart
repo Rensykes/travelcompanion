@@ -48,28 +48,43 @@ Future<void> main() async {
 
 Future<void> initializeApp() async {
   try {
-    await Hive.openBox<CountryVisit>('country_visits');
+    if (!Hive.isBoxOpen('country_visits')) {
+      await Hive.openBox<CountryVisit>('country_visits');
+    }
   } catch (e, stackTrace) {
     throw AppInitializationException('Failed to initialize app: $e', stackTrace);
   }
 }
 
+
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    print("In callback");
-    // Task to fetch the current location and save it to Hive
+    print("Executing background task: $task");
+
     if (task == fetchBackground) {
       try {
+        // Reinitialize Hive in the background isolate
+        await Hive.initFlutter();  
+        
+        if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
+          Hive.registerAdapter(CountryVisitAdapter());
+        }
+
+        var box = await Hive.openBox<CountryVisit>('country_visits');
+
         String? country = await LocationService.getCurrentCountry();
         if (country != null) {
           await CountryService.saveCountryVisit(country);
+          print("Saved country visit: $country");
         }
+
+        await box.close(); // Close the box after use
       } catch (e) {
-        // Handle error
         print("Error fetching location in background: $e");
       }
     }
+
     return Future.value(true);
   });
 }
