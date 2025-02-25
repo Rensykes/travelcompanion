@@ -18,6 +18,7 @@ class LogsScreen extends StatelessWidget {
             return const Center(child: Text("No logs available"));
           }
 
+          //TODO list should be in reversed order. Newest on top, Oldest at bottom
           return ListView.builder(
             itemCount: logBox.length,
             itemBuilder: (context, index) {

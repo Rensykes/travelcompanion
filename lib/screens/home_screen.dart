@@ -94,7 +94,7 @@ Future<void> _addCountry() async {
     final List<Widget> screens = [
       EntriesScreen(box: countryVisitBox!),
       ChartScreen(box: countryVisitBox!),
-      CalendarScreen(box: countryVisitBox!),
+      CalendarScreen(box: locationLogsBox!),
       LogsScreen(box: locationLogsBox!), // Add LogsScreen
     ];
 

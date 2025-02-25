@@ -18,5 +18,10 @@ class CountryVisit {
     required this.entryDate,
     required this.daysSpent,
   });
+
+  @override
+  String toString() {
+    return 'CountryVisit(entryDate: $entryDate, countryCode: $countryCode)';
+  }
 }
 

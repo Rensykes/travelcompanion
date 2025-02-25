@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:table_calendar/table_calendar.dart';
-import '../db/country_adapter.dart';
+import '../db/location_log.dart';  // Import the LocationLog model
 
 class CountryCalendar extends StatefulWidget {
-  final Box<CountryVisit> box;
+  final Box<LocationLog> box;
 
   const CountryCalendar({super.key, required this.box});
 
@@ -17,7 +17,8 @@ class _CountryCalendarState extends State<CountryCalendar> {
   late DateTime _focusedDay;
   DateTime? _selectedDay;
 
-  Map<DateTime, String> _events = {};
+  // Modified _events to store multiple countries per day
+  Map<DateTime, List<String>> _events = {};
 
   @override
   void initState() {
@@ -28,15 +29,27 @@ class _CountryCalendarState extends State<CountryCalendar> {
     _loadEvents();
   }
 
-  void _loadEvents() {
-    Map<DateTime, String> events = {};
-    for (var visit in widget.box.values) {
-      DateTime date = DateTime(visit.entryDate.year, visit.entryDate.month, visit.entryDate.day);
-      events[date] = visit.countryCode;
+  void _loadEvents() async {
+    Map<DateTime, List<String>> events = {};
+
+    // Use asynchronous loading to avoid blocking the UI thread
+    await Future.delayed(Duration(milliseconds: 100)); // Simulate async load
+    for (var log in widget.box.values) {
+      // Only add logs with a successful status and a country code
+      if (log.status == "success" && log.countryCode != null) {
+        DateTime date = DateTime(log.dateTime.year, log.dateTime.month, log.dateTime.day);
+        if (!events.containsKey(date)) {
+          events[date] = [];
+        }
+        events[date]!.add(log.countryCode!); // Add country to list
+      }
     }
-    setState(() {
-      _events = events;
-    });
+
+    if (mounted) {
+      setState(() {
+        _events = events;
+      });
+    }
   }
 
   @override
@@ -55,18 +68,19 @@ class _CountryCalendarState extends State<CountryCalendar> {
                 _selectedDay = selectedDay;
                 _focusedDay = focusedDay;
               });
-
-              String? country = _events[selectedDay];
-              if (country != null && mounted) { // 🔥 Avoid calling after dispose
+              //FIXME snackbar does not appear?
+              // Check if there are events for the selected day and show the Snackbar
+              List<String>? countries = _events[selectedDay];
+              if (countries != null && countries.isNotEmpty && mounted) { // 🔥 Avoid calling after dispose
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("📍 You were in $country on ${selectedDay.toLocal()}")),
+                  SnackBar(content: Text("📍 You were in ${countries.join(', ')} on ${selectedDay.toLocal()}")),
                 );
               }
             },
             calendarBuilders: CalendarBuilders(
               defaultBuilder: (context, date, _) {
-                String? country = _events[date];
-                if (country != null) {
+                List<String>? countries = _events[date];
+                if (countries != null && countries.isNotEmpty) {
                   return Center(
                     child: Container(
                       decoration: BoxDecoration(
@@ -76,7 +90,7 @@ class _CountryCalendarState extends State<CountryCalendar> {
                       child: Padding(
                         padding: const EdgeInsets.all(6.0),
                         child: Text(
-                          country,
+                          countries.join(', '), // Show all countries for this day
                           style: const TextStyle(color: Colors.white, fontSize: 12),
                         ),
                       ),
