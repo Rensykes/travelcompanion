@@ -8,7 +8,7 @@ part of 'location_log.dart';
 
 class LocationLogAdapter extends TypeAdapter<LocationLog> {
   @override
-  final int typeId = 1;
+  final int typeId = 2;
 
   @override
   LocationLog read(BinaryReader reader) {
