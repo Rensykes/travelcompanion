@@ -15,7 +15,6 @@ class LogService {
         countryCode: countryCode,
       ));
 
-      await logBox.close();
       log("📝 Log Added: Status - $status, Country - ${countryCode ?? 'N/A'}");
     } catch (e) {
       log("❌ Error while logging: $e");
