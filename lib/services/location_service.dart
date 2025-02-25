@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -10,7 +11,7 @@ class LocationService {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      print("Location permission permanently denied. Redirecting to settings...");
+      log("Location permission permanently denied. Redirecting to settings...");
       await Geolocator.openAppSettings(); // Open settings page
       return false;
     }

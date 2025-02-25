@@ -1,4 +1,6 @@
 // utils/error_reporter.dart
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../main.dart';  // For navigatorKey
@@ -20,8 +22,8 @@ class ErrorReporter {
 
   static void _logError(Object error, [StackTrace? stackTrace]) {
     if (kDebugMode) {
-      print('Error: $error');
-      if (stackTrace != null) print('StackTrace: $stackTrace');
+      log('Error: $error');
+      if (stackTrace != null) log('StackTrace: $stackTrace');
     }
   }
 

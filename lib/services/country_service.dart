@@ -1,12 +1,13 @@
 import 'package:hive/hive.dart';
+import 'dart:developer';
 import '../db/country_adapter.dart';
+import '../utils/hive_constants.dart';
 
 class CountryService {
-  static const String boxName = "country_visits";
 
   // Open the Hive box
   static Future<Box<CountryVisit>> _openBox() async {
-    return await Hive.openBox<CountryVisit>(boxName);
+    return await Hive.openBox<CountryVisit>(countryVisitsBoxName);
   }
 
   // Save or update country visit
@@ -14,7 +15,7 @@ class CountryService {
     final box = await _openBox();
     final today = DateTime.now();
     final formattedToday = DateTime(today.year, today.month, today.day);
-    print("Country Visit");
+    log("Country Visit");
     // Check if the last stored country is different
     if (box.isNotEmpty) {
       CountryVisit lastVisit = box.values.last;

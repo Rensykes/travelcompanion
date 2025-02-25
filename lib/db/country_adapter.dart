@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'country_adapter.g.dart';
 
-@HiveType(typeId: 1) // Assign a unique type ID
+@HiveType(typeId: 1)
 class CountryVisit {
   @HiveField(0)
   String countryCode;

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'entries_screen.dart';
@@ -40,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      print('Error initializing box: $e');
+      log('Error initializing box: $e');
       // Handle error appropriately
     }
   }

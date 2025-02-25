@@ -1,13 +1,18 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:workmanager/workmanager.dart';
 import 'dart:async';
 import 'db/country_adapter.dart';
+import 'db/location_log.dart';
 import 'screens/home_screen.dart';
 import 'screens/error_screen.dart';
-import 'utils/error_reporter.dart';
 import 'services/location_service.dart';
 import 'services/country_service.dart';
+import 'services/log_service.dart';
+import 'utils/hive_constants.dart';
+import 'utils/error_reporter.dart';
 
 // Global key for showing snackbars from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -28,6 +33,9 @@ Future<void> main() async {
   if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
     Hive.registerAdapter(CountryVisitAdapter());
   }
+  if (!Hive.isAdapterRegistered(LocationLogAdapter().typeId)) {
+  Hive.registerAdapter(LocationLogAdapter());
+  }
 
   // Initialize Workmanager
   Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
@@ -47,11 +55,16 @@ Future<void> main() async {
   }
 }
 
+/// This is useful to prevent issues where the app crashes because a box is accessed before being opened.
 Future<void> initializeApp() async {
   try {
-    if (!Hive.isBoxOpen('country_visits')) {
-      var box = await Hive.openBox<CountryVisit>('country_visits');
-      await box.close(); // Ensure the box is closed after initialization
+    if (!Hive.isBoxOpen(countryVisitsBoxName)) {
+      var countryVisitsBox = await Hive.openBox<CountryVisit>(countryVisitsBoxName);
+      await countryVisitsBox.close(); // Ensure the box is closed after initialization
+    }
+        if (!Hive.isBoxOpen(locationLogsBoxName)) {
+      var locationLogBox = await Hive.openBox<LocationLog>(locationLogsBoxName);
+      await locationLogBox.close(); // Ensure the box is closed after initialization
     }
   } catch (e, stackTrace) {
     throw AppInitializationException('Failed to initialize app: $e', stackTrace);
@@ -61,35 +74,42 @@ Future<void> initializeApp() async {
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    WidgetsFlutterBinding.ensureInitialized(); // Ensure Flutter services are available
+    log("🔄 Executing background task: $task");
 
     if (task == fetchLocationInBackgroundTask) {
       try {
         await Hive.initFlutter();
-        if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
-          Hive.registerAdapter(CountryVisitAdapter());
+
+        if (!Hive.isAdapterRegistered(LocationLogAdapter().typeId)) {
+          Hive.registerAdapter(LocationLogAdapter());
         }
 
-        bool hasPermission = await LocationService.requestPermission();
-        if (!hasPermission) {
-          print("Location permission denied in background task.");
-          return Future.value(false);
-        }
-
+        // Fetch country
         String? country = await LocationService.getCurrentCountry();
         if (country != null) {
           await CountryService.saveCountryVisit(country);
-          print("Saved country visit: $country");
+
+          // ✅ Use LogService to log success
+          await LogService.logEntry(status: "success", countryCode: country);
+          log("✅ Background Task Success: Country - $country");
+        } else {
+          // ❌ Use LogService to log failure
+          await LogService.logEntry(status: "error");
+          log("❌ Background Task Failed: No country detected");
         }
-      } catch (e, stackTrace) {
-        ErrorReporter.reportError(e, stackTrace);
-        print("Error fetching location in background: $e");
-        return Future.value(false);
+      } catch (e) {
+        log("❌ Error in background task: $e");
+
+        // ❌ Log error using LogService
+        await LogService.logEntry(status: "error");
       }
     }
+
     return Future.value(true);
   });
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
