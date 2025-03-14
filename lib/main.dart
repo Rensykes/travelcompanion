@@ -84,22 +84,44 @@ Future<void> initializeApp() async {
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    DartPluginRegistrant.ensureInitialized();
+    try {
+      DartPluginRegistrant.ensureInitialized();
 
-    final Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.low,
-      forceAndroidLocationManager:
-          true, // This is important. [FusedLocationProviderClient] does not seem to work
-    );
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
-    String placemark =
-        placemarks.isNotEmpty
-            ? (placemarks.first.isoCountryCode ?? "Unknown")
-            : "Unknown";
-    log("test " + placemark);
+      await Hive.initFlutter();
+
+      if (!Hive.isAdapterRegistered(LocationLogAdapter().typeId)) {
+        Hive.registerAdapter(LocationLogAdapter());
+      }
+            if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
+        Hive.registerAdapter(CountryVisitAdapter());
+      }
+
+      final Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.low,
+        forceAndroidLocationManager:
+            true, // This is important. [FusedLocationProviderClient] does not seem to work
+      );
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      String? placemark = placemarks.first.isoCountryCode;
+
+      if (placemark != null) {
+        await CountryService.saveCountryVisit(placemark);
+
+        // ✅ Use LogService to log success
+        await LogService.logEntry(status: "success", countryCode: placemark);
+        log("✅ Background Task Success: Country - $placemark");
+      } else {
+        // ❌ Use LogService to log failure
+        await LogService.logEntry(status: "error");
+        log("❌ Background Task Failed: No country detected");
+      }
+    } catch (e) {
+      log("❌ Background Task Failed $e");
+      return Future.value(false);
+    }
     return Future.value(true);
   });
 }
