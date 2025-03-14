@@ -1,6 +1,9 @@
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:workmanager/workmanager.dart';
 import 'dart:async';
@@ -34,7 +37,7 @@ Future<void> main() async {
     Hive.registerAdapter(CountryVisitAdapter());
   }
   if (!Hive.isAdapterRegistered(LocationLogAdapter().typeId)) {
-  Hive.registerAdapter(LocationLogAdapter());
+    Hive.registerAdapter(LocationLogAdapter());
   }
 
   // Initialize Workmanager
@@ -59,57 +62,61 @@ Future<void> main() async {
 Future<void> initializeApp() async {
   try {
     if (!Hive.isBoxOpen(countryVisitsBoxName)) {
-      var countryVisitsBox = await Hive.openBox<CountryVisit>(countryVisitsBoxName);
-      await countryVisitsBox.close(); // Ensure the box is closed after initialization
+      var countryVisitsBox = await Hive.openBox<CountryVisit>(
+        countryVisitsBoxName,
+      );
+      await countryVisitsBox
+          .close(); // Ensure the box is closed after initialization
     }
-        if (!Hive.isBoxOpen(locationLogsBoxName)) {
+    if (!Hive.isBoxOpen(locationLogsBoxName)) {
       var locationLogBox = await Hive.openBox<LocationLog>(locationLogsBoxName);
-      await locationLogBox.close(); // Ensure the box is closed after initialization
+      await locationLogBox
+          .close(); // Ensure the box is closed after initialization
     }
   } catch (e, stackTrace) {
-    throw AppInitializationException('Failed to initialize app: $e', stackTrace);
+    throw AppInitializationException(
+      'Failed to initialize app: $e',
+      stackTrace,
+    );
   }
 }
 
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    log("🔄 Executing background task: $task");
+    try {
+      DartPluginRegistrant.ensureInitialized();
 
-    if (task == fetchLocationInBackgroundTask) {
-      try {
-        await Hive.initFlutter();
+      await Hive.initFlutter();
 
-        if (!Hive.isAdapterRegistered(LocationLogAdapter().typeId)) {
-          Hive.registerAdapter(LocationLogAdapter());
-        }
-
-        // Fetch country
-        String? country = await LocationService.getCurrentCountry();
-        if (country != null) {
-          await CountryService.saveCountryVisit(country);
-
-          // ✅ Use LogService to log success
-          await LogService.logEntry(status: "success", countryCode: country);
-          log("✅ Background Task Success: Country - $country");
-        } else {
-          // ❌ Use LogService to log failure
-          await LogService.logEntry(status: "error");
-          log("❌ Background Task Failed: No country detected");
-        }
-      } catch (e) {
-        log("❌ Error in background task: $e");
-
-        // ❌ Log error using LogService
-        await LogService.logEntry(status: "error");
+      if (!Hive.isAdapterRegistered(LocationLogAdapter().typeId)) {
+        Hive.registerAdapter(LocationLogAdapter());
       }
-    }
+            if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
+        Hive.registerAdapter(CountryVisitAdapter());
+      }
 
+        String? placemark = await LocationService.getCurrentCountry();
+
+      if (placemark != null) {
+        await CountryService.saveCountryVisit(placemark);
+
+        // ✅ Use LogService to log success
+        await LogService.logEntry(status: "success", countryCode: placemark);
+        DateTime dateTime = DateTime.now();
+        log("✅ Background Task Success: Country - $placemark - $dateTime");
+      } else {
+        // ❌ Use LogService to log failure
+        await LogService.logEntry(status: "error");
+        log("❌ Background Task Failed: No country detected");
+      }
+    } catch (e) {
+      log("❌ Background Task Failed $e");
+      return Future.value(false);
+    }
     return Future.value(true);
   });
 }
-
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
