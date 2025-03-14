@@ -96,23 +96,15 @@ void callbackDispatcher() {
         Hive.registerAdapter(CountryVisitAdapter());
       }
 
-      final Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.low,
-        forceAndroidLocationManager:
-            true, // This is important. [FusedLocationProviderClient] does not seem to work
-      );
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-      String? placemark = placemarks.first.isoCountryCode;
+        String? placemark = await LocationService.getCurrentCountry();
 
       if (placemark != null) {
         await CountryService.saveCountryVisit(placemark);
 
         // ✅ Use LogService to log success
         await LogService.logEntry(status: "success", countryCode: placemark);
-        log("✅ Background Task Success: Country - $placemark");
+        DateTime dateTime = DateTime.now();
+        log("✅ Background Task Success: Country - $placemark - $dateTime");
       } else {
         // ❌ Use LogService to log failure
         await LogService.logEntry(status: "error");
