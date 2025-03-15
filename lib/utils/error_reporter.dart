@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import '../app_initializer.dart';
 import '../main.dart';  // For navigatorKey
 
 class ErrorReporter {
