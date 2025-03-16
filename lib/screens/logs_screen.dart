@@ -37,7 +37,7 @@ class _LogsScreenState extends State<LogsScreen> {
           }
 
           final logs = snapshot.data ?? [];
-          
+
           if (logs.isEmpty) {
             return const Center(child: Text("No logs available"));
           }
@@ -48,14 +48,31 @@ class _LogsScreenState extends State<LogsScreen> {
             itemBuilder: (context, index) {
               // Get logs in reverse order
               final log = logs[logs.length - 1 - index];
-              return ListTile(
-                leading: log.status == "success"
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(Icons.error, color: Colors.red),
-                title: Text(log.status == "success"
-                    ? "Country: ${log.countryCode ?? 'Unknown'}"
-                    : "Failed to fetch country"),
-                subtitle: Text("Time: ${log.logDateTime}"),
+
+              return Dismissible(
+                key: Key(log.id.toString()),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: const Icon(Icons.delete, color: Colors.white),
+                ),
+                onDismissed: (direction) async {
+                  await widget.logService.deleteLog(log.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Log deleted")),
+                  );
+                },
+                child: ListTile(
+                  leading: log.status == "success"
+                      ? const Icon(Icons.check_circle, color: Colors.green)
+                      : const Icon(Icons.error, color: Colors.red),
+                  title: Text(log.status == "success"
+                      ? "Country: ${log.countryCode ?? 'Unknown'}"
+                      : "Failed to fetch country"),
+                  subtitle: Text("Time: ${log.logDateTime}"),
+                ),
               );
             },
           );

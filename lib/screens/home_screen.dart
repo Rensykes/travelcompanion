@@ -18,9 +18,10 @@ class _HomeScreenState extends State<HomeScreen> {
   // Services
   late CountryVisitsRepository _countryService;
   late LocationLogsRepository _logService;
-  
+
   int _selectedIndex = 0;
   bool isLoading = true;
+  bool _isFetchingLocation = false;
 
   @override
   void initState() {
@@ -46,28 +47,51 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _addCountry() async {
+    if (mounted) {
+      setState(() {
+        _isFetchingLocation = true; // Start loading
+      });
+    }
+
     try {
       String? country = await LocationService.getCurrentCountry();
       if (country != null && mounted) {
         // Use instance methods instead of static methods
         await _countryService.saveCountryVisit(country);
-
-        // Log success entry using LogService instance
         await _logService.logEntry(status: 'success', countryCode: country);
 
-        setState(() {}); // Refresh UI
+        // Show alert dialog with country info
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text("Location Retrieved"),
+              content: Text("You are currently in: $country"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+          );
+        }
       } else {
-        // Log error entry using LogService instance
         await _logService.logEntry(status: 'error');
       }
     } catch (e) {
-      // Log exception using LogService instance
       await _logService.logEntry(status: 'error');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error adding country: ${e.toString()}')),
         );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isFetchingLocation = false; // Stop loading
+        });
       }
     }
   }
@@ -99,9 +123,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addCountry,
+        onPressed: _isFetchingLocation ? null : _addCountry, // Disable when loading
         tooltip: 'Add Current Location',
-        child: const Icon(Icons.add_location),
+        child: _isFetchingLocation
+            ? const CircularProgressIndicator(color: Colors.white) // Show loading
+            : const Icon(Icons.add_location),
       ),
     );
   }
