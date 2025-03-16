@@ -3,10 +3,10 @@ import 'package:drift/drift.dart';
 
 import '../database/database.dart';
 
-class LogService {
+class LocationLogsRepository {
   final AppDatabase database;
 
-  LogService(this.database);
+  LocationLogsRepository(this.database);
 
   /// Logs a new entry in the location_logs table
   Future<void> logEntry({required String status, String? countryCode}) async {

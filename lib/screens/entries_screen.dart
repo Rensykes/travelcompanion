@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../services/country_service.dart';
+import '../repositories/country_visits.dart';
 import '../database/database.dart';
 
 class EntriesScreen extends StatefulWidget {
-  final CountryService countryService;
+  final CountryVisitsRepository countryService;
 
   const EntriesScreen({super.key, required this.countryService});
 

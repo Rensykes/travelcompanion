@@ -1,11 +1,11 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:location_tracker/app_initializer.dart';
+import 'package:location_tracker/utils/app_initializer.dart';
 import 'entries_screen.dart';
 import 'logs_screen.dart';
 import '../services/location_service.dart';
-import '../services/country_service.dart';
-import '../services/log_service.dart';
+import '../repositories/country_visits.dart';
+import '../repositories/location_logs.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,8 +16,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // Services
-  late CountryService _countryService;
-  late LogService _logService;
+  late CountryVisitsRepository _countryService;
+  late LocationLogsRepository _logService;
   
   int _selectedIndex = 0;
   bool isLoading = true;
@@ -31,8 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _initializeServices() async {
     try {
       // Initialize database services
-      _countryService = CountryService(database);
-      _logService = LogService(database);
+      _countryService = CountryVisitsRepository(database);
+      _logService = LocationLogsRepository(database);
 
       if (mounted) {
         setState(() {

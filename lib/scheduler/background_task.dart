@@ -1,10 +1,10 @@
 import 'dart:developer';
 import 'dart:ui';
 import 'package:workmanager/workmanager.dart';
-import '../database/database.dart';
-import 'services/location_service.dart';
-import 'services/country_service.dart';
-import 'services/log_service.dart';
+import '../../database/database.dart';
+import '../services/location_service.dart';
+import '../repositories/country_visits.dart';
+import '../repositories/location_logs.dart';
 
 const fetchLocationInBackgroundTask = "fetchLocationInBackgroundTask";
 
@@ -21,8 +21,8 @@ void callbackDispatcher() {
       backgroundDatabase = AppDatabase();
       
       // Create service instances
-      final countryService = CountryService(backgroundDatabase);
-      final logService = LogService(backgroundDatabase);
+      final countryService = CountryVisitsRepository(backgroundDatabase);
+      final logService = LocationLogsRepository(backgroundDatabase);
 
       String? placemark = await LocationService.getCurrentCountry();
 

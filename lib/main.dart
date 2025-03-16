@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:location_tracker/app_initializer.dart';
+import 'package:location_tracker/utils/app_initializer.dart';
 import 'screens/home_screen.dart';
 import 'screens/error_screen.dart';
 import 'utils/error_reporter.dart';
-import 'error_handling.dart';
-import 'background_task.dart';
+import 'utils/error_handling.dart';
+import 'scheduler/background_task.dart';
 
 // Global key for showing snackbars from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

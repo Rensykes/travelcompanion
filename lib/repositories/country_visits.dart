@@ -3,10 +3,10 @@ import 'package:drift/drift.dart';
 
 import '../database/database.dart';
 
-class CountryService {
+class CountryVisitsRepository {
   final AppDatabase database;
 
-  CountryService(this.database);
+  CountryVisitsRepository(this.database);
 
   // Save or update country visit
   Future<void> saveCountryVisit(String countryCode) async {

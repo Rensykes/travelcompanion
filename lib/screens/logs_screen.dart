@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../services/log_service.dart';
+import '../repositories/location_logs.dart';
 import '../database/database.dart';
 
 class LogsScreen extends StatefulWidget {
-  final LogService logService;
+  final LocationLogsRepository logService;
 
   const LogsScreen({super.key, required this.logService});
 
