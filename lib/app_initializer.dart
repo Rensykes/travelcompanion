@@ -1,20 +1,14 @@
-import 'package:hive_flutter/hive_flutter.dart';
-import 'utils/hive_constants.dart';
-import 'db/country_adapter.dart';
-import 'db/location_log.dart';
+// lib/utils/app_initializer.dart
+import 'dart:developer';
+import '../database/database.dart';
+
+late AppDatabase database;
 
 Future<void> initializeApp() async {
   try {
-    if (!Hive.isBoxOpen(countryVisitsBoxName)) {
-      var countryVisitsBox = await Hive.openBox<CountryVisit>(
-        countryVisitsBoxName,
-      );
-      await countryVisitsBox.close(); // Ensure the box is closed after initialization
-    }
-    if (!Hive.isBoxOpen(locationLogsBoxName)) {
-      var locationLogBox = await Hive.openBox<LocationLog>(locationLogsBoxName);
-      await locationLogBox.close(); // Ensure the box is closed after initialization
-    }
+    // Initialize the database
+    database = AppDatabase();
+    log("✅ Database initialized successfully");
   } catch (e, stackTrace) {
     throw AppInitializationException(
       'Failed to initialize app: $e',

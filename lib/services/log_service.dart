@@ -1,23 +1,40 @@
 import 'dart:developer';
-import 'package:hive/hive.dart';
-import '../db/location_log.dart';
-import '../utils/hive_constants.dart';
+import 'package:drift/drift.dart';
+
+import '../database/database.dart';
 
 class LogService {
-  /// Logs a new entry in the `location_logs` box
-  static Future<void> logEntry({required String status, String? countryCode}) async {
+  final AppDatabase database;
+
+  LogService(this.database);
+
+  /// Logs a new entry in the location_logs table
+  Future<void> logEntry({required String status, String? countryCode}) async {
     try {
-      var logBox = await Hive.openBox<LocationLog>(locationLogsBoxName);
-
-      await logBox.add(LocationLog(
-        dateTime: DateTime.now(),
-        status: status,
-        countryCode: countryCode,
-      ));
-
+      await database.into(database.locationLogs).insert(
+        LocationLogsCompanion.insert(
+          logDateTime: DateTime.now(),
+          status: status,
+          countryCode: Value(countryCode),
+        ),
+      );
       log("📝 Log Added: Status - $status, Country - ${countryCode ?? 'N/A'}");
     } catch (e) {
       log("❌ Error while logging: $e");
     }
+  }
+  
+  /// Get all logs
+  Future<List<LocationLog>> getAllLogs() {
+    return (database.select(database.locationLogs)
+      ..orderBy([(t) => OrderingTerm(expression: t.logDateTime, mode: OrderingMode.desc)]))
+      .get();
+  }
+  
+  /// Watch all logs as a stream (for reactive UI)
+  Stream<List<LocationLog>> watchAllLogs() {
+    return (database.select(database.locationLogs)
+      ..orderBy([(t) => OrderingTerm(expression: t.logDateTime, mode: OrderingMode.desc)]))
+      .watch();
   }
 }

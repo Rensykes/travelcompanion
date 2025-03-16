@@ -1,16 +1,11 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:location_tracker/db/location_log.dart';
+import 'package:location_tracker/app_initializer.dart';
 import 'entries_screen.dart';
-import 'chart_screen.dart';
-import 'calendar_screen.dart';
 import 'logs_screen.dart';
-import '../db/country_adapter.dart';
 import '../services/location_service.dart';
 import '../services/country_service.dart';
 import '../services/log_service.dart';
-import '../utils/hive_constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,32 +15,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Box<CountryVisit>? countryVisitBox;
-  Box<LocationLog>? locationLogsBox;
+  // Services
+  late CountryService _countryService;
+  late LogService _logService;
+  
   int _selectedIndex = 0;
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _initializeBoxes();
+    _initializeServices();
   }
 
-  Future<void> _initializeBoxes() async {
+  Future<void> _initializeServices() async {
     try {
-      // Open country visits box
-      if (!Hive.isBoxOpen(countryVisitsBoxName)) {
-        countryVisitBox = await Hive.openBox<CountryVisit>(countryVisitsBoxName);
-      } else {
-        countryVisitBox = Hive.box<CountryVisit>(countryVisitsBoxName);
-      }
-
-      // Open location logs box
-      if (!Hive.isBoxOpen(locationLogsBoxName)) {
-        locationLogsBox = await Hive.openBox(locationLogsBoxName);
-      } else {
-        locationLogsBox = Hive.box(locationLogsBoxName);
-      }
+      // Initialize database services
+      _countryService = CountryService(database);
+      _logService = LogService(database);
 
       if (mounted) {
         setState(() {
@@ -53,49 +40,47 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      log('Error initializing boxes: $e');
+      log('Error initializing services: $e');
       // Handle error appropriately
     }
   }
 
-Future<void> _addCountry() async {
-  try {
-    String? country = await LocationService.getCurrentCountry();
-    if (country != null && mounted && countryVisitBox != null) {
-      await CountryService.saveCountryVisit(country);
+  Future<void> _addCountry() async {
+    try {
+      String? country = await LocationService.getCurrentCountry();
+      if (country != null && mounted) {
+        // Use instance methods instead of static methods
+        await _countryService.saveCountryVisit(country);
 
-      // ✅ Log success entry using LogService
-      await LogService.logEntry(status: logStatusSuccess, countryCode: country);
+        // Log success entry using LogService instance
+        await _logService.logEntry(status: 'success', countryCode: country);
 
-      setState(() {}); // Refresh UI
-    } else {
-      // ❌ Log error entry using LogService
-      await LogService.logEntry(status: logStatusError);
-    }
-  } catch (e) {
-    // ❌ Log exception using LogService
-    await LogService.logEntry(status: logStatusError);
+        setState(() {}); // Refresh UI
+      } else {
+        // Log error entry using LogService instance
+        await _logService.logEntry(status: 'error');
+      }
+    } catch (e) {
+      // Log exception using LogService instance
+      await _logService.logEntry(status: 'error');
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error adding country: ${e.toString()}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding country: ${e.toString()}')),
+        );
+      }
     }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading || countryVisitBox == null || locationLogsBox == null) {
+    if (isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     final List<Widget> screens = [
-      EntriesScreen(box: countryVisitBox!),
-      ChartScreen(box: countryVisitBox!),
-      CalendarScreen(box: locationLogsBox!),
-      LogsScreen(box: locationLogsBox!), // Add LogsScreen
+      EntriesScreen(countryService: _countryService),
+      LogsScreen(logService: _logService),
     ];
 
     return Scaffold(
@@ -105,14 +90,12 @@ Future<void> _addCountry() async {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-        backgroundColor:Colors.white, // Ensures the background is not transparent
-        selectedItemColor: Colors.blue, // Set the selected icon/text color
-        unselectedItemColor: Colors.grey, // Set the unselected icon/text color
+        backgroundColor: Colors.white,
+        selectedItemColor: Colors.blue,
+        unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.list), label: "Entries"),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "Charts"),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: "Calendar",),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: "Logs",), // New tab
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: "Logs"),
         ],
       ),
       floatingActionButton: FloatingActionButton(

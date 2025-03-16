@@ -1,13 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'db/country_adapter.dart';
-import 'db/location_log.dart';
+import 'package:location_tracker/app_initializer.dart';
 import 'screens/home_screen.dart';
 import 'screens/error_screen.dart';
 import 'utils/error_reporter.dart';
 import 'error_handling.dart';
-import 'app_initializer.dart';
 import 'background_task.dart';
 
 // Global key for showing snackbars from anywhere
@@ -19,20 +16,13 @@ Future<void> main() async {
   // Initialize error handling
   initializeErrorHandling();
 
-  // Initialize Hive
-  await Hive.initFlutter();
-  if (!Hive.isAdapterRegistered(CountryVisitAdapter().typeId)) {
-    Hive.registerAdapter(CountryVisitAdapter());
-  }
-  if (!Hive.isAdapterRegistered(LocationLogAdapter().typeId)) {
-    Hive.registerAdapter(LocationLogAdapter());
-  }
-
-  // Initialize Workmanager
-  initializeWorkmanager();
-
   try {
+    // Initialize database
     await initializeApp();
+    
+    // Initialize Workmanager for background tasks
+    initializeWorkmanager();
+    
     runApp(const MyApp());
   } catch (error, stackTrace) {
     ErrorReporter.reportError(error, stackTrace);
@@ -48,6 +38,11 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
+      title: 'Travel Tracker',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
       home: const HomeScreen(),
       builder: (context, child) {
         return child ?? const SizedBox.shrink();
