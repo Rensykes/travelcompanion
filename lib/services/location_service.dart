@@ -24,8 +24,7 @@ class LocationService {
     bool hasPermission = await requestPermission();
     if (!hasPermission) return null;
 
-    Position? position = await Geolocator.getLastKnownPosition();
-    position ??= await Geolocator.getCurrentPosition(); // Fallback to real-time lookup if no last known
+    Position? position = await Geolocator.getCurrentPosition();
 
     List<Placemark> placemarks = await placemarkFromCoordinates(
       position.latitude,

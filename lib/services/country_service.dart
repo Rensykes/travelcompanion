@@ -1,49 +1,53 @@
-import 'package:hive/hive.dart';
 import 'dart:developer';
-import '../db/country_adapter.dart';
-import '../utils/hive_constants.dart';
+import 'package:drift/drift.dart';
+
+import '../database/database.dart';
 
 class CountryService {
+  final AppDatabase database;
 
-  // Open the Hive box
-  static Future<Box<CountryVisit>> _openBox() async {
-    return await Hive.openBox<CountryVisit>(countryVisitsBoxName);
-  }
+  CountryService(this.database);
 
   // Save or update country visit
-  static Future<void> saveCountryVisit(String countryCode) async {
-    final box = await _openBox();
+  Future<void> saveCountryVisit(String countryCode) async {
+    log("Country Visit");
+    
     final today = DateTime.now();
     final formattedToday = DateTime(today.year, today.month, today.day);
-    log("Country Visit");
-    // Check if the last stored country is different
-    if (box.isNotEmpty) {
-      CountryVisit lastVisit = box.values.last;
-
+    
+    // Check if there's an existing entry for this country
+    final existingVisit = await (database.select(database.countryVisits)
+      ..where((t) => t.countryCode.equals(countryCode)))
+      .getSingleOrNull();
+      
+    if (existingVisit != null) {
       // If the user is still in the same country, just update the days spent
-      if (lastVisit.countryCode == countryCode) {
-        if (lastVisit.entryDate != formattedToday) {
-          lastVisit.daysSpent += 1;
-          lastVisit.entryDate = formattedToday;
-          await box.put(lastVisit.countryCode, lastVisit);
-        }
-        return;
+      if (existingVisit.entryDate != formattedToday) {
+        await (database.update(database.countryVisits)..where((t) => t.countryCode.equals(countryCode)))
+          .write(CountryVisitsCompanion(
+            entryDate: Value(formattedToday),
+            daysSpent: Value(existingVisit.daysSpent + 1),
+          ));
       }
+    } else {
+      // If it's a new country, add a new entry
+      await database.into(database.countryVisits).insert(
+        CountryVisitsCompanion.insert(
+          countryCode: countryCode,
+          entryDate: formattedToday,
+          daysSpent: 1,
+        ),
+      );
     }
-
-    // If it's a new country, add a new entry
-    final newVisit = CountryVisit(
-      countryCode: countryCode,
-      entryDate: formattedToday,
-      daysSpent: 1,
-    );
-
-    await box.put(countryCode, newVisit);
   }
 
   // Get all country visits
-  static Future<List<CountryVisit>> getAllVisits() async {
-    final box = await _openBox();
-    return box.values.toList();
+  Future<List<CountryVisit>> getAllVisits() {
+    return database.select(database.countryVisits).get();
+  }
+  
+  // Watch all country visits as a stream for reactive UI updates
+  Stream<List<CountryVisit>> watchAllVisits() {
+    return database.select(database.countryVisits).watch();
   }
 }
