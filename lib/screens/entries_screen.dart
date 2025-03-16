@@ -26,15 +26,6 @@ class _EntriesScreenState extends State<EntriesScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Country Visits'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              // This is optional now, as the stream will automatically update
-              setState(() {});
-            },
-          ),
-        ],
       ),
       body: StreamBuilder<List<CountryVisit>>(
         stream: _countriesStream,
