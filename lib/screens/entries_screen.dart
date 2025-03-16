@@ -12,16 +12,13 @@ class EntriesScreen extends StatefulWidget {
 }
 
 class _EntriesScreenState extends State<EntriesScreen> {
-  late Future<List<CountryVisit>> _countriesFuture;
+  late Stream<List<CountryVisit>> _countriesStream;
 
   @override
   void initState() {
     super.initState();
-    _refreshData();
-  }
-
-  void _refreshData() {
-    _countriesFuture = widget.countryService.getAllVisits();
+    // Use a stream instead of a future for reactive updates
+    _countriesStream = widget.countryService.watchAllVisits();
   }
 
   @override
@@ -33,15 +30,14 @@ class _EntriesScreenState extends State<EntriesScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              setState(() {
-                _refreshData();
-              });
+              // This is optional now, as the stream will automatically update
+              setState(() {});
             },
           ),
         ],
       ),
-      body: FutureBuilder<List<CountryVisit>>(
-        future: _countriesFuture,
+      body: StreamBuilder<List<CountryVisit>>(
+        stream: _countriesStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
