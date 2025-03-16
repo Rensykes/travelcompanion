@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:drift/drift.dart';
-
 import '../database/database.dart';
 
 class LocationLogsRepository {
@@ -23,18 +22,30 @@ class LocationLogsRepository {
       log("❌ Error while logging: $e");
     }
   }
-  
+
   /// Get all logs
   Future<List<LocationLog>> getAllLogs() {
     return (database.select(database.locationLogs)
       ..orderBy([(t) => OrderingTerm(expression: t.logDateTime, mode: OrderingMode.desc)]))
-      .get();
+        .get();
   }
-  
+
   /// Watch all logs as a stream (for reactive UI)
   Stream<List<LocationLog>> watchAllLogs() {
     return (database.select(database.locationLogs)
       ..orderBy([(t) => OrderingTerm(expression: t.logDateTime, mode: OrderingMode.desc)]))
-      .watch();
+        .watch();
+  }
+
+  /// Delete a log entry by its ID
+  Future<void> deleteLog(int id) async {
+    try {
+      await (database.delete(database.locationLogs)
+        ..where((log) => log.id.equals(id)))
+        .go();
+      log("🗑️ Log Deleted: ID - $id");
+    } catch (e) {
+      log("❌ Error while deleting log: $e");
+    }
   }
 }
