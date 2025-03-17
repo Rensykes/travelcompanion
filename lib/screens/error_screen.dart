@@ -1,7 +1,7 @@
 // widgets/error_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import '../main.dart';
+import 'package:trackie/main.dart';
 
 class ErrorScreen extends StatelessWidget {
   final String error;

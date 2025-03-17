@@ -1,6 +1,6 @@
 // lib/utils/app_initializer.dart
 import 'dart:developer';
-import '../../database/database.dart';
+import 'package:trackie/database/database.dart';
 
 late AppDatabase database;
 

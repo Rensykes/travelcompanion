@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:drift/drift.dart';
-import '../database/database.dart';
+import 'package:trackie/database/database.dart';
 
 class LocationLogsRepository {
   final AppDatabase database;

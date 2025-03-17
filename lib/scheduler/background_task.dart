@@ -1,10 +1,10 @@
 import 'dart:developer';
 import 'dart:ui';
 import 'package:workmanager/workmanager.dart';
-import '../../database/database.dart';
-import '../services/location_service.dart';
-import '../repositories/country_visits.dart';
-import '../repositories/location_logs.dart';
+import 'package:trackie/database/database.dart';
+import 'package:trackie/services/location_service.dart';
+import 'package:trackie/repositories/country_visits.dart';
+import 'package:trackie/repositories/location_logs.dart';
 
 const fetchLocationInBackgroundTask = "fetchLocationInBackgroundTask";
 

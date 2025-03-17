@@ -1,8 +1,8 @@
 import 'package:drift/drift.dart';
-import 'log_country_relations.dart';
-import 'country_visits.dart';
-import 'location_logs.dart';
-import 'connection_helper.dart';
+import 'package:trackie/database/log_country_relations.dart';
+import 'package:trackie/database/country_visits.dart';
+import 'package:trackie/database/location_logs.dart';
+import 'package:trackie/database/connection_helper.dart';
 
 part 'database.g.dart'; // Ensure this is correctly pointing to the generated file
 

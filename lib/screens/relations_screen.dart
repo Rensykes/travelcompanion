@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../repositories/location_logs.dart';
-import '../database/database.dart';
+import 'package:trackie/repositories/location_logs.dart';
+import 'package:trackie/database/database.dart';
 
 class RelationsScreen extends StatelessWidget {
   final CountryVisit countryVisit;

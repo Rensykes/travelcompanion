@@ -1,10 +1,8 @@
-// utils/error_reporter.dart
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'app_initializer.dart';
-import '../main.dart';  // For navigatorKey
+import 'package:trackie/utils/app_initializer.dart';
+import 'package:trackie/main.dart';  // For navigatorKey
 
 class ErrorReporter {
   static void reportError(Object error, [StackTrace? stackTrace]) {

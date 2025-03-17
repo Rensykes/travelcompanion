@@ -1,12 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:location_tracker/utils/app_initializer.dart';
-import 'package:location_tracker/utils/app_themes.dart';
-import 'screens/home_screen.dart';
-import 'screens/error_screen.dart';
-import 'utils/error_reporter.dart';
-import 'utils/error_handling.dart';
-import 'scheduler/background_task.dart';
+import 'package:trackie/utils/app_initializer.dart';
+import 'package:trackie/utils/app_themes.dart';
+import 'package:trackie/screens/home_screen.dart';
+import 'package:trackie/screens/error_screen.dart';
+import 'package:trackie/utils/error_reporter.dart';
+import 'package:trackie/utils/error_handling.dart';
+import 'package:trackie/scheduler/background_task.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Global key for showing snackbars from anywhere

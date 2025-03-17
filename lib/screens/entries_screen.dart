@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:location_tracker/repositories/location_logs.dart';
+import 'package:trackie/repositories/location_logs.dart';
 import '../repositories/country_visits.dart';
 import '../database/database.dart';
 import 'package:country_flags/country_flags.dart';
