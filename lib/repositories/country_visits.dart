@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:drift/drift.dart';
-
 import '../database/database.dart';
 
 class CountryVisitsRepository {
