@@ -30,40 +30,41 @@ class LocationLogsRepository {
                 countryCode: countryCode,
               ),
             );
-          log("📝 Log Added: Status - $status, Country - $countryCode");
-
+        log("📝 Log Added: Status - $status, Country - $countryCode");
       }
     } catch (e) {
       log("❌ Error while logging: $e");
     }
   }
 
-
   /// Get all logs
   Future<List<LocationLog>> getAllLogs() {
     return (database.select(database.locationLogs)..orderBy([
       (t) => OrderingTerm(expression: t.logDateTime, mode: OrderingMode.desc),
-      ])).get();
+    ])).get();
   }
-
 
   /// Watch all logs as a stream (for reactive UI)
   Stream<List<LocationLog>> watchAllLogs() {
     return (database.select(database.locationLogs)..orderBy([
       (t) => OrderingTerm(expression: t.logDateTime, mode: OrderingMode.desc),
-      ])).watch();
+    ])).watch();
   }
 
-  /// Delete a log entry by its ID
+  /// Delete a log entry by its ID and remove related entries
   Future<void> deleteLog(int id) async {
     try {
+      // Delete related entries in logCountryRelations
+      await (database.delete(database.logCountryRelations)
+        ..where((relation) => relation.logId.equals(id))).go();
+
+      // Delete the actual log entry
       await (database.delete(database.locationLogs)
-        ..where((log) => log.id.equals(id)))
-        .go();
-      log("🗑️ Log Deleted: ID - $id");
+        ..where((log) => log.id.equals(id))).go();
+
+      log("🗑️ Log Deleted: ID - $id and its relations");
     } catch (e) {
       log("❌ Error while deleting log: $e");
     }
   }
 }
-
