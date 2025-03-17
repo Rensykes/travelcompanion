@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:location_tracker/repositories/location_logs.dart';
 import '../repositories/country_visits.dart';
 import '../database/database.dart';
 import 'package:country_flags/country_flags.dart';
+import 'relations_screen.dart'; // Import the RelationsScreen
 
 class EntriesScreen extends StatefulWidget {
   final CountryVisitsRepository countryService;
+  final LocationLogsRepository locationLogsRepository; // Add this repository
 
-  const EntriesScreen({super.key, required this.countryService});
+  const EntriesScreen({
+    super.key,
+    required this.countryService,
+    required this.locationLogsRepository, // Pass it here
+  });
 
   @override
   State<EntriesScreen> createState() => _EntriesScreenState();
@@ -18,7 +25,6 @@ class _EntriesScreenState extends State<EntriesScreen> {
   @override
   void initState() {
     super.initState();
-    // Use a stream instead of a future for reactive updates
     _countriesStream = widget.countryService.watchAllVisits();
   }
 
@@ -51,6 +57,20 @@ class _EntriesScreenState extends State<EntriesScreen> {
                   title: Text(visit.countryCode),
                   subtitle: Text('Days: ${visit.daysSpent}'),
                   trailing: Text('Entry: ${_formatDate(visit.entryDate)}'),
+                  onTap: () {
+                    // Navigate to the RelationsScreen when an item is tapped
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => RelationsScreen(
+                              countryVisit: visit,
+                              locationLogsRepository:
+                                  widget.locationLogsRepository,
+                            ),
+                      ),
+                    );
+                  },
                 );
               },
             );

@@ -64,16 +64,17 @@ class _HomeScreenState extends State<HomeScreen> {
         if (mounted) {
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text("Location Retrieved"),
-              content: Text("You are currently in: $country"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("OK"),
+            builder:
+                (context) => AlertDialog(
+                  title: const Text("Location Retrieved"),
+                  content: Text("You are currently in: $country"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text("OK"),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           );
         }
       } else {
@@ -103,7 +104,10 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final List<Widget> screens = [
-      EntriesScreen(countryService: _countryService),
+      EntriesScreen(
+        countryService: CountryVisitsRepository(database),
+        locationLogsRepository: LocationLogsRepository(database),
+      ),
       LogsScreen(logService: _logService),
     ];
 
@@ -123,11 +127,15 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _isFetchingLocation ? null : _addCountry, // Disable when loading
+        onPressed:
+            _isFetchingLocation ? null : _addCountry, // Disable when loading
         tooltip: 'Add Current Location',
-        child: _isFetchingLocation
-            ? const CircularProgressIndicator(color: Colors.white) // Show loading
-            : const Icon(Icons.add_location),
+        child:
+            _isFetchingLocation
+                ? const CircularProgressIndicator(
+                  color: Colors.white,
+                ) // Show loading
+                : const Icon(Icons.add_location),
       ),
     );
   }

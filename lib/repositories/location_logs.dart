@@ -7,6 +7,20 @@ class LocationLogsRepository {
 
   LocationLogsRepository(this.database);
 
+
+  /// Fetch all log relations for a given country code
+  Future<List<LocationLog>> getRelationsForCountryVisit(String countryCode) async {
+    final relations = await (database.select(database.logCountryRelations)
+          ..where((r) => r.countryCode.equals(countryCode)))
+        .join([
+          leftOuterJoin(database.locationLogs, database.locationLogs.id.equalsExp(database.logCountryRelations.logId)),
+        ])
+        .get();
+
+    // Extract the LocationLog entries from the joined result
+    return relations.map((row) => row.readTable(database.locationLogs)).toList();
+  }
+
   /// Logs a new entry in the location_logs table
   Future<void> logEntry({required String status, String? countryCode}) async {
     try {
