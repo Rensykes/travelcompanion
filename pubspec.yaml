@@ -57,6 +57,7 @@ dependencies:
 
 dev_dependencies:
   flutter_launcher_icons: "^0.14.3"
+  flutter_native_splash: ^2.4.5
   flutter_test:
     sdk: flutter
 
@@ -71,6 +72,19 @@ dev_dependencies:
   drift_dev: ^2.26.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+flutter_native_splash:
+  color: "#ffffff"  # Background color
+  image: assets/icon/splash_icon.png  # Path to your custom splash icon
+  android: true
+  ios: true
+  fullscreen: true  # Optional: removes status bar
+
+  android_12:
+    image: assets/icon/splash_icon.png
+    icon_background_color: "#ffffff"
+    image_dark: assets/icon/splash_icon.png
+    icon_background_color_dark: "#121212"
 
 flutter_launcher_icons:
   android: "launcher_icon"
