@@ -6,6 +6,7 @@ import 'logs_screen.dart';
 import '../services/location_service.dart';
 import '../repositories/country_visits.dart';
 import '../repositories/location_logs.dart';
+import 'settings_screen.dart';  // Import the SettingsScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _countryService = CountryVisitsRepository(database);
       _logService = LocationLogsRepository(database);
 
+      // Check if mounted before updating the state
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -56,25 +58,23 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       String? country = await LocationService.getCurrentCountry();
       if (country != null && mounted) {
-        // Use instance methods instead of static methods
         await _countryService.saveCountryVisit(country);
         await _logService.logEntry(status: 'success', countryCode: country);
 
-        // Show alert dialog with country info
+        // Check if mounted before showing dialog
         if (mounted) {
           showDialog(
             context: context,
-            builder:
-                (context) => AlertDialog(
-                  title: const Text("Location Retrieved"),
-                  content: Text("You are currently in: $country"),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text("OK"),
-                    ),
-                  ],
+            builder: (context) => AlertDialog(
+              title: const Text("Location Retrieved"),
+              content: Text("You are currently in: $country"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
                 ),
+              ],
+            ),
           );
         }
       } else {
@@ -83,12 +83,14 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {
       await _logService.logEntry(status: 'error');
 
+      // Ensure widget is mounted before showing SnackBar
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error adding country: ${e.toString()}')),
         );
       }
     } finally {
+      // Only update state if mounted
       if (mounted) {
         setState(() {
           _isFetchingLocation = false; // Stop loading
@@ -112,6 +114,23 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Home'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              // Navigate to the settings screen when the button is pressed
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsScreen(database: database),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: IndexedStack(index: _selectedIndex, children: screens),
       ),
@@ -134,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
             _isFetchingLocation
                 ? const CircularProgressIndicator(
                   color: Colors.white,
-                ) // Show loading
+                )
                 : const Icon(Icons.add_location),
       ),
     );
