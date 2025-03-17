@@ -11,5 +11,21 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    // Run when the database is first created
+    onCreate: (Migrator m) async {
+      // Creating the table for log_country_relations
+      await m.createTable(logCountryRelations);
+    },
+    // Run when the database schema is upgraded (e.g., when the version is bumped)
+    onUpgrade: (Migrator m, int from, int to) async {
+      if (from < 2) {
+        // This is where you handle the logic to create missing tables or columns
+        await m.createTable(logCountryRelations);
+      }
+    },
+  );
 }

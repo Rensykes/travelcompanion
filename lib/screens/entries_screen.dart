@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../repositories/country_visits.dart';
 import '../database/database.dart';
+import 'package:country_flags/country_flags.dart';
 
 class EntriesScreen extends StatefulWidget {
   final CountryVisitsRepository countryService;
@@ -24,9 +25,7 @@ class _EntriesScreenState extends State<EntriesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Country Visits'),
-      ),
+      appBar: AppBar(title: const Text('Country Visits')),
       body: StreamBuilder<List<CountryVisit>>(
         stream: _countriesStream,
         builder: (context, snapshot) {
@@ -43,8 +42,11 @@ class _EntriesScreenState extends State<EntriesScreen> {
               itemBuilder: (context, index) {
                 final visit = visits[index];
                 return ListTile(
-                  leading: CircleAvatar(
-                    child: Text(visit.countryCode.substring(0, 2)),
+                  leading: CountryFlag.fromCountryCode(
+                    visit.countryCode,
+                    width: 40,
+                    height: 30,
+                    borderRadius: 8,
                   ),
                   title: Text(visit.countryCode),
                   subtitle: Text('Days: ${visit.daysSpent}'),
