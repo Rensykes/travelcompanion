@@ -18,7 +18,7 @@ class AppDatabase extends _$AppDatabase {
     // Run when the database is first created
     onCreate: (Migrator m) async {
       // Creating the table for log_country_relations
-      await m.createTable(logCountryRelations);
+      await m.createAll();
     },
     // Run when the database schema is upgraded (e.g., when the version is bumped)
     onUpgrade: (Migrator m, int from, int to) async {
