@@ -1,11 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../database/database.dart';
 import 'dart:developer';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   final AppDatabase database;
+  final bool isDarkMode;
+  final bool useSystemTheme;
+  final Function(bool isDark, bool useSystemTheme) onThemeChanged;
 
-  const SettingsScreen({super.key, required this.database});
+  const SettingsScreen({
+    super.key, 
+    required this.database,
+    required this.isDarkMode,
+    required this.useSystemTheme,
+    required this.onThemeChanged,
+  });
+
+  @override
+  _SettingsScreenState createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  late bool _isDarkMode;
+  late bool _useSystemTheme;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize with values passed from parent
+    _isDarkMode = widget.isDarkMode;
+    _useSystemTheme = widget.useSystemTheme;
+  }
+
+  // Save theme settings to SharedPreferences
+  void _saveThemeSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('useSystemTheme', _useSystemTheme);
+    prefs.setBool('darkMode', _isDarkMode);
+  }
+
+  // Handle system theme toggle
+  void _toggleSystemTheme(bool value) {
+    setState(() {
+      _useSystemTheme = value;
+      if (value) {
+        _isDarkMode = false; // Reset dark mode if using system theme
+      }
+    });
+    _saveThemeSettings();
+    widget.onThemeChanged(_isDarkMode, _useSystemTheme);
+  }
+
+  // Handle dark mode toggle
+  void _toggleDarkMode(bool value) {
+    setState(() {
+      _isDarkMode = value;
+    });
+    _saveThemeSettings();
+    widget.onThemeChanged(_isDarkMode, _useSystemTheme);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +69,19 @@ class SettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            SwitchListTile(
+              title: const Text('Use System Theme'),
+              value: _useSystemTheme,
+              onChanged: (bool value) => _toggleSystemTheme(value),
+            ),
+            SwitchListTile(
+              title: const Text('Dark Mode'),
+              value: _isDarkMode,
+              onChanged: _useSystemTheme
+                  ? null // Disable this switch if using system theme
+                  : (bool value) => _toggleDarkMode(value),
+            ),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
                 // Call the cleanup function when the button is pressed
@@ -31,9 +98,9 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _cleanupDatabase(BuildContext context) async {
     try {
       // Delete all rows from all tables (simplified)
-      await database.delete(database.countryVisits).go();
-      await database.delete(database.locationLogs).go();
-      await database.delete(database.logCountryRelations).go();
+      await widget.database.delete(widget.database.countryVisits).go();
+      await widget.database.delete(widget.database.locationLogs).go();
+      await widget.database.delete(widget.database.logCountryRelations).go();
       log('Database cleaned up successfully');
 
       // Check if the widget is still mounted before showing the dialog

@@ -52,6 +52,8 @@ dependencies:
   path: ^1.9.0
   sqlite3_flutter_libs: ^0.5.20
   country_flags: ^2.0.1
+  shared_preferences: ^2.0.6
+
 
 dev_dependencies:
   flutter_test:

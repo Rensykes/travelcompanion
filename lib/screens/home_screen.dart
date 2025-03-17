@@ -6,10 +6,19 @@ import 'logs_screen.dart';
 import '../services/location_service.dart';
 import '../repositories/country_visits.dart';
 import '../repositories/location_logs.dart';
-import 'settings_screen.dart';  // Import the SettingsScreen
+import 'settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final Function(bool isDark, bool useSystemTheme) onThemeChanged;
+  final bool isDarkMode;
+  final bool useSystemTheme;
+
+  const HomeScreen({
+    super.key, 
+    required this.onThemeChanged,
+    required this.isDarkMode,
+    required this.useSystemTheme,
+  });
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -124,7 +133,12 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SettingsScreen(database: database),
+                  builder: (context) => SettingsScreen(
+                    database: database,
+                    isDarkMode: widget.isDarkMode,
+                    useSystemTheme: widget.useSystemTheme,
+                    onThemeChanged: widget.onThemeChanged,
+                  ),
                 ),
               );
             },
@@ -137,8 +151,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-        backgroundColor: Colors.white,
-        selectedItemColor: Colors.blue,
+        backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
+        selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.list), label: "Entries"),
@@ -146,15 +160,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed:
-            _isFetchingLocation ? null : _addCountry, // Disable when loading
+        onPressed: _isFetchingLocation ? null : _addCountry, // Disable when loading
         tooltip: 'Add Current Location',
-        child:
-            _isFetchingLocation
-                ? const CircularProgressIndicator(
-                  color: Colors.white,
-                )
-                : const Icon(Icons.add_location),
+        backgroundColor: Theme.of(context).primaryColor,
+        child: _isFetchingLocation
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Icon(Icons.add_location),
       ),
     );
   }
