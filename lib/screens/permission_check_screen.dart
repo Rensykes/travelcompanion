@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trackie/services/location_service.dart';
-import 'package:trackie/utils/location_permission_manager.dart'; // The file we just created
+import 'package:trackie/utils/location_permission_manager.dart';
 import 'package:trackie/screens/home_screen.dart';
 
 class PermissionCheckScreen extends StatefulWidget {

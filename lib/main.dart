@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trackie/utils/app_initializer.dart';
 import 'package:trackie/utils/app_themes.dart';
-import 'package:trackie/screens/home_screen.dart';
 import 'package:trackie/screens/error_screen.dart';
 import 'package:trackie/utils/error_reporter.dart';
 import 'package:trackie/utils/error_handling.dart';
 import 'package:trackie/scheduler/background_task.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:trackie/screens/permission_check_screen.dart'; // New import
+import 'package:trackie/screens/permission_check_screen.dart';
 
 // Global key for showing snackbars from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -80,7 +79,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      title: 'Travel Tracker',
+      title: 'Trackie',
       themeMode: _useSystemTheme
           ? ThemeMode.system
           : (_isDarkMode ? ThemeMode.dark : ThemeMode.light),

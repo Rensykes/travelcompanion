@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:ui';
+import 'package:trackie/utils/location_permission_manager.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:trackie/database/database.dart';
 import 'package:trackie/services/location_service.dart';
@@ -20,9 +21,22 @@ void callbackDispatcher() {
       // Initialize database for background task
       backgroundDatabase = AppDatabase();
       
-      // Create service instances
-      final countryService = CountryVisitsRepository(backgroundDatabase);
+      // Create log service instance for logging regardless of permission state
       final logService = LocationLogsRepository(backgroundDatabase);
+      
+      // Check if "Always" location permission is granted
+      bool hasAlwaysPermission = await LocationPermissionManager.hasAlwaysLocationPermission();
+      
+      if (!hasAlwaysPermission) {
+        // Log that task was skipped due to permission and exit early
+        await logService.logEntry(status: "skipped");
+        log("⚠️ Background Task Skipped: 'Always' location permission not granted");
+        await backgroundDatabase.close();
+        return Future.value(true); // Task completed successfully (by skipping)
+      }
+
+      // Continue with normal operation since we have permission
+      final countryService = CountryVisitsRepository(backgroundDatabase);
 
       String? placemark = await LocationService.getCurrentCountry();
 
