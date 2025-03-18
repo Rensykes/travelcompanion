@@ -1,8 +1,27 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:app_settings/app_settings.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LocationService {
+  // Method to open location settings
+  static Future<void> openLocationSettings() async {
+    if (Platform.isAndroid) {
+      await AppSettings.openAppSettings();
+    } else if (Platform.isIOS) {
+      await openAppSettings();
+    }
+  }
+  
+  // You might also want to add a method to check location permissions
+  static Future<bool> checkLocationPermission() async {
+    PermissionStatus status = await Permission.locationAlways.status;
+    return status.isGranted;
+  }
+
+
   // Request permissions
   static Future<bool> requestPermission() async {
     LocationPermission permission = await Geolocator.checkPermission();

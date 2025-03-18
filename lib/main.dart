@@ -8,6 +8,7 @@ import 'package:trackie/utils/error_reporter.dart';
 import 'package:trackie/utils/error_handling.dart';
 import 'package:trackie/scheduler/background_task.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trackie/screens/permission_check_screen.dart'; // New import
 
 // Global key for showing snackbars from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -24,7 +25,7 @@ Future main() async {
     
     // Initialize Workmanager for background tasks
     initializeWorkmanager();
-    
+
     runApp(const MyApp());
   } catch (error, stackTrace) {
     ErrorReporter.reportError(error, stackTrace);
@@ -85,7 +86,8 @@ class _MyAppState extends State<MyApp> {
           : (_isDarkMode ? ThemeMode.dark : ThemeMode.light),
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
-      home: HomeScreen(
+      // Start with the permission check screen instead of HomeScreen
+      home: PermissionCheckScreen(
         onThemeChanged: _handleThemeChanged,
         isDarkMode: _isDarkMode,
         useSystemTheme: _useSystemTheme,

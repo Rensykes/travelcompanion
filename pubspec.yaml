@@ -53,7 +53,9 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.20
   country_flags: ^2.0.1
   shared_preferences: ^2.0.6
-
+  flutter_local_notifications: ^19.0.0  # For showing notifications
+  permission_handler: ^11.4.0          # For handling permissions
+  app_settings: ^5.2.0                 # For opening app settings
 
 dev_dependencies:
   flutter_launcher_icons: "^0.14.3"
