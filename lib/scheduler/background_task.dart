@@ -17,6 +17,8 @@ void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     try {
       DartPluginRegistrant.ensureInitialized();
+      DateTime dateTime = DateTime.now();
+      log("ℹ️ Background Task Started: $task - $dateTime");
 
       // Initialize database for background task
       backgroundDatabase = AppDatabase();
@@ -35,6 +37,9 @@ void callbackDispatcher() {
         return Future.value(true); // Task completed successfully (by skipping)
       }
 
+      dateTime = DateTime.now();
+      log("ℹ️ Starting to fetch location - $dateTime");
+
       // Continue with normal operation since we have permission
       final countryService = CountryVisitsRepository(backgroundDatabase);
 
@@ -46,7 +51,7 @@ void callbackDispatcher() {
 
         // Use LogService instance to log success
         await logService.logEntry(status: "success", countryCode: placemark);
-        DateTime dateTime = DateTime.now();
+        dateTime = DateTime.now();
         log("✅ Background Task Success: Country - $placemark - $dateTime");
       } else {
         // Use LogService instance to log failure

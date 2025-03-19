@@ -9,7 +9,7 @@ class CountryVisitsRepository {
 
   // Save or update country visit
   Future<void> saveCountryVisit(String countryCode) async {
-    log("Country Visit");
+    log("Saving country visit");
     
     final today = DateTime.now();
     final formattedToday = DateTime(today.year, today.month, today.day);
