@@ -7,12 +7,12 @@ import 'relations_screen.dart'; // Import the RelationsScreen
 
 class EntriesScreen extends StatefulWidget {
   final CountryVisitsRepository countryService;
-  final LocationLogsRepository locationLogsRepository; // Add this repository
+  final LocationLogsRepository locationLogsRepository;
 
   const EntriesScreen({
     super.key,
     required this.countryService,
-    required this.locationLogsRepository, // Pass it here
+    required this.locationLogsRepository,
   });
 
   @override
