@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:country_detector/country_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:trackie/repositories/country_visits.dart';
 import 'package:trackie/utils/app_initializer.dart';
@@ -65,7 +66,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
-      String? country = await LocationService.getCurrentCountry();
+
+      final _countryDetector = CountryDetector();
+      final country = await _countryDetector.isoCountryCode();
+      final allCodes = await _countryDetector.detectAll();
+
+
       if (country != null && mounted) {
         await _countryService.saveCountryVisit(country);
         await _logService.logEntry(status: 'success', countryCode: country);

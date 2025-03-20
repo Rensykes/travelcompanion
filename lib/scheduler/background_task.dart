@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:ui';
+import 'package:country_detector/country_detector.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:trackie/database/database.dart';
 import 'package:trackie/services/location_service.dart';
@@ -24,16 +25,19 @@ void callbackDispatcher() {
       final countryService = CountryVisitsRepository(backgroundDatabase);
       final logService = LocationLogsRepository(backgroundDatabase);
 
-      String? placemark = await LocationService.getCurrentCountry();
+      final _countryDetector = CountryDetector();
+      final cc = await _countryDetector.isoCountryCode();
+      final allCodes = await _countryDetector.detectAll();
 
-      if (placemark != null) {
+
+      if (cc != null) {
         // Use instance methods
-        await countryService.saveCountryVisit(placemark);
+        await countryService.saveCountryVisit(cc);
 
         // Use LogService instance to log success
-        await logService.logEntry(status: "success", countryCode: placemark);
+        await logService.logEntry(status: "success", countryCode: cc);
         DateTime dateTime = DateTime.now();
-        log("✅ Background Task Success: Country - $placemark - $dateTime");
+        log("✅ Background Task Success: Country - $cc - $dateTime");
       } else {
         // Use LogService instance to log failure
         await logService.logEntry(status: "error");
