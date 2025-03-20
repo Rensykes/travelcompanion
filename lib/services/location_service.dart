@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
+import 'package:geolocator_android/geolocator_android.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:app_settings/app_settings.dart';
 import 'package:permission_handler/permission_handler.dart';
