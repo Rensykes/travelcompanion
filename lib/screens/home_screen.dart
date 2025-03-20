@@ -1,12 +1,10 @@
 import 'dart:developer';
-import 'package:country_detector/country_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:trackie/repositories/country_visits.dart';
 import 'package:trackie/services/sim_info_service.dart';
 import 'package:trackie/utils/app_initializer.dart';
 import 'package:trackie/screens/entries_screen.dart';
 import 'package:trackie/screens/logs_screen.dart';
-import 'package:trackie/services/location_service.dart';
 import 'package:trackie/repositories/location_logs.dart';
 import 'package:trackie/screens/settings_screen.dart';
 
