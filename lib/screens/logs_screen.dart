@@ -59,18 +59,28 @@ class _LogsScreenState extends State<LogsScreen> {
                   child: const Icon(Icons.delete, color: Colors.white),
                 ),
                 onDismissed: (direction) async {
+                  // Get the ScaffoldMessenger before the async gap
+                  final scaffoldMessenger = ScaffoldMessenger.of(context);
+
                   await widget.logService.deleteLog(log.id);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Log deleted")),
-                  );
+
+                  // Use the stored reference instead of getting it after the async gap
+                  if (mounted) {
+                    scaffoldMessenger.showSnackBar(
+                      const SnackBar(content: Text("Log deleted")),
+                    );
+                  }
                 },
                 child: ListTile(
-                  leading: log.status == "success"
-                      ? const Icon(Icons.check_circle, color: Colors.green)
-                      : const Icon(Icons.error, color: Colors.red),
-                  title: Text(log.status == "success"
-                      ? "Country: ${log.countryCode ?? 'Unknown'}"
-                      : "Failed to fetch country"),
+                  leading:
+                      log.status == "success"
+                          ? const Icon(Icons.check_circle, color: Colors.green)
+                          : const Icon(Icons.error, color: Colors.red),
+                  title: Text(
+                    log.status == "success"
+                        ? "Country: ${log.countryCode ?? 'Unknown'}"
+                        : "Failed to fetch country",
+                  ),
                   subtitle: Text("Time: ${log.logDateTime}"),
                 ),
               );
