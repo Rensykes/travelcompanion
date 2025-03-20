@@ -1,9 +1,8 @@
 import 'dart:developer';
 import 'dart:ui';
-import 'package:country_detector/country_detector.dart';
+import 'package:trackie/services/sim_info_service.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:trackie/database/database.dart';
-import 'package:trackie/services/location_service.dart';
 import 'package:trackie/repositories/country_visits.dart';
 import 'package:trackie/repositories/location_logs.dart';
 
@@ -21,26 +20,23 @@ void callbackDispatcher() {
       // Initialize database for background task
       backgroundDatabase = AppDatabase();
       
-      // Create service instances
-      final countryService = CountryVisitsRepository(backgroundDatabase);
-      final logService = LocationLogsRepository(backgroundDatabase);
+      // Create repository instances
+      final countryVisitsRepository = CountryVisitsRepository(backgroundDatabase);
+      final locationLogsRepository = LocationLogsRepository(backgroundDatabase);
 
-      final _countryDetector = CountryDetector();
-      final cc = await _countryDetector.isoCountryCode();
-      final allCodes = await _countryDetector.detectAll();
+      String? isoCode = await SimInfoService.getIsoCode();
 
-
-      if (cc != null) {
+      if (isoCode != null) {
         // Use instance methods
-        await countryService.saveCountryVisit(cc);
+        await countryVisitsRepository.saveCountryVisit(isoCode);
 
         // Use LogService instance to log success
-        await logService.logEntry(status: "success", countryCode: cc);
+        await locationLogsRepository.logEntry(status: "success", countryCode: isoCode);
         DateTime dateTime = DateTime.now();
-        log("✅ Background Task Success: Country - $cc - $dateTime");
+        log("✅ Background Task Success: Country - $isoCode - $dateTime");
       } else {
         // Use LogService instance to log failure
-        await logService.logEntry(status: "error");
+        await locationLogsRepository.logEntry(status: "error");
         log("❌ Background Task Failed: No country detected");
       }
       

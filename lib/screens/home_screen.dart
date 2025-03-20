@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:country_detector/country_detector.dart';
 import 'package:flutter/material.dart';
 import 'package:trackie/repositories/country_visits.dart';
+import 'package:trackie/services/sim_info_service.dart';
 import 'package:trackie/utils/app_initializer.dart';
 import 'package:trackie/screens/entries_screen.dart';
 import 'package:trackie/screens/logs_screen.dart';
@@ -67,14 +68,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
 
-      final _countryDetector = CountryDetector();
-      final country = await _countryDetector.isoCountryCode();
-      final allCodes = await _countryDetector.detectAll();
+      String? isoCode = await SimInfoService.getIsoCode();
 
-
-      if (country != null && mounted) {
-        await _countryService.saveCountryVisit(country);
-        await _logService.logEntry(status: 'success', countryCode: country);
+      if (isoCode != null && mounted) {
+        await _countryService.saveCountryVisit(isoCode);
+        await _logService.logEntry(status: 'success', countryCode: isoCode);
 
         // Check if mounted before showing dialog
         if (mounted) {
@@ -82,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
             context: context,
             builder: (context) => AlertDialog(
               title: const Text("Location Retrieved"),
-              content: Text("You are currently in: $country"),
+              content: Text("You are currently in: $isoCode"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -127,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       LogsScreen(logService: _logService),
     ];
-
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
