@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:trackie/utils/error_reporter.dart';
 
-void initializeErrorHandling() {
+void initializeErrorHandling(BuildContext? context) {
+  // Set up Flutter error handling
   FlutterError.onError = (FlutterErrorDetails details) {
     FlutterError.presentError(details);
-    ErrorReporter.reportError(details.exception, details.stack);
+    
+    // Report errors to our system, but don't pass the context directly
+    // from here as it might be during build
+    ErrorReporter.reportError(null, details.exception, details.stack);
+    
+    // Instead, log the error and let the app handle UI notification
+    // at a safe time
   };
 }

@@ -1,54 +1,33 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:trackie/utils/app_initializer.dart';
-import 'package:trackie/main.dart';  // For navigatorKey
+import 'package:flutter/scheduler.dart';
 
 class ErrorReporter {
-  static void reportError(Object error, [StackTrace? stackTrace]) {
-    // Log the error
-    _logError(error, stackTrace);
-    
-    // Show user-friendly message
-    _showErrorToUser(error);
-    
-    // In production, you might want to send to a service like Firebase Crashlytics
-    if (!kDebugMode) {
-      // TODO: Add your production error reporting service here
-      // Example: FirebaseCrashlytics.instance.recordError(error, stackTrace);
+  static void reportError(BuildContext? context, dynamic error, StackTrace? stackTrace) {
+    // Always log the error
+    log('Error: $error');
+    if (stackTrace != null) {
+      log('StackTrace: $stackTrace');
     }
-  }
 
-  static void _logError(Object error, [StackTrace? stackTrace]) {
-    if (kDebugMode) {
-      log('Error: $error');
-      if (stackTrace != null) log('StackTrace: $stackTrace');
-    }
-  }
-
-  static void _showErrorToUser(Object error) {
-    final context = navigatorKey.currentContext;
+    // Only try to show UI if we have a context
     if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_getUserFriendlyMessage(error)),
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 5),
-          action: SnackBarAction(
-            label: 'Dismiss',
-            onPressed: () {},
-          ),
-        ),
-      );
+      _showErrorToUser(context, error);
     }
   }
 
-  static String _getUserFriendlyMessage(Object error) {
-    if (error is AppInitializationException) {
-      return 'Unable to start the app. Please try again.';
-    }
-    
-    // Add more specific error messages based on error type
-    return 'An unexpected error occurred. Please try again.';
+  static void _showErrorToUser(BuildContext context, dynamic error) {
+    // Use post-frame callback to avoid showing SnackBar during build
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      // Check if the context is still valid
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred: ${error.toString()}'),
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      }
+    });
   }
 }
