@@ -49,4 +49,18 @@ class CountryVisitsRepository {
   Stream<List<CountryVisit>> watchAllVisits() {
     return database.select(database.countryVisits).watch();
   }
+  
+  // Delete a country visit by its country code
+  Future<void> deleteCountryVisit(String countryCode) async {
+    try {
+      // Delete the country visit
+      await (database.delete(database.countryVisits)
+        ..where((visit) => visit.countryCode.equals(countryCode))).go();
+      
+      log("🗑️ Country Visit Deleted: $countryCode");
+    } catch (e) {
+      log("❌ Error while deleting country visit: $e");
+      rethrow; // Rethrow to handle in the UI
+    }
+  }
 }
