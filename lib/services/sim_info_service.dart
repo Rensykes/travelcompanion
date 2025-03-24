@@ -13,7 +13,7 @@ class SimInfoService {
     try {
       final countryDetector = CountryDetector();
       final allCodes = await countryDetector.detectAll();
-      if (!allCodes.network.isNotEmpty) return allCodes.network;
+      if (allCodes.network.isNotEmpty) return allCodes.network;
     } catch (e) {
       log(e.toString());
     }
