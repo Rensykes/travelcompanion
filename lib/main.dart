@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:trackie/utils/app_initializer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/utils/app_themes.dart';
 import 'package:trackie/screens/home_screen.dart';
 import 'package:trackie/screens/error_screen.dart';
@@ -19,13 +19,10 @@ Future main() async {
   initializeErrorHandling(null);
 
   try {
-    // Initialize database
-    await initializeApp();
-    
     // Initialize Workmanager for background tasks
     initializeWorkmanager();
-    
-    runApp(const MyApp());
+
+    runApp(ProviderScope(child: MyApp()));
   } catch (error, stackTrace) {
     // Pass null for context since we don't have a valid context yet
     ErrorReporter.reportError(null, error, stackTrace);
@@ -81,9 +78,10 @@ class MyAppState extends State<MyApp> {
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'Travel Tracker',
-      themeMode: _useSystemTheme
-          ? ThemeMode.system
-          : (_isDarkMode ? ThemeMode.dark : ThemeMode.light),
+      themeMode:
+          _useSystemTheme
+              ? ThemeMode.system
+              : (_isDarkMode ? ThemeMode.dark : ThemeMode.light),
       theme: AppThemes.lightTheme,
       darkTheme: AppThemes.darkTheme,
       home: HomeScreen(

@@ -1,15 +1,17 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:trackie/database/database.dart';
+import 'package:trackie/database/provider/database_provider.dart';
 import 'package:trackie/repositories/country_visits.dart';
 import 'package:trackie/services/country_visit_data_service.dart';
 import 'package:trackie/services/sim_info_service.dart';
-import 'package:trackie/utils/app_initializer.dart';
 import 'package:trackie/screens/entries_screen.dart';
 import 'package:trackie/screens/logs_screen.dart';
 import 'package:trackie/repositories/location_logs.dart';
 import 'package:trackie/screens/settings_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   final Function(bool isDark, bool useSystemTheme) onThemeChanged;
   final bool isDarkMode;
   final bool useSystemTheme;
@@ -25,7 +27,8 @@ class HomeScreen extends StatefulWidget {
   HomeScreenState createState() => HomeScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends ConsumerState<HomeScreen> {
+  late final AppDatabase database;
   CountryVisitsRepository? _countryVisitsRepository;
   LocationLogsRepository? _locationLogsRepository;
   CountryDataService? _countryDataService;
@@ -37,23 +40,20 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Use Future.microtask to avoid calling setState during build
     Future.microtask(() => _initializeServices());
   }
 
   Future<void> _initializeServices() async {
     try {
-      // Initialize database services
+      database = ref.read(appDatabaseProvider); // Fetch database from Riverpod provider
       _countryVisitsRepository = CountryVisitsRepository(database);
       _locationLogsRepository = LocationLogsRepository(database);
 
-      // Initialize Data Service
       _countryDataService = CountryDataService(
         locationLogsRepository: _locationLogsRepository!,
         countryVisitsRepository: _countryVisitsRepository!,
       );
 
-      // Check if mounted before updating the state
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -64,9 +64,7 @@ class HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         setState(() {
           isLoading = false;
-          // Set an error state here if needed
         });
-        // Show error message after build is complete
         Future.microtask(() {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error initializing: ${e.toString()}')),
@@ -79,7 +77,7 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> _addCountry() async {
     if (mounted) {
       setState(() {
-        _isFetchingLocation = true; // Start loading
+        _isFetchingLocation = true;
       });
     }
 
@@ -90,7 +88,6 @@ class HomeScreenState extends State<HomeScreen> {
         await _countryVisitsRepository!.saveCountryVisit(isoCode);
         await _locationLogsRepository!.logEntry(status: 'success', countryCode: isoCode);
 
-        // Check if mounted before showing dialog
         if (mounted) {
           showDialog(
             context: context,
@@ -110,11 +107,8 @@ class HomeScreenState extends State<HomeScreen> {
         await _locationLogsRepository!.logEntry(status: 'error');
       }
     } catch (e) {
-      if (_locationLogsRepository != null) {
-        await _locationLogsRepository!.logEntry(status: 'error');
-      }
+      await _locationLogsRepository?.logEntry(status: 'error');
 
-      // Use Future.microtask to ensure we're not in build
       if (mounted) {
         Future.microtask(() {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -123,10 +117,9 @@ class HomeScreenState extends State<HomeScreen> {
         });
       }
     } finally {
-      // Only update state if mounted
       if (mounted) {
         setState(() {
-          _isFetchingLocation = false; // Stop loading
+          _isFetchingLocation = false;
         });
       }
     }
@@ -138,10 +131,7 @@ class HomeScreenState extends State<HomeScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // Null check to ensure services are initialized
-    if (_countryDataService == null || 
-        _countryVisitsRepository == null || 
-        _locationLogsRepository == null) {
+    if (_countryDataService == null || _countryVisitsRepository == null || _locationLogsRepository == null) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -159,12 +149,8 @@ class HomeScreenState extends State<HomeScreen> {
     }
 
     final List<Widget> screens = [
-      EntriesScreen(
-        countryVisitsRepository: _countryVisitsRepository!,
-        locationLogsRepository: _locationLogsRepository!,
-        countryDataService: _countryDataService!,
-      ),
-      LogsScreen(logService: _locationLogsRepository!),
+      EntriesScreen(),
+      LogsScreen(),
     ];
     
     return Scaffold(
@@ -174,7 +160,6 @@ class HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // Navigate to the settings screen when the button is pressed
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -205,7 +190,7 @@ class HomeScreenState extends State<HomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _isFetchingLocation ? null : _addCountry, // Disable when loading
+        onPressed: _isFetchingLocation ? null : _addCountry,
         tooltip: 'Add Current Location',
         backgroundColor: Theme.of(context).primaryColor,
         child: _isFetchingLocation

@@ -1,38 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:trackie/repositories/location_logs.dart';
-import 'package:trackie/repositories/country_visits.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/database/database.dart';
 import 'package:country_flags/country_flags.dart';
-import 'package:trackie/services/country_visit_data_service.dart';
+import 'package:trackie/repositories/country_data_service_provider.dart';
+import 'package:trackie/repositories/country_visits.dart';
 import 'relations_screen.dart';
 
-class EntriesScreen extends StatefulWidget {
-  final CountryVisitsRepository countryVisitsRepository;
-  final LocationLogsRepository locationLogsRepository;
-  final CountryDataService countryDataService; // Add the service
-
-  const EntriesScreen({
-    super.key,
-    required this.countryVisitsRepository,
-    required this.locationLogsRepository,
-    required this.countryDataService, // Require the service
-  });
-
-  @override
-  State<EntriesScreen> createState() => _EntriesScreenState();
-}
-
-class _EntriesScreenState extends State<EntriesScreen> {
-  late Stream<List<CountryVisit>> _countriesStream;
-
-  @override
-  void initState() {
-    super.initState();
-    _countriesStream = widget.countryVisitsRepository.watchAllVisits();
-  }
+class EntriesScreen extends ConsumerWidget {
+  const EntriesScreen({super.key});
 
   // Show confirmation dialog before deleting
-  Future<bool> _showDeleteConfirmation(BuildContext context, CountryVisit visit) async {
+  Future<bool> _showDeleteConfirmation(BuildContext context, WidgetRef ref, CountryVisit visit) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
     
     final result = await showDialog<bool>(
@@ -58,17 +36,17 @@ class _EntriesScreenState extends State<EntriesScreen> {
     
     if (result == true) {
       try {
-        // Use the service instead of local method
-        await widget.countryDataService.deleteCountryData(visit.countryCode);
+        // Use the service through Riverpod
+        await ref.read(countryDataServiceProvider).deleteCountryData(visit.countryCode);
         
-        if (mounted) {
+        if (context.mounted) {
           scaffoldMessenger.showSnackBar(
             SnackBar(content: Text('Deleted all data for ${visit.countryCode}')),
           );
         }
         return true;
       } catch (e) {
-        if (mounted) {
+        if (context.mounted) {
           scaffoldMessenger.showSnackBar(
             SnackBar(content: Text('Error deleting data: $e')),
           );
@@ -81,61 +59,58 @@ class _EntriesScreenState extends State<EntriesScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final visitsStream = ref.watch(allVisitsProvider);
+    
     return Scaffold(
       appBar: AppBar(title: const Text('Country Visits')),
-      body: StreamBuilder<List<CountryVisit>>(
-        stream: _countriesStream,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+      body: visitsStream.when(
+        data: (visits) {
+          if (visits.isEmpty) {
             return const Center(child: Text('No country visits recorded'));
-          } else {
-            final visits = snapshot.data!;
-            return ListView.builder(
-              itemCount: visits.length,
-              itemBuilder: (context, index) {
-                final visit = visits[index];
-                return Dismissible(
-                  key: Key(visit.countryCode),
-                  direction: DismissDirection.endToStart,
-                  confirmDismiss: (direction) => _showDeleteConfirmation(context, visit),
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: ListTile(
-                    leading: CountryFlag.fromCountryCode(
-                      visit.countryCode,
-                      width: 40,
-                      height: 30,
-                      borderRadius: 8,
-                    ),
-                    title: Text(visit.countryCode),
-                    subtitle: Text('Days: ${visit.daysSpent}'),
-                    trailing: Text('Entry: ${_formatDate(visit.entryDate)}'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RelationsScreen(
-                            countryVisit: visit,
-                            locationLogsRepository: widget.locationLogsRepository,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
-            );
           }
+          
+          return ListView.builder(
+            itemCount: visits.length,
+            itemBuilder: (context, index) {
+              final visit = visits[index];
+              return Dismissible(
+                key: Key(visit.countryCode),
+                direction: DismissDirection.endToStart,
+                confirmDismiss: (direction) => _showDeleteConfirmation(context, ref, visit),
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: const Icon(Icons.delete, color: Colors.white),
+                ),
+                child: ListTile(
+                  leading: CountryFlag.fromCountryCode(
+                    visit.countryCode,
+                    width: 40,
+                    height: 30,
+                    borderRadius: 8,
+                  ),
+                  title: Text(visit.countryCode),
+                  subtitle: Text('Days: ${visit.daysSpent}'),
+                  trailing: Text('Entry: ${_formatDate(visit.entryDate)}'),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => RelationsScreen(
+                          countryVisit: visit,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
         },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, stack) => Center(child: Text('Error: $error')),
       ),
     );
   }
