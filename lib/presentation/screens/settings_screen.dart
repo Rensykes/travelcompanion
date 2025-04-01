@@ -2,8 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
-import 'package:trackie/database/database.dart';
-import 'package:trackie/screens/advanced_settings_screen.dart';
+import 'package:trackie/data/datasource/database.dart';
+import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final AppDatabase database;

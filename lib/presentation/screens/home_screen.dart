@@ -1,15 +1,15 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trackie/database/database.dart';
+import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/database/provider/database_provider.dart';
 import 'package:trackie/repositories/country_visits.dart';
 import 'package:trackie/services/country_visit_data_service.dart';
 import 'package:trackie/services/sim_info_service.dart';
-import 'package:trackie/screens/entries_screen.dart';
-import 'package:trackie/screens/logs_screen.dart';
+import 'package:trackie/presentation/screens/entries_screen.dart';
+import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/repositories/location_logs.dart';
-import 'package:trackie/screens/settings_screen.dart';
+import 'package:trackie/presentation/screens/settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   final Function(bool isDark, bool useSystemTheme) onThemeChanged;

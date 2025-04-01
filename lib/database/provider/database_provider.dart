@@ -2,8 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:trackie/database/database.dart';
-import 'package:trackie/utils/exceptions/app_inizialization_exception.dart';
+import 'package:trackie/data/datasource/database.dart';
+import 'package:trackie/core/error/exceptions/app_inizialization_exception.dart';
 
 part 'database_provider.g.dart';
 

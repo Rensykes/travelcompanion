@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'dart:ui';
 import 'package:trackie/services/sim_info_service.dart';
 import 'package:workmanager/workmanager.dart';
-import 'package:trackie/database/database.dart';
+import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/repositories/country_visits.dart';
 import 'package:trackie/repositories/location_logs.dart';
 

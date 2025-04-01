@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trackie/database/database.dart';
+import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/repositories/location_logs.dart';
 
 // Create a specific provider for relation logs

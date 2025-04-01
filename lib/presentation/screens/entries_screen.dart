@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trackie/database/database.dart';
+import 'package:trackie/data/datasource/database.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:trackie/repositories/country_data_service_provider.dart';
 import 'package:trackie/repositories/country_visits.dart';

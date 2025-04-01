@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trackie/utils/error_reporter.dart';
+import 'package:trackie/core/error/error_reporter.dart';
 
 void initializeErrorHandling(BuildContext? context) {
   // Set up Flutter error handling
