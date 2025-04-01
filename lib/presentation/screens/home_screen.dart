@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/database/provider/database_provider.dart';
+import 'package:trackie/presentation/providers/database_provider.dart';
 import 'package:trackie/repositories/country_visits.dart';
 import 'package:trackie/services/country_visit_data_service.dart';
 import 'package:trackie/services/sim_info_service.dart';

@@ -3,7 +3,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/database/provider/database_provider.dart';
+import 'package:trackie/presentation/providers/database_provider.dart';
 
 part 'location_logs.g.dart';
 
