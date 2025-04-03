@@ -1,5 +1,3 @@
-import 'dart:developer';
-import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:trackie/data/datasource/database.dart';

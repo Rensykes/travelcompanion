@@ -1,5 +1,3 @@
-import 'dart:developer';
-import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:trackie/data/datasource/database.dart';
@@ -21,10 +19,13 @@ Stream<List<LocationLog>> allLogs(Ref ref) {
 }
 
 @riverpod
-Future<List<LocationLog>> filteredLogs(Ref ref, {required bool showErrorLogs}) async {
+Future<List<LocationLog>> filteredLogs(
+  Ref ref, {
+  required bool showErrorLogs,
+}) async {
   final allLogs = await ref.watch(locationLogsRepositoryProvider).getAllLogs();
   if (showErrorLogs) {
-    return allLogs; 
+    return allLogs;
   } else {
     return allLogs.where((log) => log.status != "error").toList();
   }
