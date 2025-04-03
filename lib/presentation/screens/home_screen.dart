@@ -2,10 +2,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/data/datasource/database.dart';
+import 'package:trackie/presentation/providers/country_data_service_provider.dart';
+import 'package:trackie/presentation/providers/country_visits_provider.dart';
 import 'package:trackie/presentation/providers/database_provider.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/application/services/country_visit_data_service.dart';
 import 'package:trackie/application/services/sim_info_service.dart';
+import 'package:trackie/presentation/providers/location_logs_provider.dart';
 import 'package:trackie/presentation/screens/entries_screen.dart';
 import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
@@ -17,7 +20,7 @@ class HomeScreen extends ConsumerStatefulWidget {
   final bool useSystemTheme;
 
   const HomeScreen({
-    super.key, 
+    super.key,
     required this.onThemeChanged,
     required this.isDarkMode,
     required this.useSystemTheme,
@@ -45,14 +48,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
   Future<void> _initializeServices() async {
     try {
-      database = ref.read(appDatabaseProvider); // Fetch database from Riverpod provider
-      _countryVisitsRepository = CountryVisitsRepository(database);
-      _locationLogsRepository = LocationLogsRepository(database);
+      _countryVisitsRepository = ref.read(countryVisitsRepositoryProvider);
+      _locationLogsRepository = ref.read(locationLogsRepositoryProvider);
 
-      _countryDataService = CountryDataService(
-        locationLogsRepository: _locationLogsRepository!,
-        countryVisitsRepository: _countryVisitsRepository!,
-      );
+      _countryDataService = ref.read(countryDataServiceProvider);
 
       if (mounted) {
         setState(() {
@@ -86,21 +85,25 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
 
       if (isoCode != null && mounted) {
         await _countryVisitsRepository!.saveCountryVisit(isoCode);
-        await _locationLogsRepository!.logEntry(status: 'success', countryCode: isoCode);
+        await _locationLogsRepository!.logEntry(
+          status: 'success',
+          countryCode: isoCode,
+        );
 
         if (mounted) {
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text("Location Retrieved"),
-              content: Text("You are currently in: $isoCode"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("OK"),
+            builder:
+                (context) => AlertDialog(
+                  title: const Text("Location Retrieved"),
+                  content: Text("You are currently in: $isoCode"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text("OK"),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           );
         }
       } else {
@@ -131,7 +134,9 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    if (_countryDataService == null || _countryVisitsRepository == null || _locationLogsRepository == null) {
+    if (_countryDataService == null ||
+        _countryVisitsRepository == null ||
+        _locationLogsRepository == null) {
       return Scaffold(
         body: Center(
           child: Column(
@@ -148,11 +153,8 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    final List<Widget> screens = [
-      EntriesScreen(),
-      LogsScreen(),
-    ];
-    
+    final List<Widget> screens = [EntriesScreen(), LogsScreen()];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -163,12 +165,12 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SettingsScreen(
-                    database: database,
-                    isDarkMode: widget.isDarkMode,
-                    useSystemTheme: widget.useSystemTheme,
-                    onThemeChanged: widget.onThemeChanged,
-                  ),
+                  builder:
+                      (context) => SettingsScreen(
+                        isDarkMode: widget.isDarkMode,
+                        useSystemTheme: widget.useSystemTheme,
+                        onThemeChanged: widget.onThemeChanged,
+                      ),
                 ),
               );
             },
@@ -181,7 +183,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-        backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
+        backgroundColor:
+            Theme.of(context).brightness == Brightness.light
+                ? Colors.white
+                : Colors.black,
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
         items: const [
@@ -193,9 +198,10 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         onPressed: _isFetchingLocation ? null : _addCountry,
         tooltip: 'Add Current Location',
         backgroundColor: Theme.of(context).primaryColor,
-        child: _isFetchingLocation
-            ? const CircularProgressIndicator(color: Colors.white)
-            : const Icon(Icons.add_location),
+        child:
+            _isFetchingLocation
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Icon(Icons.add_location),
       ),
     );
   }

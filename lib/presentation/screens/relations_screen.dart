@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/presentation/providers/location_logs_provider.dart';
-
-// Create a specific provider for relation logs
-final relationLogsProvider = FutureProvider.family<List<LocationLog>, String>((ref, countryCode) {
-  final repository = ref.watch(locationLogsRepositoryProvider);
-  return repository.getRelationsForCountryVisit(countryCode);
-});
+import 'package:trackie/presentation/providers/relation_logs_provider.dart';
 
 class RelationsScreen extends ConsumerWidget {
   final CountryVisit countryVisit;
