@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:trackie/repositories/location_logs.dart';
-import 'package:trackie/repositories/country_visits.dart';
+import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/data/repositories/country_visits_repository.dart';
 
 class CountryDataService {
   final LocationLogsRepository locationLogsRepository;

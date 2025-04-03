@@ -21,7 +21,6 @@ Future main() async {
   try {
     // Initialize Workmanager for background tasks
     initializeWorkmanager();
-
     runApp(ProviderScope(child: MyApp()));
   } catch (error, stackTrace) {
     // Pass null for context since we don't have a valid context yet

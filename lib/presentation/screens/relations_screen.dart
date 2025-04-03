@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/repositories/location_logs.dart';
+import 'package:trackie/presentation/providers/location_logs_provider.dart';
 
 // Create a specific provider for relation logs
 final relationLogsProvider = FutureProvider.family<List<LocationLog>, String>((ref, countryCode) {

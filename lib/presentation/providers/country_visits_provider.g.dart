@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'country_visits.dart';
+part of 'country_visits_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trackie/repositories/location_logs.dart';
-import 'package:trackie/utils/preferences_provider.dart';
+import 'package:trackie/presentation/providers/location_logs_provider.dart';
+import 'package:trackie/presentation/providers/preferences_provider.dart';
 
 class LogsScreen extends ConsumerWidget {
   const LogsScreen({super.key});
