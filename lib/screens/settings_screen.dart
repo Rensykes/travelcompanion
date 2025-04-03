@@ -1,7 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:developer';
 import 'package:trackie/database/database.dart';
+import 'package:trackie/screens/advanced_settings_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final AppDatabase database;
@@ -18,10 +20,10 @@ class SettingsScreen extends StatefulWidget {
   });
 
   @override
-  _SettingsScreenState createState() => _SettingsScreenState();
+  SettingsScreenState createState() => SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class SettingsScreenState extends State<SettingsScreen> {
   late bool _isDarkMode;
   late bool _useSystemTheme;
 
@@ -80,6 +82,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onChanged: _useSystemTheme
                   ? null // Disable this switch if using system theme
                   : (bool value) => _toggleDarkMode(value),
+            ),
+            const SizedBox(height: 24),
+            // Advanced settings button
+            ListTile(
+              title: const Text('Advanced Settings'),
+              trailing: const Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AdvancedSettingsScreen(
+                      database: widget.database,
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 24),
             ElevatedButton(

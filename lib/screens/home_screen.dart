@@ -1,10 +1,11 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:trackie/repositories/country_visits.dart';
+import 'package:trackie/services/country_visit_data_service.dart';
+import 'package:trackie/services/sim_info_service.dart';
 import 'package:trackie/utils/app_initializer.dart';
 import 'package:trackie/screens/entries_screen.dart';
 import 'package:trackie/screens/logs_screen.dart';
-import 'package:trackie/services/location_service.dart';
 import 'package:trackie/repositories/location_logs.dart';
 import 'package:trackie/screens/settings_screen.dart';
 
@@ -21,13 +22,13 @@ class HomeScreen extends StatefulWidget {
   });
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  HomeScreenState createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  // Services
-  late CountryVisitsRepository _countryService;
-  late LocationLogsRepository _logService;
+class HomeScreenState extends State<HomeScreen> {
+  CountryVisitsRepository? _countryVisitsRepository;
+  LocationLogsRepository? _locationLogsRepository;
+  CountryDataService? _countryDataService;
 
   int _selectedIndex = 0;
   bool isLoading = true;
@@ -36,14 +37,21 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeServices();
+    // Use Future.microtask to avoid calling setState during build
+    Future.microtask(() => _initializeServices());
   }
 
   Future<void> _initializeServices() async {
     try {
       // Initialize database services
-      _countryService = CountryVisitsRepository(database);
-      _logService = LocationLogsRepository(database);
+      _countryVisitsRepository = CountryVisitsRepository(database);
+      _locationLogsRepository = LocationLogsRepository(database);
+
+      // Initialize Data Service
+      _countryDataService = CountryDataService(
+        locationLogsRepository: _locationLogsRepository!,
+        countryVisitsRepository: _countryVisitsRepository!,
+      );
 
       // Check if mounted before updating the state
       if (mounted) {
@@ -53,7 +61,18 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     } catch (e) {
       log('Error initializing services: $e');
-      // Handle error appropriately
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          // Set an error state here if needed
+        });
+        // Show error message after build is complete
+        Future.microtask(() {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error initializing: ${e.toString()}')),
+          );
+        });
+      }
     }
   }
 
@@ -65,10 +84,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
-      String? country = await LocationService.getCurrentCountry();
-      if (country != null && mounted) {
-        await _countryService.saveCountryVisit(country);
-        await _logService.logEntry(status: 'success', countryCode: country);
+      String? isoCode = await SimInfoService.getIsoCode();
+
+      if (isoCode != null && mounted) {
+        await _countryVisitsRepository!.saveCountryVisit(isoCode);
+        await _locationLogsRepository!.logEntry(status: 'success', countryCode: isoCode);
 
         // Check if mounted before showing dialog
         if (mounted) {
@@ -76,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
             context: context,
             builder: (context) => AlertDialog(
               title: const Text("Location Retrieved"),
-              content: Text("You are currently in: $country"),
+              content: Text("You are currently in: $isoCode"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
@@ -87,16 +107,20 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
       } else {
-        await _logService.logEntry(status: 'error');
+        await _locationLogsRepository!.logEntry(status: 'error');
       }
     } catch (e) {
-      await _logService.logEntry(status: 'error');
+      if (_locationLogsRepository != null) {
+        await _locationLogsRepository!.logEntry(status: 'error');
+      }
 
-      // Ensure widget is mounted before showing SnackBar
+      // Use Future.microtask to ensure we're not in build
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding country: ${e.toString()}')),
-        );
+        Future.microtask(() {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error adding country: ${e.toString()}')),
+          );
+        });
       }
     } finally {
       // Only update state if mounted
@@ -114,14 +138,35 @@ class _HomeScreenState extends State<HomeScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    // Null check to ensure services are initialized
+    if (_countryDataService == null || 
+        _countryVisitsRepository == null || 
+        _locationLogsRepository == null) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text('Failed to initialize services'),
+              ElevatedButton(
+                onPressed: _initializeServices,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     final List<Widget> screens = [
       EntriesScreen(
-        countryService: CountryVisitsRepository(database),
-        locationLogsRepository: LocationLogsRepository(database),
+        countryVisitsRepository: _countryVisitsRepository!,
+        locationLogsRepository: _locationLogsRepository!,
+        countryDataService: _countryDataService!,
       ),
-      LogsScreen(logService: _logService),
+      LogsScreen(logService: _locationLogsRepository!),
     ];
-
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),

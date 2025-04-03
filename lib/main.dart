@@ -15,8 +15,8 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize error handling
-  initializeErrorHandling();
+  // Initialize error handling - pass null for context since app hasn't started
+  initializeErrorHandling(null);
 
   try {
     // Initialize database
@@ -27,7 +27,8 @@ Future main() async {
     
     runApp(const MyApp());
   } catch (error, stackTrace) {
-    ErrorReporter.reportError(error, stackTrace);
+    // Pass null for context since we don't have a valid context yet
+    ErrorReporter.reportError(null, error, stackTrace);
     runApp(ErrorApp(error: error.toString()));
   }
 }
@@ -36,10 +37,10 @@ class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  MyAppState createState() => MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class MyAppState extends State<MyApp> {
   bool _isDarkMode = false;
   bool _useSystemTheme = false;
 
