@@ -1,21 +1,26 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:trackie/repositories/country_visits.dart';
-import 'package:trackie/services/country_visit_data_service.dart';
-import 'package:trackie/services/sim_info_service.dart';
-import 'package:trackie/utils/app_initializer.dart';
-import 'package:trackie/screens/entries_screen.dart';
-import 'package:trackie/screens/logs_screen.dart';
-import 'package:trackie/repositories/location_logs.dart';
-import 'package:trackie/screens/settings_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:trackie/data/datasource/database.dart';
+import 'package:trackie/presentation/providers/country_data_service_provider.dart';
+import 'package:trackie/presentation/providers/country_visits_provider.dart';
+import 'package:trackie/presentation/providers/database_provider.dart';
+import 'package:trackie/data/repositories/country_visits_repository.dart';
+import 'package:trackie/application/services/country_visit_data_service.dart';
+import 'package:trackie/application/services/sim_info_service.dart';
+import 'package:trackie/presentation/providers/location_logs_provider.dart';
+import 'package:trackie/presentation/screens/entries_screen.dart';
+import 'package:trackie/presentation/screens/logs_screen.dart';
+import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/presentation/screens/settings_screen.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   final Function(bool isDark, bool useSystemTheme) onThemeChanged;
   final bool isDarkMode;
   final bool useSystemTheme;
 
   const HomeScreen({
-    super.key, 
+    super.key,
     required this.onThemeChanged,
     required this.isDarkMode,
     required this.useSystemTheme,
@@ -25,7 +30,8 @@ class HomeScreen extends StatefulWidget {
   HomeScreenState createState() => HomeScreenState();
 }
 
-class HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends ConsumerState<HomeScreen> {
+  late final AppDatabase database;
   CountryVisitsRepository? _countryVisitsRepository;
   LocationLogsRepository? _locationLogsRepository;
   CountryDataService? _countryDataService;
@@ -37,23 +43,16 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Use Future.microtask to avoid calling setState during build
     Future.microtask(() => _initializeServices());
   }
 
   Future<void> _initializeServices() async {
     try {
-      // Initialize database services
-      _countryVisitsRepository = CountryVisitsRepository(database);
-      _locationLogsRepository = LocationLogsRepository(database);
+      _countryVisitsRepository = ref.read(countryVisitsRepositoryProvider);
+      _locationLogsRepository = ref.read(locationLogsRepositoryProvider);
 
-      // Initialize Data Service
-      _countryDataService = CountryDataService(
-        locationLogsRepository: _locationLogsRepository!,
-        countryVisitsRepository: _countryVisitsRepository!,
-      );
+      _countryDataService = ref.read(countryDataServiceProvider);
 
-      // Check if mounted before updating the state
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -64,9 +63,7 @@ class HomeScreenState extends State<HomeScreen> {
       if (mounted) {
         setState(() {
           isLoading = false;
-          // Set an error state here if needed
         });
-        // Show error message after build is complete
         Future.microtask(() {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error initializing: ${e.toString()}')),
@@ -79,7 +76,7 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> _addCountry() async {
     if (mounted) {
       setState(() {
-        _isFetchingLocation = true; // Start loading
+        _isFetchingLocation = true;
       });
     }
 
@@ -88,33 +85,33 @@ class HomeScreenState extends State<HomeScreen> {
 
       if (isoCode != null && mounted) {
         await _countryVisitsRepository!.saveCountryVisit(isoCode);
-        await _locationLogsRepository!.logEntry(status: 'success', countryCode: isoCode);
+        await _locationLogsRepository!.logEntry(
+          status: 'success',
+          countryCode: isoCode,
+        );
 
-        // Check if mounted before showing dialog
         if (mounted) {
           showDialog(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text("Location Retrieved"),
-              content: Text("You are currently in: $isoCode"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("OK"),
+            builder:
+                (context) => AlertDialog(
+                  title: const Text("Location Retrieved"),
+                  content: Text("You are currently in: $isoCode"),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text("OK"),
+                    ),
+                  ],
                 ),
-              ],
-            ),
           );
         }
       } else {
         await _locationLogsRepository!.logEntry(status: 'error');
       }
     } catch (e) {
-      if (_locationLogsRepository != null) {
-        await _locationLogsRepository!.logEntry(status: 'error');
-      }
+      await _locationLogsRepository?.logEntry(status: 'error');
 
-      // Use Future.microtask to ensure we're not in build
       if (mounted) {
         Future.microtask(() {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -123,10 +120,9 @@ class HomeScreenState extends State<HomeScreen> {
         });
       }
     } finally {
-      // Only update state if mounted
       if (mounted) {
         setState(() {
-          _isFetchingLocation = false; // Stop loading
+          _isFetchingLocation = false;
         });
       }
     }
@@ -138,9 +134,8 @@ class HomeScreenState extends State<HomeScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    // Null check to ensure services are initialized
-    if (_countryDataService == null || 
-        _countryVisitsRepository == null || 
+    if (_countryDataService == null ||
+        _countryVisitsRepository == null ||
         _locationLogsRepository == null) {
       return Scaffold(
         body: Center(
@@ -158,15 +153,8 @@ class HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final List<Widget> screens = [
-      EntriesScreen(
-        countryVisitsRepository: _countryVisitsRepository!,
-        locationLogsRepository: _locationLogsRepository!,
-        countryDataService: _countryDataService!,
-      ),
-      LogsScreen(logService: _locationLogsRepository!),
-    ];
-    
+    final List<Widget> screens = [EntriesScreen(), LogsScreen()];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -174,16 +162,15 @@ class HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              // Navigate to the settings screen when the button is pressed
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SettingsScreen(
-                    database: database,
-                    isDarkMode: widget.isDarkMode,
-                    useSystemTheme: widget.useSystemTheme,
-                    onThemeChanged: widget.onThemeChanged,
-                  ),
+                  builder:
+                      (context) => SettingsScreen(
+                        isDarkMode: widget.isDarkMode,
+                        useSystemTheme: widget.useSystemTheme,
+                        onThemeChanged: widget.onThemeChanged,
+                      ),
                 ),
               );
             },
@@ -196,7 +183,10 @@ class HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),
-        backgroundColor: Theme.of(context).brightness == Brightness.light ? Colors.white : Colors.black,
+        backgroundColor:
+            Theme.of(context).brightness == Brightness.light
+                ? Colors.white
+                : Colors.black,
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
         items: const [
@@ -205,12 +195,13 @@ class HomeScreenState extends State<HomeScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _isFetchingLocation ? null : _addCountry, // Disable when loading
+        onPressed: _isFetchingLocation ? null : _addCountry,
         tooltip: 'Add Current Location',
         backgroundColor: Theme.of(context).primaryColor,
-        child: _isFetchingLocation
-            ? const CircularProgressIndicator(color: Colors.white)
-            : const Icon(Icons.add_location),
+        child:
+            _isFetchingLocation
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Icon(Icons.add_location),
       ),
     );
   }

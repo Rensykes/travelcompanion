@@ -1,19 +1,18 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trackie/presentation/providers/database_provider.dart';
 import 'dart:developer';
-import 'package:trackie/database/database.dart';
-import 'package:trackie/screens/advanced_settings_screen.dart';
+import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 
-class SettingsScreen extends StatefulWidget {
-  final AppDatabase database;
+// Change to ConsumerStatefulWidget
+class SettingsScreen extends ConsumerStatefulWidget {
   final bool isDarkMode;
   final bool useSystemTheme;
   final Function(bool isDark, bool useSystemTheme) onThemeChanged;
 
   const SettingsScreen({
-    super.key, 
-    required this.database,
+    super.key,
     required this.isDarkMode,
     required this.useSystemTheme,
     required this.onThemeChanged,
@@ -23,7 +22,8 @@ class SettingsScreen extends StatefulWidget {
   SettingsScreenState createState() => SettingsScreenState();
 }
 
-class SettingsScreenState extends State<SettingsScreen> {
+// Now extends ConsumerState directly
+class SettingsScreenState extends ConsumerState<SettingsScreen> {
   late bool _isDarkMode;
   late bool _useSystemTheme;
 
@@ -65,6 +65,9 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Access the database using Riverpod ref
+    final database = ref.watch(appDatabaseProvider);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: Padding(
@@ -79,9 +82,10 @@ class SettingsScreenState extends State<SettingsScreen> {
             SwitchListTile(
               title: const Text('Dark Mode'),
               value: _isDarkMode,
-              onChanged: _useSystemTheme
-                  ? null // Disable this switch if using system theme
-                  : (bool value) => _toggleDarkMode(value),
+              onChanged:
+                  _useSystemTheme
+                      ? null // Disable this switch if using system theme
+                      : (bool value) => _toggleDarkMode(value),
             ),
             const SizedBox(height: 24),
             // Advanced settings button
@@ -92,9 +96,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AdvancedSettingsScreen(
-                      database: widget.database,
-                    ),
+                    builder: (context) => const AdvancedSettingsScreen(),
                   ),
                 );
               },
@@ -102,8 +104,8 @@ class SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () async {
-                // Call the cleanup function when the button is pressed
-                await _cleanupDatabase(context);
+                // Pass the database from Riverpod to the cleanup function
+                await _cleanupDatabase(context, database);
               },
               child: const Text('Clean up Database'),
             ),
@@ -113,28 +115,32 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Future<void> _cleanupDatabase(BuildContext context) async {
+  // Updated to accept database as parameter instead of using widget.database
+  Future<void> _cleanupDatabase(BuildContext context, dynamic database) async {
     try {
-      // Delete all rows from all tables (simplified)
-      await widget.database.delete(widget.database.countryVisits).go();
-      await widget.database.delete(widget.database.locationLogs).go();
-      await widget.database.delete(widget.database.logCountryRelations).go();
+      // Delete all rows from all tables using the passed database
+      await database.delete(database.countryVisits).go();
+      await database.delete(database.locationLogs).go();
+      await database.delete(database.logCountryRelations).go();
       log('Database cleaned up successfully');
 
       // Check if the widget is still mounted before showing the dialog
       if (context.mounted) {
         showDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Database Cleaned'),
-            content: const Text('All records have been deleted from the database.'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text("OK"),
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Database Cleaned'),
+                content: const Text(
+                  'All records have been deleted from the database.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("OK"),
+                  ),
+                ],
               ),
-            ],
-          ),
         );
       }
     } catch (e) {

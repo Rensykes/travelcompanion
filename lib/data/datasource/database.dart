@@ -1,10 +1,11 @@
 import 'package:drift/drift.dart';
-import 'package:trackie/database/log_country_relations.dart';
-import 'package:trackie/database/country_visits.dart';
-import 'package:trackie/database/location_logs.dart';
-import 'package:trackie/database/connection_helper.dart';
+import 'package:trackie/data/datasource/log_country_relations.dart';
+import 'package:trackie/data/datasource/country_visits.dart';
+import 'package:trackie/data/datasource/location_logs.dart';
+import 'package:trackie/data/datasource/connection_helper.dart';
 
 part 'database.g.dart'; // Ensure this is correctly pointing to the generated file
+
 
 @DriftDatabase(tables: [CountryVisits, LocationLogs, LogCountryRelations])
 class AppDatabase extends _$AppDatabase {

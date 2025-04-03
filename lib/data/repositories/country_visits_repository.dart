@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:drift/drift.dart';
-import 'package:trackie/database/database.dart';
+import 'package:trackie/data/datasource/database.dart';
 
 class CountryVisitsRepository {
   final AppDatabase database;
