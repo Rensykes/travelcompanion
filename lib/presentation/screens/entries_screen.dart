@@ -17,7 +17,6 @@ class EntriesScreen extends ConsumerWidget {
     WidgetRef ref,
     CountryVisit visit,
   ) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     final result = await showDialog<bool>(
       context: context,

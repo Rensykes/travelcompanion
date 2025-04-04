@@ -1,5 +1,4 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/application/services/sim_info_service.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
@@ -50,6 +49,10 @@ class HomeScreenController extends _$HomeScreenController {
     }
   }
 
+  void changeTab(int index) {
+    state = state.copyWith(selectedTabIndex: index);
+  }
+
   void _handleLocationError(
     Function(String, String, ContentType) showSnackBar,
   ) {
@@ -65,16 +68,23 @@ class HomeScreenController extends _$HomeScreenController {
 class HomeScreenStateData {
   final bool isLoading;
   final bool isFetchingLocation;
+  final int selectedTabIndex;
 
   const HomeScreenStateData({
     this.isLoading = false,
     this.isFetchingLocation = false,
+    this.selectedTabIndex = 0,
   });
 
-  HomeScreenStateData copyWith({bool? isLoading, bool? isFetchingLocation}) {
+  HomeScreenStateData copyWith({
+    bool? isLoading, 
+    bool? isFetchingLocation, 
+    int? selectedTabIndex,
+  }) {
     return HomeScreenStateData(
       isLoading: isLoading ?? this.isLoading,
       isFetchingLocation: isFetchingLocation ?? this.isFetchingLocation,
+      selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
     );
   }
 }

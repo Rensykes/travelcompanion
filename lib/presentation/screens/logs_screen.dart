@@ -1,5 +1,7 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/providers/location_logs_provider.dart';
 import 'package:trackie/presentation/providers/preferences_provider.dart';
 
@@ -10,17 +12,20 @@ class LogsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final showErrorLogsAsync = ref.watch(showErrorLogsProvider);
     final logsStream = ref.watch(allLogsProvider);
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Location Logs'),
         actions: [
           // Toggle for showing error logs
           showErrorLogsAsync.when(
-            data: (showErrorLogs) => Switch(
-              value: showErrorLogs,
-              onChanged: (value) => ref.read(showErrorLogsProvider.notifier).set(value),
-            ),
+            data:
+                (showErrorLogs) => Switch(
+                  value: showErrorLogs,
+                  onChanged:
+                      (value) =>
+                          ref.read(showErrorLogsProvider.notifier).set(value),
+                ),
             loading: () => const CircularProgressIndicator(),
             error: (_, __) => const Icon(Icons.error),
           ),
@@ -36,9 +41,10 @@ class LogsScreen extends ConsumerWidget {
           return logsStream.when(
             data: (logs) {
               // Apply filter based on user preference
-              final filteredLogs = showErrorLogs 
-                  ? logs 
-                  : logs.where((log) => log.status != "error").toList();
+              final filteredLogs =
+                  showErrorLogs
+                      ? logs
+                      : logs.where((log) => log.status != "error").toList();
 
               if (filteredLogs.isEmpty) {
                 return const Center(child: Text("No logs available"));
@@ -60,18 +66,26 @@ class LogsScreen extends ConsumerWidget {
                       child: const Icon(Icons.delete, color: Colors.white),
                     ),
                     onDismissed: (direction) async {
-                      await ref.read(locationLogsRepositoryProvider).deleteLog(log.id);
-                      
+                      await ref
+                          .read(locationLogsRepositoryProvider)
+                          .deleteLog(log.id);
+
                       if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Log deleted")),
+                        SnackBarHelper.showSnackBar(
+                          context,
+                          "Deleted",
+                          'Deleted log entry for ${log.countryCode} 👌',
+                          ContentType.success,
                         );
                       }
                     },
                     child: ListTile(
                       leading:
                           log.status == "success"
-                              ? const Icon(Icons.check_circle, color: Colors.green)
+                              ? const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
+                              )
                               : const Icon(Icons.error, color: Colors.red),
                       title: Text(
                         log.status == "success"
@@ -85,13 +99,14 @@ class LogsScreen extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(
-              child: Text('Error loading logs: $error'),
-            ),
+            error:
+                (error, stack) =>
+                    Center(child: Text('Error loading logs: $error')),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const Center(child: Text("Failed to load preferences")),
+        error:
+            (_, __) => const Center(child: Text("Failed to load preferences")),
       ),
     );
   }
