@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/application/services/sim_info_service.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
@@ -20,7 +21,9 @@ class HomeScreenController extends _$HomeScreenController {
     return const HomeScreenStateData();
   }
 
-  Future<void> addCountry(Function(String, String) showSnackBar) async {
+  Future<void> addCountry(
+    Function(String, String, ContentType) showSnackBar,
+  ) async {
     state = state.copyWith(isFetchingLocation: true);
 
     try {
@@ -35,6 +38,7 @@ class HomeScreenController extends _$HomeScreenController {
         showSnackBar(
           'Location Retrieved!',
           'You are currently in: $isoCode 👌',
+          ContentType.success,
         );
       } else {
         _handleLocationError(showSnackBar);
@@ -46,9 +50,15 @@ class HomeScreenController extends _$HomeScreenController {
     }
   }
 
-  void _handleLocationError(Function(String, String) showSnackBar) {
+  void _handleLocationError(
+    Function(String, String, ContentType) showSnackBar,
+  ) {
     _locationLogsRepository.logEntry(status: 'error');
-    showSnackBar('Oops!', 'Cannot retrieve your location 😢');
+    showSnackBar(
+      'Oops!',
+      'Cannot retrieve your location 😢',
+      ContentType.failure,
+    );
   }
 }
 

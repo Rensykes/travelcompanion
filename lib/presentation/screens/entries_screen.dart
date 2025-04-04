@@ -1,7 +1,9 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/providers/country_data_service_provider.dart';
 import 'package:trackie/presentation/providers/country_visits_provider.dart';
 import 'relations_screen.dart';
@@ -10,58 +12,74 @@ class EntriesScreen extends ConsumerWidget {
   const EntriesScreen({super.key});
 
   // Show confirmation dialog before deleting
-  Future<bool> _showDeleteConfirmation(BuildContext context, WidgetRef ref, CountryVisit visit) async {
+  Future<bool> _showDeleteConfirmation(
+    BuildContext context,
+    WidgetRef ref,
+    CountryVisit visit,
+  ) async {
     final scaffoldMessenger = ScaffoldMessenger.of(context);
-    
+
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Deletion'),
-        content: Text(
-          'Are you sure you want to delete all data for ${visit.countryCode}? '
-          'This will remove all location logs related to this country.'
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Confirm Deletion'),
+            content: Text(
+              'Are you sure you want to delete all data for ${visit.countryCode}? '
+              'This will remove all location logs related to this country.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
-          ),
-        ],
-      ),
     );
-    
+
     if (result == true) {
       try {
         // Use the service through Riverpod
-        await ref.read(countryDataServiceProvider).deleteCountryData(visit.countryCode);
-        
+        await ref
+            .read(countryDataServiceProvider)
+            .deleteCountryData(visit.countryCode);
+
         if (context.mounted) {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text('Deleted all data for ${visit.countryCode}')),
+          SnackBarHelper.showSnackBar(
+            context,
+            "Deleted",
+            'Deleted all data for ${visit.countryCode} 👌',
+            ContentType.success,
           );
         }
         return true;
       } catch (e) {
         if (context.mounted) {
-          scaffoldMessenger.showSnackBar(
-            SnackBar(content: Text('Error deleting data: $e')),
+          SnackBarHelper.showSnackBar(
+            context,
+            "Deleted",
+            'Error deleting data: $e ❌',
+            ContentType.failure,
           );
         }
         return false;
       }
     }
-    
+
     return false;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final visitsStream = ref.watch(allVisitsProvider);
-    
+
     return Scaffold(
       appBar: AppBar(title: const Text('Country Visits')),
       body: visitsStream.when(
@@ -69,7 +87,7 @@ class EntriesScreen extends ConsumerWidget {
           if (visits.isEmpty) {
             return const Center(child: Text('No country visits recorded'));
           }
-          
+
           return ListView.builder(
             itemCount: visits.length,
             itemBuilder: (context, index) {
@@ -77,7 +95,8 @@ class EntriesScreen extends ConsumerWidget {
               return Dismissible(
                 key: Key(visit.countryCode),
                 direction: DismissDirection.endToStart,
-                confirmDismiss: (direction) => _showDeleteConfirmation(context, ref, visit),
+                confirmDismiss:
+                    (direction) => _showDeleteConfirmation(context, ref, visit),
                 background: Container(
                   color: Colors.red,
                   alignment: Alignment.centerRight,
@@ -98,9 +117,8 @@ class EntriesScreen extends ConsumerWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => RelationsScreen(
-                          countryVisit: visit,
-                        ),
+                        builder:
+                            (context) => RelationsScreen(countryVisit: visit),
                       ),
                     );
                   },

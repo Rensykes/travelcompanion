@@ -66,8 +66,8 @@ class HomeScreen extends ConsumerWidget {
             state.isFetchingLocation
                 ? null
                 : () {
-                  controller.addCountry((title, message) {
-                    SnackBarHelper.showSnackBar(context, title, message);
+                  controller.addCountry((title, message, status) {
+                    SnackBarHelper.showSnackBar(context, title, message, status);
                   });
                 },
         child:
