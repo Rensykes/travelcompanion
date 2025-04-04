@@ -1,6 +1,8 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/providers/database_provider.dart';
 import 'dart:developer';
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
@@ -146,8 +148,11 @@ class SettingsScreenState extends ConsumerState<SettingsScreen> {
     } catch (e) {
       log('Error cleaning up database: $e');
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error cleaning database: ${e.toString()}')),
+        SnackBarHelper.showSnackBar(
+          context,
+          'Error',
+          'Error cleaning database: ${e.toString()}',
+          ContentType.failure,
         );
       }
     }
