@@ -123,7 +123,7 @@ class LocationLogsRepository {
       }
     } catch (e) {
       log("❌ Error while deleting log: $e");
-      throw e; // Rethrow to allow proper error handling in UI
+      rethrow; // Rethrow to allow proper error handling in UI
     }
   }
 
