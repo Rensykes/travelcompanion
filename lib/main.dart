@@ -7,7 +7,7 @@ import 'package:trackie/presentation/screens/error_screen.dart';
 import 'package:trackie/core/error/error_reporter.dart';
 import 'package:trackie/core/error/error_handling.dart';
 import 'package:trackie/core/scheduler/background_task.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trackie/presentation/providers/theme_preferences_provider.dart';
 
 // Global key for showing snackbars from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -21,7 +21,7 @@ Future main() async {
   try {
     // Initialize Workmanager for background tasks
     initializeWorkmanager();
-    runApp(ProviderScope(child: MyApp()));
+    runApp(const ProviderScope(child: MyApp()));
   } catch (error, stackTrace) {
     // Pass null for context since we don't have a valid context yet
     ErrorReporter.reportError(null, error, stackTrace);
@@ -29,68 +29,60 @@ Future main() async {
   }
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
   @override
   MyAppState createState() => MyAppState();
 }
 
-class MyAppState extends State<MyApp> {
-  bool _isDarkMode = false;
-  bool _useSystemTheme = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadThemeSettings();
-  }
-
-  // Load theme settings from SharedPreferences
-  void _loadThemeSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _useSystemTheme = prefs.getBool('useSystemTheme') ?? false;
-      _isDarkMode = prefs.getBool('darkMode') ?? false;
-    });
-  }
-
-  // Save theme settings to SharedPreferences
-  void _saveThemeSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('useSystemTheme', _useSystemTheme);
-    prefs.setBool('darkMode', _isDarkMode);
-  }
-
-  // Handle theme changed callback from HomeScreen
+class MyAppState extends ConsumerState<MyApp> {
+  // This will be called when theme is changed in Settings
   void _handleThemeChanged(bool isDark, bool useSystemTheme) {
-    setState(() {
-      _isDarkMode = isDark;
-      _useSystemTheme = useSystemTheme;
-      _saveThemeSettings();
-    });
+    ref
+        .read(themePreferencesProvider.notifier)
+        .setThemeMode(isDarkMode: isDark, useSystemTheme: useSystemTheme);
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      title: 'Travel Tracker',
-      themeMode:
-          _useSystemTheme
-              ? ThemeMode.system
-              : (_isDarkMode ? ThemeMode.dark : ThemeMode.light),
-      theme: AppThemes.lightTheme,
-      darkTheme: AppThemes.darkTheme,
-      home: HomeScreen(
-        onThemeChanged: _handleThemeChanged,
-        isDarkMode: _isDarkMode,
-        useSystemTheme: _useSystemTheme,
-      ),
-      builder: (context, child) {
-        return child ?? const SizedBox.shrink();
+    // Watch theme preferences
+    final themePrefsAsync = ref.watch(themePreferencesProvider);
+
+    return themePrefsAsync.when(
+      data: (themePrefs) {
+        return MaterialApp(
+          navigatorKey: navigatorKey,
+          debugShowCheckedModeBanner: false,
+          title: 'Travel Tracker',
+          themeMode:
+              themePrefs.useSystemTheme
+                  ? ThemeMode.system
+                  : (themePrefs.isDarkMode ? ThemeMode.dark : ThemeMode.light),
+          theme: AppThemes.lightTheme,
+          darkTheme: AppThemes.darkTheme,
+          home: HomeScreen(
+            onThemeChanged: _handleThemeChanged,
+            isDarkMode: themePrefs.isDarkMode,
+            useSystemTheme: themePrefs.useSystemTheme,
+          ),
+          builder: (context, child) {
+            return child ?? const SizedBox.shrink();
+          },
+        );
       },
+      loading:
+          () => MaterialApp(
+            theme: AppThemes.lightTheme,
+            home: const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+          ),
+      error:
+          (error, stack) => MaterialApp(
+            theme: AppThemes.lightTheme,
+            home: ErrorScreen(error: error.toString()),
+          ),
     );
   }
 }

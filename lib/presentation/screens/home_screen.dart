@@ -38,11 +38,8 @@ class HomeScreen extends ConsumerWidget {
                   context,
                   MaterialPageRoute(
                     builder:
-                        (context) => SettingsScreen(
-                          isDarkMode: isDarkMode,
-                          useSystemTheme: useSystemTheme,
-                          onThemeChanged: onThemeChanged,
-                        ),
+                        (context) =>
+                            SettingsScreen(onThemeChanged: onThemeChanged),
                   ),
                 ),
           ),
@@ -50,17 +47,13 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: SafeArea(
         child: IndexedStack(
-          index:
-              state
-                  .selectedTabIndex, // Use state variable instead of hardcoded value
-          children: [EntriesScreen(), LogsScreen()],
+          index: state.selectedTabIndex,
+          children: const [EntriesScreen(), LogsScreen()],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex:
-            state
-                .selectedTabIndex, // Use state variable instead of hardcoded value
-        onTap: (index) => controller.changeTab(index), // Add onTap handler
+        currentIndex: state.selectedTabIndex,
+        onTap: (index) => controller.changeTab(index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.list), label: "Entries"),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: "Logs"),
