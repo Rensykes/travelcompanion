@@ -28,6 +28,26 @@ class LocationLogsRepository {
         .toList();
   }
 
+  /// Watch log relations for a given country code as a stream (for reactive UI)
+  Stream<List<LocationLog>> watchRelationsForCountryVisit(String countryCode) {
+    return (database.select(database.logCountryRelations)
+          ..where((r) => r.countryCode.equals(countryCode)))
+        .join([
+          leftOuterJoin(
+            database.locationLogs,
+            database.locationLogs.id.equalsExp(
+              database.logCountryRelations.logId,
+            ),
+          ),
+        ])
+        .watch()
+        .map((relations) {
+          return relations
+              .map((row) => row.readTable(database.locationLogs))
+              .toList();
+        });
+  }
+
   /// Logs a new entry in the location_logs table
   Future<void> logEntry({required String status, String? countryCode}) async {
     try {
@@ -103,6 +123,7 @@ class LocationLogsRepository {
       }
     } catch (e) {
       log("❌ Error while deleting log: $e");
+      throw e; // Rethrow to allow proper error handling in UI
     }
   }
 
@@ -148,6 +169,7 @@ class LocationLogsRepository {
       );
     } catch (e) {
       log("❌ Error while recalculating days spent: $e");
+      rethrow; // Rethrow to allow proper error handling in UI
     }
   }
 }
