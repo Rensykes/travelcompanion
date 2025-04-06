@@ -34,9 +34,7 @@ abstract class _$RelationsScreenController
     extends BuildlessAutoDisposeAsyncNotifier<List<LocationLog>> {
   late final String countryCode;
 
-  FutureOr<List<LocationLog>> build(
-    String countryCode,
-  );
+  FutureOr<List<LocationLog>> build(String countryCode);
 }
 
 /// See also [RelationsScreenController].
@@ -50,21 +48,15 @@ class RelationsScreenControllerFamily
   const RelationsScreenControllerFamily();
 
   /// See also [RelationsScreenController].
-  RelationsScreenControllerProvider call(
-    String countryCode,
-  ) {
-    return RelationsScreenControllerProvider(
-      countryCode,
-    );
+  RelationsScreenControllerProvider call(String countryCode) {
+    return RelationsScreenControllerProvider(countryCode);
   }
 
   @override
   RelationsScreenControllerProvider getProviderOverride(
     covariant RelationsScreenControllerProvider provider,
   ) {
-    return call(
-      provider.countryCode,
-    );
+    return call(provider.countryCode);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -84,24 +76,26 @@ class RelationsScreenControllerFamily
 
 /// See also [RelationsScreenController].
 class RelationsScreenControllerProvider
-    extends AutoDisposeAsyncNotifierProviderImpl<RelationsScreenController,
-        List<LocationLog>> {
+    extends
+        AutoDisposeAsyncNotifierProviderImpl<
+          RelationsScreenController,
+          List<LocationLog>
+        > {
   /// See also [RelationsScreenController].
-  RelationsScreenControllerProvider(
-    String countryCode,
-  ) : this._internal(
-          () => RelationsScreenController()..countryCode = countryCode,
-          from: relationsScreenControllerProvider,
-          name: r'relationsScreenControllerProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$relationsScreenControllerHash,
-          dependencies: RelationsScreenControllerFamily._dependencies,
-          allTransitiveDependencies:
-              RelationsScreenControllerFamily._allTransitiveDependencies,
-          countryCode: countryCode,
-        );
+  RelationsScreenControllerProvider(String countryCode)
+    : this._internal(
+        () => RelationsScreenController()..countryCode = countryCode,
+        from: relationsScreenControllerProvider,
+        name: r'relationsScreenControllerProvider',
+        debugGetCreateSourceHash:
+            const bool.fromEnvironment('dart.vm.product')
+                ? null
+                : _$relationsScreenControllerHash,
+        dependencies: RelationsScreenControllerFamily._dependencies,
+        allTransitiveDependencies:
+            RelationsScreenControllerFamily._allTransitiveDependencies,
+        countryCode: countryCode,
+      );
 
   RelationsScreenControllerProvider._internal(
     super._createNotifier, {
@@ -119,9 +113,7 @@ class RelationsScreenControllerProvider
   FutureOr<List<LocationLog>> runNotifierBuild(
     covariant RelationsScreenController notifier,
   ) {
-    return notifier.build(
-      countryCode,
-    );
+    return notifier.build(countryCode);
   }
 
   @override
@@ -141,8 +133,11 @@ class RelationsScreenControllerProvider
   }
 
   @override
-  AutoDisposeAsyncNotifierProviderElement<RelationsScreenController,
-      List<LocationLog>> createElement() {
+  AutoDisposeAsyncNotifierProviderElement<
+    RelationsScreenController,
+    List<LocationLog>
+  >
+  createElement() {
     return _RelationsScreenControllerProviderElement(this);
   }
 
@@ -170,13 +165,18 @@ mixin RelationsScreenControllerRef
 }
 
 class _RelationsScreenControllerProviderElement
-    extends AutoDisposeAsyncNotifierProviderElement<RelationsScreenController,
-        List<LocationLog>> with RelationsScreenControllerRef {
+    extends
+        AutoDisposeAsyncNotifierProviderElement<
+          RelationsScreenController,
+          List<LocationLog>
+        >
+    with RelationsScreenControllerRef {
   _RelationsScreenControllerProviderElement(super.provider);
 
   @override
   String get countryCode =>
       (origin as RelationsScreenControllerProvider).countryCode;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

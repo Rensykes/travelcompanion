@@ -1,4 +1,3 @@
-// relations_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:trackie/data/datasource/database.dart';
@@ -36,93 +35,81 @@ class RelationsScreen extends ConsumerWidget {
       body: controller.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Error: $err')),
-        data:
-            (logs) =>
-                logs.isEmpty
-                    ? const Center(
-                      child: Text('No logs found for this country'),
-                    )
-                    : ListView.builder(
-                      itemCount: logs.length,
-                      itemBuilder: (context, index) {
-                        final log = logs[index];
-                        return Dismissible(
-                          key: ValueKey("log-${log.id}"),
-                          direction: DismissDirection.endToStart,
-                          background: Container(
-                            color: Colors.red,
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: const Icon(
-                              Icons.delete,
-                              color: Colors.white,
+        data: (logs) {
+          if (logs.isEmpty) {
+            // If no logs are present, navigate back to EntriesScreen
+            Future.microtask(() => Navigator.of(context).pop());
+            return const Center(child: Text('No logs found for this country'));
+          }
+
+          return ListView.builder(
+            itemCount: logs.length,
+            itemBuilder: (context, index) {
+              final log = logs[index];
+              return Dismissible(
+                key: ValueKey("log-${log.id}"),
+                direction: DismissDirection.endToStart,
+                background: Container(
+                  color: Colors.red,
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: const Icon(Icons.delete, color: Colors.white),
+                ),
+                confirmDismiss: (direction) async {
+                  return await showDialog(
+                    context: context,
+                    builder:
+                        (_) => AlertDialog(
+                          title: const Text("Confirm"),
+                          content: const Text(
+                            "Are you sure you want to delete this log entry?",
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: const Text("Cancel"),
                             ),
-                          ),
-                          confirmDismiss: (direction) async {
-                            return await showDialog(
-                              context: context,
-                              builder:
-                                  (_) => AlertDialog(
-                                    title: const Text("Confirm"),
-                                    content: const Text(
-                                      "Are you sure you want to delete this log entry?",
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed:
-                                            () => Navigator.of(
-                                              context,
-                                            ).pop(false),
-                                        child: const Text("Cancel"),
-                                      ),
-                                      TextButton(
-                                        onPressed:
-                                            () =>
-                                                Navigator.of(context).pop(true),
-                                        child: const Text("Delete"),
-                                      ),
-                                    ],
-                                  ),
-                            );
-                          },
-                          onDismissed: (_) {
-                            ref
-                                .read(
-                                  relationsScreenControllerProvider(
-                                    countryVisit.countryCode,
-                                  ).notifier,
-                                )
-                                .deleteLog(
-                                  logId: log.id,
-                                  countryCode: countryVisit.countryCode,
-                                  context: context,
-                                  showSnackBar: (title, message, contentType) {
-                                    SnackBarHelper.showSnackBar(
-                                      context,
-                                      title,
-                                      message,
-                                      contentType,
-                                    );
-                                  },
-                                );
-                          },
-                          child: ListTile(
-                            leading:
-                                log.status == "success"
-                                    ? const Icon(
-                                      Icons.check_circle,
-                                      color: Colors.green,
-                                    )
-                                    : const Icon(
-                                      Icons.error,
-                                      color: Colors.red,
-                                    ),
-                            title: Text("Log #${log.id}"),
-                            subtitle: Text("Time: ${log.logDateTime}"),
-                          ),
-                        );
-                      },
-                    ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: const Text("Delete"),
+                            ),
+                          ],
+                        ),
+                  );
+                },
+                onDismissed: (_) {
+                  ref
+                      .read(
+                        relationsScreenControllerProvider(
+                          countryVisit.countryCode,
+                        ).notifier,
+                      )
+                      .deleteLog(
+                        logId: log.id,
+                        countryCode: countryVisit.countryCode,
+                        context: context,
+                        showSnackBar: (title, message, contentType) {
+                          SnackBarHelper.showSnackBar(
+                            context,
+                            title,
+                            message,
+                            contentType,
+                          );
+                        },
+                      );
+                },
+                child: ListTile(
+                  leading:
+                      log.status == "success"
+                          ? const Icon(Icons.check_circle, color: Colors.green)
+                          : const Icon(Icons.error, color: Colors.red),
+                  title: Text("Log #${log.id}"),
+                  subtitle: Text("Time: ${log.logDateTime}"),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
