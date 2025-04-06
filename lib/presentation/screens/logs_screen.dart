@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/presentation/controllers/logs_screen_controller.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/providers/location_logs_provider.dart';
