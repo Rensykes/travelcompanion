@@ -9,6 +9,7 @@ class SnackBarHelper {
     ContentType type,
   ) {
     final snackBar = SnackBar(
+      elevation: 0,
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
       content: AwesomeSnackbarContent(
