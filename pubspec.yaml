@@ -37,9 +37,7 @@ dependencies:
   table_calendar: ^3.0.9
   google_nav_bar: ^5.0.7
   badges: ^3.1.2
-  curved_navigation_bar: ^1.0.6
-  persistent_bottom_nav_bar: ^6.2.1
-  
+
   # UI - Icons
   cupertino_icons: ^1.0.8
   country_flags: ^2.0.1
