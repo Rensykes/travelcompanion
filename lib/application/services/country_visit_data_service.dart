@@ -15,16 +15,18 @@ class CountryDataService {
   Future<void> deleteCountryData(String countryCode) async {
     try {
       // Get all logs for this country
-      final logs = await locationLogsRepository.getRelationsForCountryVisit(countryCode);
-      
+      final logs = await locationLogsRepository.getRelationsForCountryVisit(
+        countryCode,
+      );
+
       // Delete each log
       for (var log in logs) {
         await locationLogsRepository.deleteLog(log.id);
       }
-      
+
       // Delete the country visit
       await countryVisitsRepository.deleteCountryVisit(countryCode);
-      
+
       log("🗑️ All data deleted for country: $countryCode");
     } catch (e) {
       log("❌ Error deleting country data: $e");

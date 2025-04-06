@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 class ErrorReporter {
-  static void reportError(BuildContext? context, dynamic error, StackTrace? stackTrace) {
+  static void reportError(
+    BuildContext? context,
+    dynamic error,
+    StackTrace? stackTrace,
+  ) {
     // Always log the error
     log('Error: $error');
     if (stackTrace != null) {

@@ -1,50 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:trackie/presentation/controllers/logs_screen_controller.dart';
+import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/providers/location_logs_provider.dart';
 import 'package:trackie/presentation/providers/preferences_provider.dart';
+import 'package:trackie/presentation/widgets/log_entry_tile.dart';
 
 class LogsScreen extends ConsumerWidget {
   const LogsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the show error logs preference
     final showErrorLogsAsync = ref.watch(showErrorLogsProvider);
-    final logsStream = ref.watch(allLogsProvider);
-    
+
+    // Watch the stream of logs from the database
+    final logsStreamAsync = ref.watch(allLogsProvider);
+
+    // Access the controller for specific actions
+    final controller = ref.read(logsScreenControllerProvider.notifier);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Location Logs'),
         actions: [
-          // Toggle for showing error logs
+          // Show error logs toggle switch
           showErrorLogsAsync.when(
-            data: (showErrorLogs) => Switch(
-              value: showErrorLogs,
-              onChanged: (value) => ref.read(showErrorLogsProvider.notifier).set(value),
-            ),
-            loading: () => const CircularProgressIndicator(),
+            data:
+                (showErrorLogs) => Switch(
+                  value: showErrorLogs,
+                  onChanged: (value) => controller.toggleErrorLogs(value),
+                ),
+            loading:
+                () => const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
             error: (_, __) => const Icon(Icons.error),
-          ),
-          // Add a refresh button to manually refresh
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(allLogsProvider),
           ),
         ],
       ),
-      body: showErrorLogsAsync.when(
-        data: (showErrorLogs) {
-          return logsStream.when(
-            data: (logs) {
+      body: logsStreamAsync.when(
+        data: (logs) {
+          return showErrorLogsAsync.when(
+            data: (showErrorLogs) {
               // Apply filter based on user preference
-              final filteredLogs = showErrorLogs 
-                  ? logs 
-                  : logs.where((log) => log.status != "error").toList();
+              final filteredLogs =
+                  showErrorLogs
+                      ? logs
+                      : logs.where((log) => log.status != "error").toList();
 
               if (filteredLogs.isEmpty) {
                 return const Center(child: Text("No logs available"));
               }
 
-              // Display logs
               return ListView.builder(
                 itemCount: filteredLogs.length,
                 itemBuilder: (context, index) {
@@ -60,38 +70,28 @@ class LogsScreen extends ConsumerWidget {
                       child: const Icon(Icons.delete, color: Colors.white),
                     ),
                     onDismissed: (direction) async {
-                      await ref.read(locationLogsRepositoryProvider).deleteLog(log.id);
-                      
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Log deleted")),
-                        );
-                      }
+                      await controller.deleteLog(
+                        log.id,
+                        (title, message, status) => SnackBarHelper.showSnackBar(
+                          context,
+                          title,
+                          message,
+                          status,
+                        ),
+                        context,
+                      );
                     },
-                    child: ListTile(
-                      leading:
-                          log.status == "success"
-                              ? const Icon(Icons.check_circle, color: Colors.green)
-                              : const Icon(Icons.error, color: Colors.red),
-                      title: Text(
-                        log.status == "success"
-                            ? "Country: ${log.countryCode ?? 'Unknown'}"
-                            : "Failed to fetch country",
-                      ),
-                      subtitle: Text("Time: ${log.logDateTime}"),
-                    ),
+                    child: LogEntryTile(log: log),
                   );
                 },
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stack) => Center(
-              child: Text('Error loading logs: $error'),
-            ),
+            error: (error, _) => Center(child: Text('Error: $error')),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => const Center(child: Text("Failed to load preferences")),
+        error: (error, _) => Center(child: Text('Error: $error')),
       ),
     );
   }

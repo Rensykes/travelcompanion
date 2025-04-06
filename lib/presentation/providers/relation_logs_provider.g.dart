@@ -39,21 +39,15 @@ class RelationLogsFamily extends Family<AsyncValue<List<LocationLog>>> {
   const RelationLogsFamily();
 
   /// See also [relationLogs].
-  RelationLogsProvider call(
-    String countryCode,
-  ) {
-    return RelationLogsProvider(
-      countryCode,
-    );
+  RelationLogsProvider call(String countryCode) {
+    return RelationLogsProvider(countryCode);
   }
 
   @override
   RelationLogsProvider getProviderOverride(
     covariant RelationLogsProvider provider,
   ) {
-    return call(
-      provider.countryCode,
-    );
+    return call(provider.countryCode);
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -75,24 +69,20 @@ class RelationLogsFamily extends Family<AsyncValue<List<LocationLog>>> {
 class RelationLogsProvider
     extends AutoDisposeFutureProvider<List<LocationLog>> {
   /// See also [relationLogs].
-  RelationLogsProvider(
-    String countryCode,
-  ) : this._internal(
-          (ref) => relationLogs(
-            ref as RelationLogsRef,
-            countryCode,
-          ),
-          from: relationLogsProvider,
-          name: r'relationLogsProvider',
-          debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product')
-                  ? null
-                  : _$relationLogsHash,
-          dependencies: RelationLogsFamily._dependencies,
-          allTransitiveDependencies:
-              RelationLogsFamily._allTransitiveDependencies,
-          countryCode: countryCode,
-        );
+  RelationLogsProvider(String countryCode)
+    : this._internal(
+        (ref) => relationLogs(ref as RelationLogsRef, countryCode),
+        from: relationLogsProvider,
+        name: r'relationLogsProvider',
+        debugGetCreateSourceHash:
+            const bool.fromEnvironment('dart.vm.product')
+                ? null
+                : _$relationLogsHash,
+        dependencies: RelationLogsFamily._dependencies,
+        allTransitiveDependencies:
+            RelationLogsFamily._allTransitiveDependencies,
+        countryCode: countryCode,
+      );
 
   RelationLogsProvider._internal(
     super._createNotifier, {
@@ -158,5 +148,6 @@ class _RelationLogsProviderElement
   @override
   String get countryCode => (origin as RelationLogsProvider).countryCode;
 }
+
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

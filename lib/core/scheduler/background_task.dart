@@ -19,9 +19,11 @@ void callbackDispatcher() {
 
       // Initialize database for background task
       backgroundDatabase = AppDatabase();
-      
+
       // Create repository instances
-      final countryVisitsRepository = CountryVisitsRepository(backgroundDatabase);
+      final countryVisitsRepository = CountryVisitsRepository(
+        backgroundDatabase,
+      );
       final locationLogsRepository = LocationLogsRepository(backgroundDatabase);
 
       String? isoCode = await SimInfoService.getIsoCode();
@@ -31,7 +33,10 @@ void callbackDispatcher() {
         await countryVisitsRepository.saveCountryVisit(isoCode);
 
         // Use LogService instance to log success
-        await locationLogsRepository.logEntry(status: "success", countryCode: isoCode);
+        await locationLogsRepository.logEntry(
+          status: "success",
+          countryCode: isoCode,
+        );
         DateTime dateTime = DateTime.now();
         log("✅ Background Task Success: Country - $isoCode - $dateTime");
       } else {
@@ -39,7 +44,7 @@ void callbackDispatcher() {
         await locationLogsRepository.logEntry(status: "error");
         log("❌ Background Task Failed: No country detected");
       }
-      
+
       // Close the database to prevent memory leaks
       await backgroundDatabase.close();
     } catch (e) {

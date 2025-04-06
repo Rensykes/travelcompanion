@@ -1,21 +1,13 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/presentation/providers/country_data_service_provider.dart';
-import 'package:trackie/presentation/providers/country_visits_provider.dart';
-import 'package:trackie/presentation/providers/database_provider.dart';
-import 'package:trackie/data/repositories/country_visits_repository.dart';
-import 'package:trackie/application/services/country_visit_data_service.dart';
-import 'package:trackie/application/services/sim_info_service.dart';
-import 'package:trackie/presentation/providers/location_logs_provider.dart';
+import 'package:trackie/presentation/controllers/home_screen_controller.dart';
+import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/screens/entries_screen.dart';
 import 'package:trackie/presentation/screens/logs_screen.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
-  final Function(bool isDark, bool useSystemTheme) onThemeChanged;
+class HomeScreen extends ConsumerWidget {
+  final Function(bool, bool) onThemeChanged;
   final bool isDarkMode;
   final bool useSystemTheme;
 
@@ -27,133 +19,13 @@ class HomeScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  HomeScreenState createState() => HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(homeScreenControllerProvider);
+    final controller = ref.read(homeScreenControllerProvider.notifier);
 
-class HomeScreenState extends ConsumerState<HomeScreen> {
-  late final AppDatabase database;
-  CountryVisitsRepository? _countryVisitsRepository;
-  LocationLogsRepository? _locationLogsRepository;
-  CountryDataService? _countryDataService;
-
-  int _selectedIndex = 0;
-  bool isLoading = true;
-  bool _isFetchingLocation = false;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() => _initializeServices());
-  }
-
-  Future<void> _initializeServices() async {
-    try {
-      _countryVisitsRepository = ref.read(countryVisitsRepositoryProvider);
-      _locationLogsRepository = ref.read(locationLogsRepositoryProvider);
-
-      _countryDataService = ref.read(countryDataServiceProvider);
-
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      log('Error initializing services: $e');
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-        Future.microtask(() {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error initializing: ${e.toString()}')),
-          );
-        });
-      }
-    }
-  }
-
-  Future<void> _addCountry() async {
-    if (mounted) {
-      setState(() {
-        _isFetchingLocation = true;
-      });
-    }
-
-    try {
-      String? isoCode = await SimInfoService.getIsoCode();
-
-      if (isoCode != null && mounted) {
-        await _countryVisitsRepository!.saveCountryVisit(isoCode);
-        await _locationLogsRepository!.logEntry(
-          status: 'success',
-          countryCode: isoCode,
-        );
-
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder:
-                (context) => AlertDialog(
-                  title: const Text("Location Retrieved"),
-                  content: Text("You are currently in: $isoCode"),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text("OK"),
-                    ),
-                  ],
-                ),
-          );
-        }
-      } else {
-        await _locationLogsRepository!.logEntry(status: 'error');
-      }
-    } catch (e) {
-      await _locationLogsRepository?.logEntry(status: 'error');
-
-      if (mounted) {
-        Future.microtask(() {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error adding country: ${e.toString()}')),
-          );
-        });
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isFetchingLocation = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (isLoading) {
+    if (state.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-
-    if (_countryDataService == null ||
-        _countryVisitsRepository == null ||
-        _locationLogsRepository == null) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Failed to initialize services'),
-              ElevatedButton(
-                onPressed: _initializeServices,
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    final List<Widget> screens = [EntriesScreen(), LogsScreen()];
 
     return Scaffold(
       appBar: AppBar(
@@ -161,45 +33,48 @@ class HomeScreenState extends ConsumerState<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (context) => SettingsScreen(
-                        isDarkMode: widget.isDarkMode,
-                        useSystemTheme: widget.useSystemTheme,
-                        onThemeChanged: widget.onThemeChanged,
-                      ),
+            onPressed:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) =>
+                            SettingsScreen(onThemeChanged: onThemeChanged),
+                  ),
                 ),
-              );
-            },
           ),
         ],
       ),
       body: SafeArea(
-        child: IndexedStack(index: _selectedIndex, children: screens),
+        child: IndexedStack(
+          index: state.selectedTabIndex,
+          children: const [EntriesScreen(), LogsScreen()],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        backgroundColor:
-            Theme.of(context).brightness == Brightness.light
-                ? Colors.white
-                : Colors.black,
-        selectedItemColor: Theme.of(context).primaryColor,
-        unselectedItemColor: Colors.grey,
+        currentIndex: state.selectedTabIndex,
+        onTap: (index) => controller.changeTab(index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.list), label: "Entries"),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: "Logs"),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _isFetchingLocation ? null : _addCountry,
-        tooltip: 'Add Current Location',
-        backgroundColor: Theme.of(context).primaryColor,
+        onPressed:
+            state.isFetchingLocation
+                ? null
+                : () {
+                  controller.addCountry((title, message, status) {
+                    SnackBarHelper.showSnackBar(
+                      context,
+                      title,
+                      message,
+                      status,
+                    );
+                  });
+                },
         child:
-            _isFetchingLocation
+            state.isFetchingLocation
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Icon(Icons.add_location),
       ),

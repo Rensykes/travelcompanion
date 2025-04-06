@@ -12,12 +12,14 @@ LocationLogsRepository locationLogsRepository(Ref ref) {
   return LocationLogsRepository(database);
 }
 
+// This provider gives a stream of logs that will automatically update the UI
 @riverpod
 Stream<List<LocationLog>> allLogs(Ref ref) {
   final repository = ref.watch(locationLogsRepositoryProvider);
   return repository.watchAllLogs();
 }
 
+// This provider can be used for one-time fetches rather than reactive updates
 @riverpod
 Future<List<LocationLog>> filteredLogs(
   Ref ref, {
