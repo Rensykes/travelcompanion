@@ -18,19 +18,7 @@ class RelationsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Logs for ${countryVisit.countryCode}'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed:
-                () => ref
-                    .read(
-                      relationsScreenControllerProvider(
-                        countryVisit.countryCode,
-                      ).notifier,
-                    )
-                    .refreshLogs(countryVisit.countryCode),
-          ),
-        ],
+        actions: [],
       ),
       body: controller.when(
         loading: () => const Center(child: CircularProgressIndicator()),

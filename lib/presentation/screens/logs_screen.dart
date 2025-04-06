@@ -39,11 +39,6 @@ class LogsScreen extends ConsumerWidget {
                 ),
             error: (_, __) => const Icon(Icons.error),
           ),
-          // Keep the refresh button for manual refresh if needed
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => controller.refreshLogs(),
-          ),
         ],
       ),
       body: logsStreamAsync.when(
