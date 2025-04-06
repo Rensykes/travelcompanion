@@ -8,11 +8,13 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+/*
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
+*/
 
 android {
     namespace = "io.bytebakehouse.trackie"
@@ -39,6 +41,7 @@ android {
         versionName = flutter.versionName
     }
 
+/*
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
@@ -47,7 +50,7 @@ android {
             storePassword = keystoreProperties["storePassword"] as String
         }
     }
-
+*/
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.

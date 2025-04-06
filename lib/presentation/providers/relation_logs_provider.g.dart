@@ -6,7 +6,8 @@ part of 'relation_logs_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$relationLogsHash() => r'addf95fbb5d9d9f1335aa130793a2f8fe88ad174';
+String _$relationLogsStreamHash() =>
+    r'48a0f7ae4a355df8aaa25be3d5c4f2c446812ba5';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -28,6 +29,129 @@ class _SystemHash {
     return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
   }
 }
+
+/// See also [relationLogsStream].
+@ProviderFor(relationLogsStream)
+const relationLogsStreamProvider = RelationLogsStreamFamily();
+
+/// See also [relationLogsStream].
+class RelationLogsStreamFamily extends Family<AsyncValue<List<LocationLog>>> {
+  /// See also [relationLogsStream].
+  const RelationLogsStreamFamily();
+
+  /// See also [relationLogsStream].
+  RelationLogsStreamProvider call(String countryCode) {
+    return RelationLogsStreamProvider(countryCode);
+  }
+
+  @override
+  RelationLogsStreamProvider getProviderOverride(
+    covariant RelationLogsStreamProvider provider,
+  ) {
+    return call(provider.countryCode);
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'relationLogsStreamProvider';
+}
+
+/// See also [relationLogsStream].
+class RelationLogsStreamProvider
+    extends AutoDisposeStreamProvider<List<LocationLog>> {
+  /// See also [relationLogsStream].
+  RelationLogsStreamProvider(String countryCode)
+    : this._internal(
+        (ref) => relationLogsStream(ref as RelationLogsStreamRef, countryCode),
+        from: relationLogsStreamProvider,
+        name: r'relationLogsStreamProvider',
+        debugGetCreateSourceHash:
+            const bool.fromEnvironment('dart.vm.product')
+                ? null
+                : _$relationLogsStreamHash,
+        dependencies: RelationLogsStreamFamily._dependencies,
+        allTransitiveDependencies:
+            RelationLogsStreamFamily._allTransitiveDependencies,
+        countryCode: countryCode,
+      );
+
+  RelationLogsStreamProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.countryCode,
+  }) : super.internal();
+
+  final String countryCode;
+
+  @override
+  Override overrideWith(
+    Stream<List<LocationLog>> Function(RelationLogsStreamRef provider) create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: RelationLogsStreamProvider._internal(
+        (ref) => create(ref as RelationLogsStreamRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        countryCode: countryCode,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeStreamProviderElement<List<LocationLog>> createElement() {
+    return _RelationLogsStreamProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is RelationLogsStreamProvider &&
+        other.countryCode == countryCode;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, countryCode.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin RelationLogsStreamRef on AutoDisposeStreamProviderRef<List<LocationLog>> {
+  /// The parameter `countryCode` of this provider.
+  String get countryCode;
+}
+
+class _RelationLogsStreamProviderElement
+    extends AutoDisposeStreamProviderElement<List<LocationLog>>
+    with RelationLogsStreamRef {
+  _RelationLogsStreamProviderElement(super.provider);
+
+  @override
+  String get countryCode => (origin as RelationLogsStreamProvider).countryCode;
+}
+
+String _$relationLogsHash() => r'addf95fbb5d9d9f1335aa130793a2f8fe88ad174';
 
 /// See also [relationLogs].
 @ProviderFor(relationLogs)
