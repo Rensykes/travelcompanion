@@ -18,7 +18,7 @@ class LogsScreenController extends _$LogsScreenController {
   @override
   Future<LogsScreenStateData> build() async {
     _logsRepository = ref.read(locationLogsRepositoryProvider);
-    
+
     // Initialize state
     final showErrorLogs = await ref.watch(showErrorLogsProvider.future);
     return _fetchLogs(showErrorLogs);
@@ -27,10 +27,7 @@ class LogsScreenController extends _$LogsScreenController {
   Future<LogsScreenStateData> _fetchLogs(bool showErrorLogs) async {
     try {
       final logs = await _logsRepository.getAllLogs();
-      return LogsScreenStateData(
-        logs: logs,
-        showErrorLogs: showErrorLogs,
-      );
+      return LogsScreenStateData(logs: logs, showErrorLogs: showErrorLogs);
     } catch (e) {
       return LogsScreenStateData(
         errorMessage: 'Failed to load logs: $e',
@@ -41,15 +38,17 @@ class LogsScreenController extends _$LogsScreenController {
 
   Future<void> refreshLogs() async {
     state = const AsyncValue.loading();
-    final currentState = state.valueOrNull ?? 
-        LogsScreenStateData(showErrorLogs: await ref.read(showErrorLogsProvider.future));
-    
+    final currentState =
+        state.valueOrNull ??
+        LogsScreenStateData(
+          showErrorLogs: await ref.read(showErrorLogsProvider.future),
+        );
+
     try {
       final logs = await _logsRepository.getAllLogs();
-      state = AsyncValue.data(currentState.copyWith(
-        logs: logs,
-        errorMessage: null,
-      ));
+      state = AsyncValue.data(
+        currentState.copyWith(logs: logs, errorMessage: null),
+      );
     } catch (e) {
       state = AsyncValue.error(
         'Failed to refresh logs: $e',
@@ -60,7 +59,7 @@ class LogsScreenController extends _$LogsScreenController {
 
   Future<void> toggleErrorLogs(bool value) async {
     await ref.read(showErrorLogsProvider.notifier).set(value);
-    
+
     // We don't need to fetch logs again since the state will rebuild
     // when the showErrorLogsProvider changes
     if (state.hasValue) {
@@ -68,47 +67,53 @@ class LogsScreenController extends _$LogsScreenController {
     }
   }
 
-Future<void> deleteLog(int logId, Function(String, String, ContentType) showSnackBar, BuildContext context) async {
-  try {
-    // Show a loading indicator or disable UI interactions if needed
-    await _logsRepository.deleteLog(logId);
-    
-    // Update state if successful
-    if (state.hasValue) {
-      final updatedLogs = state.value!.logs.where((log) => log.id != logId).toList();
-      state = AsyncValue.data(state.value!.copyWith(logs: updatedLogs));
+  Future<void> deleteLog(
+    int logId,
+    Function(String, String, ContentType) showSnackBar,
+    BuildContext context,
+  ) async {
+    try {
+      // Show a loading indicator or disable UI interactions if needed
+      await _logsRepository.deleteLog(logId);
+
+      // Update state if successful
+      if (state.hasValue) {
+        final updatedLogs =
+            state.value!.logs.where((log) => log.id != logId).toList();
+        state = AsyncValue.data(state.value!.copyWith(logs: updatedLogs));
+      }
+
+      // Show success message
+      if (context.mounted) {
+        showSnackBar(
+          "Deleted",
+          'Log entry successfully removed',
+          ContentType.success,
+        );
+      }
+    } catch (e) {
+      // Log the error for debugging
+      log('Error deleting log: $e');
+
+      // Show error message to user
+      if (context.mounted) {
+        showSnackBar(
+          "Error",
+          'Failed to delete log: ${e is Exception ? e.toString() : "Unknown error"}',
+          ContentType.failure,
+        );
+      }
+
+      // Optionally refresh logs to ensure state is consistent
+      await refreshLogs();
     }
-    
-    // Show success message
-    if (context.mounted) {
-      showSnackBar(
-        "Deleted",
-        'Log entry successfully removed',
-        ContentType.success,
-      );
-    }
-  } catch (e) {
-    // Log the error for debugging
-    log('Error deleting log: $e');
-    
-    // Show error message to user
-    if (context.mounted) {
-      showSnackBar(
-        "Error",
-        'Failed to delete log: ${e is Exception ? e.toString() : "Unknown error"}',
-        ContentType.failure,
-      );
-    }
-    
-    // Optionally refresh logs to ensure state is consistent
-    await refreshLogs();
   }
-}
 }
 
 class LogsScreenStateData {
   final bool isLoading;
-  final List<LocationLog> logs; // Replace with your actual log model and not database model
+  final List<LocationLog>
+  logs; // Replace with your actual log model and not database model
   final String? errorMessage;
   final bool showErrorLogs;
 

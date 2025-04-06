@@ -12,12 +12,15 @@ String _$logsScreenControllerHash() =>
 /// See also [LogsScreenController].
 @ProviderFor(LogsScreenController)
 final logsScreenControllerProvider = AutoDisposeAsyncNotifierProvider<
-    LogsScreenController, LogsScreenStateData>.internal(
+  LogsScreenController,
+  LogsScreenStateData
+>.internal(
   LogsScreenController.new,
   name: r'logsScreenControllerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$logsScreenControllerHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$logsScreenControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

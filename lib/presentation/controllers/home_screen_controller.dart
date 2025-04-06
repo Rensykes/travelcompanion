@@ -77,8 +77,8 @@ class HomeScreenStateData {
   });
 
   HomeScreenStateData copyWith({
-    bool? isLoading, 
-    bool? isFetchingLocation, 
+    bool? isLoading,
+    bool? isFetchingLocation,
     int? selectedTabIndex,
   }) {
     return HomeScreenStateData(

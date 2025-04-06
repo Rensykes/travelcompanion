@@ -7,10 +7,7 @@ import 'package:trackie/presentation/providers/location_logs_provider.dart';
 part 'relation_logs_provider.g.dart';
 
 @riverpod
-Future<List<LocationLog>> relationLogs(
-  Ref ref,
-  String countryCode,
-) {
+Future<List<LocationLog>> relationLogs(Ref ref, String countryCode) {
   final repository = ref.watch(locationLogsRepositoryProvider);
   return repository.getRelationsForCountryVisit(countryCode);
 }

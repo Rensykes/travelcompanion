@@ -12,12 +12,15 @@ String _$homeScreenControllerHash() =>
 /// See also [HomeScreenController].
 @ProviderFor(HomeScreenController)
 final homeScreenControllerProvider = AutoDisposeNotifierProvider<
-    HomeScreenController, HomeScreenStateData>.internal(
+  HomeScreenController,
+  HomeScreenStateData
+>.internal(
   HomeScreenController.new,
   name: r'homeScreenControllerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$homeScreenControllerHash,
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product')
+          ? null
+          : _$homeScreenControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

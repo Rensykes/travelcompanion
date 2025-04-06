@@ -17,27 +17,19 @@ class ErrorScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 60,
-              ),
+              const Icon(Icons.error_outline, color: Colors.red, size: 60),
               const SizedBox(height: 16),
               const Text(
                 'Oops! Something went wrong',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                kDebugMode ? error : 'Unable to start the app. Please try again.',
+                kDebugMode
+                    ? error
+                    : 'Unable to start the app. Please try again.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 24),
               ElevatedButton(

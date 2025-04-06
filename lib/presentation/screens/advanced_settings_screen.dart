@@ -4,10 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AdvancedSettingsScreen extends StatefulWidget {
-
-  const AdvancedSettingsScreen({
-    super.key,
-  });
+  const AdvancedSettingsScreen({super.key});
 
   @override
   AdvancedSettingsScreenState createState() => AdvancedSettingsScreenState();
@@ -59,15 +56,14 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
               padding: EdgeInsets.symmetric(vertical: 8.0),
               child: Text(
                 'Logs Settings',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             SwitchListTile(
               title: const Text('Show Error Logs'),
-              subtitle: const Text('Show logs with status "error" in the logs list'),
+              subtitle: const Text(
+                'Show logs with status "error" in the logs list',
+              ),
               value: _showErrorLogs,
               onChanged: (bool value) => _toggleErrorLogs(value),
             ),

@@ -10,7 +10,7 @@ part 'country_data_service_provider.g.dart';
 CountryDataService countryDataService(Ref ref) {
   final countryVisitsRepository = ref.watch(countryVisitsRepositoryProvider);
   final locationLogsRepository = ref.watch(locationLogsRepositoryProvider);
-  
+
   return CountryDataService(
     countryVisitsRepository: countryVisitsRepository,
     locationLogsRepository: locationLogsRepository,

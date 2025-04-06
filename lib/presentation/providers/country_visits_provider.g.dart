@@ -13,32 +13,35 @@ String _$countryVisitsRepositoryHash() =>
 @ProviderFor(countryVisitsRepository)
 final countryVisitsRepositoryProvider =
     AutoDisposeProvider<CountryVisitsRepository>.internal(
-  countryVisitsRepository,
-  name: r'countryVisitsRepositoryProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$countryVisitsRepositoryHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      countryVisitsRepository,
+      name: r'countryVisitsRepositoryProvider',
+      debugGetCreateSourceHash:
+          const bool.fromEnvironment('dart.vm.product')
+              ? null
+              : _$countryVisitsRepositoryHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef CountryVisitsRepositoryRef
-    = AutoDisposeProviderRef<CountryVisitsRepository>;
+typedef CountryVisitsRepositoryRef =
+    AutoDisposeProviderRef<CountryVisitsRepository>;
 String _$allVisitsHash() => r'0d3f885c77f60871a6607990f1f02f034effeda7';
 
 /// See also [allVisits].
 @ProviderFor(allVisits)
 final allVisitsProvider =
     AutoDisposeStreamProvider<List<CountryVisit>>.internal(
-  allVisits,
-  name: r'allVisitsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$allVisitsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+      allVisits,
+      name: r'allVisitsProvider',
+      debugGetCreateSourceHash:
+          const bool.fromEnvironment('dart.vm.product')
+              ? null
+              : _$allVisitsHash,
+      dependencies: null,
+      allTransitiveDependencies: null,
+    );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element

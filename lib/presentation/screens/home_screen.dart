@@ -33,44 +33,57 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SettingsScreen(
-                  isDarkMode: isDarkMode,
-                  useSystemTheme: useSystemTheme,
-                  onThemeChanged: onThemeChanged,
+            onPressed:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (context) => SettingsScreen(
+                          isDarkMode: isDarkMode,
+                          useSystemTheme: useSystemTheme,
+                          onThemeChanged: onThemeChanged,
+                        ),
+                  ),
                 ),
-              ),
-            ),
           ),
         ],
       ),
       body: SafeArea(
         child: IndexedStack(
-          index: state.selectedTabIndex,  // Use state variable instead of hardcoded value
+          index:
+              state
+                  .selectedTabIndex, // Use state variable instead of hardcoded value
           children: [EntriesScreen(), LogsScreen()],
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: state.selectedTabIndex,  // Use state variable instead of hardcoded value
-        onTap: (index) => controller.changeTab(index),  // Add onTap handler
+        currentIndex:
+            state
+                .selectedTabIndex, // Use state variable instead of hardcoded value
+        onTap: (index) => controller.changeTab(index), // Add onTap handler
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.list), label: "Entries"),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: "Logs"),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: state.isFetchingLocation
-            ? null
-            : () {
-                controller.addCountry((title, message, status) {
-                  SnackBarHelper.showSnackBar(context, title, message, status);
-                });
-              },
-        child: state.isFetchingLocation
-            ? const CircularProgressIndicator(color: Colors.white)
-            : const Icon(Icons.add_location),
+        onPressed:
+            state.isFetchingLocation
+                ? null
+                : () {
+                  controller.addCountry((title, message, status) {
+                    SnackBarHelper.showSnackBar(
+                      context,
+                      title,
+                      message,
+                      status,
+                    );
+                  });
+                },
+        child:
+            state.isFetchingLocation
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Icon(Icons.add_location),
       ),
     );
   }
