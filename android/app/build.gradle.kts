@@ -17,7 +17,6 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "io.bytebakehouse.trackie"
     compileSdk = flutter.compileSdkVersion
-    //ndkVersion = flutter.ndkVersion
     ndkVersion = "28.0.13004108"
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -29,14 +28,15 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "io.bytebakehouse.trackie"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     signingConfigs {
@@ -46,17 +46,79 @@ android {
             storeFile = keystoreProperties["storeFile"]?.let { file(it) }
             storePassword = keystoreProperties["storePassword"] as String
         }
+        
+        getByName("debug") {
+            // You can customize debug signing config if needed
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
+    flavorDimensions += "environment"
+    
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Trackie Dev")
+            buildConfigField("String", "API_BASE_URL", "\"https://dev-api.example.com/\"")
+            buildConfigField("boolean", "ENABLE_LOGS", "true")
+        }
+        
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            resValue("string", "app_name", "Trackie Staging")
+            buildConfigField("String", "API_BASE_URL", "\"https://staging-api.example.com/\"")
+            buildConfigField("boolean", "ENABLE_LOGS", "true")
+        }
+        
+        create("prod") {
+            dimension = "environment"
+            resValue("string", "app_name", "Trackie")
+            buildConfigField("String", "API_BASE_URL", "\"https://api.example.com/\"")
+            buildConfigField("boolean", "ENABLE_LOGS", "false")
+        }
     }
 
     buildTypes {
-        release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+        debug {
+            isDebuggable = true
             signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
+        
+        release {
+            isDebuggable = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+    
+    // Create combined build variants
+    android.variantFilter {
+        // Optional: Ignore certain combinations if you don't need them
+        val buildType = buildType.name
+        val flavor = flavors[0].name
+        
+        // For example, you might want to exclude devRelease if not needed
+        // if (buildType == "release" && flavor == "dev") {
+        //     ignore = true
+        // }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Add any Android-specific dependencies here
 }
