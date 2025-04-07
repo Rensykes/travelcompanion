@@ -33,6 +33,25 @@
               }
             },
             "command": "Get-ChildItem -Recurse -Filter *.g.dart | ForEach-Object { git checkout -- $_.FullName }"
+          },
+          {
+            "label": "Build AAB (prod)",
+            "type": "shell",
+            "command": "flutter",
+            "args": [
+              "build",
+              "appbundle",
+              "--flavor",
+              "prod",
+              "-t",
+              "lib/main_prod.dart"
+            ],
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "Builds the release AAB using the prod flavor and main_prod.dart"
           }          
     ]
 }

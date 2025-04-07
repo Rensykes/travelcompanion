@@ -18,6 +18,12 @@ android {
     namespace = "io.bytebakehouse.trackie"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "28.0.13004108"
+    
+    // Enable BuildConfig generation
+    buildFeatures {
+        buildConfig = true
+    }
+    
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -35,25 +41,15 @@ android {
         versionName = flutter.versionName
     }
 
-    buildFeatures {
-        buildConfig = true
-    }
-
     signingConfigs {
+        // Only define release signing config
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as String
             keyPassword = keystoreProperties["keyPassword"] as String
             storeFile = keystoreProperties["storeFile"]?.let { file(it) }
             storePassword = keystoreProperties["storePassword"] as String
         }
-        
-        getByName("debug") {
-            // You can customize debug signing config if needed
-            storeFile = file("debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
+        // The debug signing config will use the default debug keystore
     }
 
     flavorDimensions += "environment"
@@ -88,7 +84,7 @@ android {
     buildTypes {
         debug {
             isDebuggable = true
-            signingConfig = signingConfigs.getByName("debug")
+            // Don't specify signingConfig here - it will use the default debug keystore
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
         }
@@ -100,18 +96,6 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
-    }
-    
-    // Create combined build variants
-    android.variantFilter {
-        // Optional: Ignore certain combinations if you don't need them
-        val buildType = buildType.name
-        val flavor = flavors[0].name
-        
-        // For example, you might want to exclude devRelease if not needed
-        // if (buildType == "release" && flavor == "dev") {
-        //     ignore = true
-        // }
     }
 }
 

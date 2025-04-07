@@ -55,8 +55,9 @@ void callbackDispatcher() {
   });
 }
 
-void initializeWorkmanager() {
-  Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+void initializeWorkmanager(bool bool, {required bool isInDebugMode}) {
+  log("Initializing Workmanager - debug: $bool");
+  Workmanager().initialize(callbackDispatcher, isInDebugMode: isInDebugMode);
   Workmanager().registerPeriodicTask(
     "1",
     fetchLocationInBackgroundTask,
