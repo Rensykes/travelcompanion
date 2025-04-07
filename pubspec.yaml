@@ -35,10 +35,13 @@ dependencies:
   awesome_snackbar_content: ^0.1.5
   fl_chart: ^0.70.2
   table_calendar: ^3.0.9
+  google_nav_bar: ^5.0.7
+  badges: ^3.1.2
 
   # UI - Icons
   cupertino_icons: ^1.0.8
   country_flags: ^2.0.1
+  line_icons: ^2.0.3
 
   # DB
   drift: ^2.26.0

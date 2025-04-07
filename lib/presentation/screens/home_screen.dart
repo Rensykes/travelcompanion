@@ -5,6 +5,7 @@ import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/screens/entries_screen.dart';
 import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
+import 'package:trackie/presentation/widgets/custom_google_navbar.dart';
 
 class HomeScreen extends ConsumerWidget {
   final Function(bool, bool) onThemeChanged;
@@ -28,56 +29,45 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed:
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder:
-                        (context) =>
-                            SettingsScreen(onThemeChanged: onThemeChanged),
-                  ),
-                ),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Trackie')),
       body: SafeArea(
         child: IndexedStack(
           index: state.selectedTabIndex,
-          children: const [EntriesScreen(), LogsScreen()],
+          children: [
+            const EntriesScreen(),
+            const LogsScreen(),
+            SettingsScreen(onThemeChanged: onThemeChanged),
+          ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: state.selectedTabIndex,
-        onTap: (index) => controller.changeTab(index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: "Entries"),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: "Logs"),
-        ],
+      bottomNavigationBar: CustomGoogleNavBar(
+        selectedIndex: state.selectedTabIndex,
+        onTabChange: (index) {
+          controller.changeTab(index);
+        },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-            state.isFetchingLocation
-                ? null
-                : () {
-                  controller.addCountry((title, message, status) {
-                    SnackBarHelper.showSnackBar(
-                      context,
-                      title,
-                      message,
-                      status,
-                    );
-                  });
-                },
-        child:
-            state.isFetchingLocation
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Icon(Icons.add_location),
-      ),
+      floatingActionButton:
+          state.selectedTabIndex != 2
+              ? FloatingActionButton(
+                onPressed:
+                    state.isFetchingLocation
+                        ? null
+                        : () {
+                          controller.addCountry((title, message, status) {
+                            SnackBarHelper.showSnackBar(
+                              context,
+                              title,
+                              message,
+                              status,
+                            );
+                          });
+                        },
+                child:
+                    state.isFetchingLocation
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Icon(Icons.add_location),
+              )
+              : null,
     );
   }
 }
