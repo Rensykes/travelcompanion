@@ -13,91 +13,115 @@ import 'package:trackie/core/config/app_config.dart';
 // Global key for showing snackbars from anywhere
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-Future main() async {
-  // Initialize error handling - pass null for context since app hasn't started
+/// Application entry point
+Future<void> main() async {
+  // Ensure Flutter bindings are initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize error handling before anything else
   initializeErrorHandling(null);
 
   try {
-    // Initialize configuration based on build flavor
-    await AppConfig().initialize();
+    // Initialize app configuration based on build flavor
+    await _initializeApp();
 
-    // Configure error reporting based on environment
-    if (AppConfig().enableLogs) {
-      // TODO: Initialize logging service here if needed
-    }
-
+    // Start the application
     runApp(const ProviderScope(child: MyApp()));
   } catch (error, stackTrace) {
-    // Pass null for context since we don't have a valid context yet
     ErrorReporter.reportError(null, error, stackTrace);
     runApp(ErrorApp(error: error.toString()));
   }
 }
 
-class MyApp extends ConsumerStatefulWidget {
+/// Initialize all app dependencies
+Future<void> _initializeApp() async {
+  // Initialize configuration based on build flavor
+  await AppConfig().initialize();
+
+  // Configure error reporting based on environment
+  if (AppConfig().enableLogs) {
+    // Initialize logging service
+    await _initializeLogging();
+  }
+}
+
+/// Initialize logging services
+Future<void> _initializeLogging() async {
+  // TODO: Initialize logging service here
+}
+
+/// Main application widget
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  MyAppState createState() => MyAppState();
-}
-
-class MyAppState extends ConsumerState<MyApp> {
-  // This will be called when theme is changed in Settings
-  void _handleThemeChanged(bool isDark, bool useSystemTheme) {
-    ref
-        .read(themePreferencesProvider.notifier)
-        .setThemeMode(isDarkMode: isDark, useSystemTheme: useSystemTheme);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Watch theme preferences
     final themePrefsAsync = ref.watch(themePreferencesProvider);
 
+    return themePrefsAsync.when(
+      data: (themePrefs) => _buildApp(themePrefs, ref),
+      loading: () => _buildLoadingApp(),
+      error: (error, stack) => _buildErrorApp(error),
+    );
+  }
+
+  /// Build the main application with loaded theme preferences
+  MaterialApp _buildApp(ThemePreferencesState themePrefs, WidgetRef ref) {
     // Get app name from config
     final appName = AppConfig().appName;
+    final environment = AppConfig().environment;
 
     // Add a visual indicator of environment in non-prod builds
-    String titlePrefix = '';
-    if (AppConfig().environment != Environment.prod) {
-      titlePrefix = '[${AppConfig().environment.name.toUpperCase()}] ';
-    }
+    final String titlePrefix =
+        environment != Environment.prod
+            ? '[${environment.name.toUpperCase()}] '
+            : '';
 
-    return themePrefsAsync.when(
-      data: (themePrefs) {
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner:
-              AppConfig().environment != Environment.prod,
-          title: '$titlePrefix$appName',
-          themeMode:
-              themePrefs.useSystemTheme
-                  ? ThemeMode.system
-                  : (themePrefs.isDarkMode ? ThemeMode.dark : ThemeMode.light),
-          theme: AppThemes.lightTheme,
-          darkTheme: AppThemes.darkTheme,
-          home: HomeScreen(
-            onThemeChanged: _handleThemeChanged,
-            isDarkMode: themePrefs.isDarkMode,
-            useSystemTheme: themePrefs.useSystemTheme,
-          ),
-          builder: (context, child) {
-            return child ?? const SizedBox.shrink();
-          },
-        );
-      },
-      loading:
-          () => MaterialApp(
-            theme: AppThemes.lightTheme,
-            home: const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
-          ),
-      error:
-          (error, stack) => MaterialApp(
-            theme: AppThemes.lightTheme,
-            home: ErrorScreen(error: error.toString()),
-          ),
+    return MaterialApp(
+      navigatorKey: navigatorKey,
+      debugShowCheckedModeBanner: environment != Environment.prod,
+      title: '$titlePrefix$appName',
+      themeMode: _determineThemeMode(themePrefs),
+      theme: AppThemes.lightTheme,
+      darkTheme: AppThemes.darkTheme,
+      home: HomeScreen(
+        onThemeChanged:
+            (isDark, useSystemTheme) =>
+                _handleThemeChanged(ref, isDark, useSystemTheme),
+        isDarkMode: themePrefs.isDarkMode,
+        useSystemTheme: themePrefs.useSystemTheme,
+      ),
+      builder: (context, child) => child ?? const SizedBox.shrink(),
     );
+  }
+
+  /// Build a loading screen while theme preferences are loading
+  MaterialApp _buildLoadingApp() {
+    return MaterialApp(
+      theme: AppThemes.lightTheme,
+      home: const Scaffold(body: Center(child: CircularProgressIndicator())),
+    );
+  }
+
+  /// Build an error screen if theme preferences loading fails
+  MaterialApp _buildErrorApp(Object error) {
+    return MaterialApp(
+      theme: AppThemes.lightTheme,
+      home: ErrorScreen(error: error.toString()),
+    );
+  }
+
+  /// Determine the theme mode based on preferences
+  ThemeMode _determineThemeMode(ThemePreferencesState prefs) {
+    if (prefs.useSystemTheme) return ThemeMode.system;
+    return prefs.isDarkMode ? ThemeMode.dark : ThemeMode.light;
+  }
+
+  /// Theme change handler for passing to HomeScreen
+  void _handleThemeChanged(WidgetRef ref, bool isDark, bool useSystemTheme) {
+    ref
+        .read(themePreferencesProvider.notifier)
+        .setThemeMode(isDarkMode: isDark, useSystemTheme: useSystemTheme);
   }
 }

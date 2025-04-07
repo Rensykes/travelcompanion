@@ -1,5 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:trackie/presentation/providers/preferences_provider.dart';
 
 part 'theme_preferences_provider.g.dart';
 
@@ -7,7 +7,7 @@ part 'theme_preferences_provider.g.dart';
 class ThemePreferences extends _$ThemePreferences {
   @override
   Future<ThemePreferencesState> build() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await ref.watch(sharedPreferencesProvider.future);
 
     // Get saved theme preferences or use defaults
     final useSystemTheme = prefs.getBool('useSystemTheme') ?? false;
@@ -22,7 +22,7 @@ class ThemePreferences extends _$ThemePreferences {
   Future<void> setThemeMode({bool? isDarkMode, bool? useSystemTheme}) async {
     if (!state.hasValue) return;
 
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = await ref.read(sharedPreferencesProvider.future);
     final currentState = state.value!;
 
     // Determine new state values
