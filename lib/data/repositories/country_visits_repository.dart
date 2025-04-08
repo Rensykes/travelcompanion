@@ -9,7 +9,12 @@ class CountryVisitsRepository {
 
   // Save or update country visit
   Future<void> saveCountryVisit(String countryCode) async {
-    log("🌍 Starting to save/update country visit for: $countryCode");
+    log(
+      '🌍 Starting to save/update country visit for: $countryCode',
+      name: 'CountryVisitsRepository',
+      level: 0, // 0 for INFO
+      time: DateTime.now(),
+    );
 
     final today = DateTime.now();
     final formattedToday = DateTime(today.year, today.month, today.day);
@@ -22,11 +27,17 @@ class CountryVisitsRepository {
     if (existingVisit != null) {
       log(
         "📝 Found existing visit for $countryCode with ${existingVisit.daysSpent} days spent",
+        name: 'CountryVisitsRepository',
+        level: 0,
+        time: DateTime.now(),
       );
       // If the user is still in the same country, just update the days spent
       if (existingVisit.entryDate != formattedToday) {
         log(
           "📅 Updating days spent for $countryCode from ${existingVisit.daysSpent} to ${existingVisit.daysSpent + 1}",
+          name: 'CountryVisitsRepository',
+          level: 0,
+          time: DateTime.now(),
         );
         await (database.update(database.countryVisits)
               ..where((t) => t.countryCode.equals(countryCode)))
@@ -36,12 +47,27 @@ class CountryVisitsRepository {
             daysSpent: Value(existingVisit.daysSpent + 1),
           ),
         );
-        log("✅ Successfully updated country visit for $countryCode");
+        log(
+          "✅ Successfully updated country visit for $countryCode",
+          name: 'CountryVisitsRepository',
+          level: 1, // 1 for SUCCESS
+          time: DateTime.now(),
+        );
       } else {
-        log("ℹ️ No update needed for $countryCode - already logged today");
+        log(
+          "ℹ️ No update needed for $countryCode - already logged today",
+          name: 'CountryVisitsRepository',
+          level: 0,
+          time: DateTime.now(),
+        );
       }
     } else {
-      log("✨ Creating new country visit entry for $countryCode");
+      log(
+        "✨ Creating new country visit entry for $countryCode",
+        name: 'CountryVisitsRepository',
+        level: 0,
+        time: DateTime.now(),
+      );
       // If it's a new country, add a new entry
       await database.into(database.countryVisits).insert(
             CountryVisitsCompanion.insert(
@@ -50,21 +76,45 @@ class CountryVisitsRepository {
               daysSpent: 1,
             ),
           );
-      log("✅ Successfully created new country visit for $countryCode");
+      log(
+        "✅ Successfully created new country visit for $countryCode",
+        name: 'CountryVisitsRepository',
+        level: 1,
+        time: DateTime.now(),
+      );
     }
   }
 
   // Get all country visits
   Future<List<CountryVisit>> getAllVisits() async {
-    log("📋 Fetching all country visits");
+
+    log(
+      "📋 Fetching all country visits",
+      name: 'CountryVisitsRepository',
+      level: 0,
+      time: DateTime.now(),
+    );
+
     final visits = await database.select(database.countryVisits).get();
-    log("📊 Retrieved ${visits.length} country visits");
+    log(
+      "📊 Retrieved ${visits.length} country visits",
+      name: 'CountryVisitsRepository',
+      level: 0,
+      time: DateTime.now(),
+    );
     return visits;
   }
 
   // Delete a country visit and all related data by its country code
   Future<void> deleteCountryVisit(String countryCode) async {
-    log("🗑️ Starting to delete all data for country: $countryCode");
+
+    log(
+      "🗑️ Starting to delete all data for country: $countryCode",
+      name: 'CountryVisitsRepository',
+      level: 0,
+      time: DateTime.now(),
+    );
+    
     try {
       // Start a transaction to ensure all deletions are atomic
       await database.transaction(() async {
@@ -91,9 +141,20 @@ class CountryVisitsRepository {
             .go();
       });
 
-      log("✅ Successfully deleted all data for country: $countryCode");
+      log(
+        "✅ Successfully deleted all data for country: $countryCode",
+        name: 'CountryVisitsRepository',
+        level: 1, // 1 for SUCCESS
+        time: DateTime.now(),
+      );
     } catch (e) {
-      log("❌ Error while deleting country data: $e");
+      log(
+        "❌ Error while deleting country data: $e",
+        name: 'CountryVisitsRepository',
+        level: 3, // 3 for ERROR
+        time: DateTime.now(),
+        error: e,
+      );
       rethrow; // Rethrow to handle in the UI
     }
   }

@@ -26,13 +26,24 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
     setState(() {
       _showErrorLogs = prefs.getBool('showErrorLogs') ?? true;
     });
+    log(
+      '🔄 Loaded showErrorLogs preference: $_showErrorLogs',
+      name: 'AdvancedSettingsScreen',
+      level: 0, // INFO
+      time: DateTime.now(),
+    );
   }
 
   // Save the error logs preference
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('showErrorLogs', _showErrorLogs);
-    log('Saved showErrorLogs preference: $_showErrorLogs');
+    log(
+      '💾 Saved showErrorLogs preference: $_showErrorLogs',
+      name: 'AdvancedSettingsScreen',
+      level: 1, // SUCCESS
+      time: DateTime.now(),
+    );
   }
 
   // Handle error logs toggle
@@ -41,6 +52,12 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
       _showErrorLogs = value;
     });
     _savePreferences();
+    log(
+      '🔀 Toggled showErrorLogs to: $_showErrorLogs',
+      name: 'AdvancedSettingsScreen',
+      level: 0, // INFO
+      time: DateTime.now(),
+    );
   }
 
   @override
