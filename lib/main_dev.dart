@@ -7,7 +7,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Workmanager for background tasks
-  initializeWorkmanager(true, isInDebugMode: true);
+  initializeWorkmanager(isInDebugMode: true);
 
   app.main();
 }

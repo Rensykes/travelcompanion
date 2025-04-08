@@ -8,7 +8,7 @@ void main() async {
 
   // Production-specific initialization
   // For example, configuring crash reporting
-  initializeWorkmanager(false, isInDebugMode: false);
+  initializeWorkmanager(isInDebugMode: false);
 
   app.main();
 }

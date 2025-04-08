@@ -1,6 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trackie/core/app_initialization.dart';
 import 'package:trackie/core/utils/app_themes.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_state.dart';
@@ -9,18 +9,6 @@ import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
-
-/// App initialization
-class AppInitialization {
-  static Future<void> init() async {
-    try {
-      WidgetsFlutterBinding.ensureInitialized();
-      await DependencyInjection.init();
-    } catch (e) {
-      throw Exception('Failed to initialize app: $e');
-    }
-  }
-}
 
 /// Root widget that provides all the necessary blocs
 class AppBlocProvider extends StatelessWidget {
