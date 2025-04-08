@@ -16,6 +16,9 @@ LocationLogsRepository locationLogsRepository(Ref ref) {
 class LocationLogs extends _$LocationLogs {
   @override
   Future<List<LocationLog>> build() async {
+    // Watch the database provider to trigger rebuilds when database changes
+    ref.watch(appDatabaseProvider);
+
     final repository = ref.watch(locationLogsRepositoryProvider);
     return repository.getAllLogs();
   }
@@ -35,6 +38,9 @@ Future<List<LocationLog>> filteredLogs(
   Ref ref, {
   required bool showErrorLogs,
 }) async {
+  // Watch the database provider to trigger rebuilds when database changes
+  ref.watch(appDatabaseProvider);
+
   final allLogs = await ref.watch(locationLogsRepositoryProvider).getAllLogs();
   if (showErrorLogs) {
     return allLogs;

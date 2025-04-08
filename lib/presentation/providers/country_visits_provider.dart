@@ -16,6 +16,9 @@ CountryVisitsRepository countryVisitsRepository(Ref ref) {
 class CountryVisits extends _$CountryVisits {
   @override
   Future<List<CountryVisit>> build() async {
+    // Watch the database provider to trigger rebuilds when database changes
+    ref.watch(appDatabaseProvider);
+
     final repository = ref.watch(countryVisitsRepositoryProvider);
     return repository.getAllVisits();
   }
