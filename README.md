@@ -18,3 +18,26 @@ samples, guidance on mobile development, and a full API reference.
 # Generate files
 
 dart run build_runner build --delete-conflicting-outputs
+
+# Using Entry Points 
+
+flutter run --flavor dev -t lib/main_dev.dart
+flutter run --flavor staging -t lib/main_staging.dart
+flutter run --flavor prod -t lib/main_prod.dart
+
+# Generate appbundle 
+
+flutter build appbundle --flavor prod -t lib/main_prod.dart
+flutter build apk --flavor dev -t lib/main_dev.dart
+
+
+# Logging Emojis
+The logs use emojis for better visibility and include:
+🔍 For search operations
+📝 For logging operations
+✅ For successful operations
+❌ For errors
+🔄 For recalculation operations
+�� For data retrieval
+🗑️ For deletion operations
+ℹ️ For informational messages

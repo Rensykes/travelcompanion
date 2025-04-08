@@ -9,39 +9,24 @@ class $CountryVisitsTable extends CountryVisits
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $CountryVisitsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _countryCodeMeta = const VerificationMeta(
-    'countryCode',
-  );
+  static const VerificationMeta _countryCodeMeta =
+      const VerificationMeta('countryCode');
   @override
   late final GeneratedColumn<String> countryCode = GeneratedColumn<String>(
-    'country_code',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _entryDateMeta = const VerificationMeta(
-    'entryDate',
-  );
+      'country_code', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _entryDateMeta =
+      const VerificationMeta('entryDate');
   @override
   late final GeneratedColumn<DateTime> entryDate = GeneratedColumn<DateTime>(
-    'entry_date',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _daysSpentMeta = const VerificationMeta(
-    'daysSpent',
-  );
+      'entry_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _daysSpentMeta =
+      const VerificationMeta('daysSpent');
   @override
   late final GeneratedColumn<int> daysSpent = GeneratedColumn<int>(
-    'days_spent',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-  );
+      'days_spent', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [countryCode, entryDate, daysSpent];
   @override
@@ -50,36 +35,27 @@ class $CountryVisitsTable extends CountryVisits
   String get actualTableName => $name;
   static const String $name = 'country_visits';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<CountryVisit> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<CountryVisit> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('country_code')) {
       context.handle(
-        _countryCodeMeta,
-        countryCode.isAcceptableOrUnknown(
-          data['country_code']!,
           _countryCodeMeta,
-        ),
-      );
+          countryCode.isAcceptableOrUnknown(
+              data['country_code']!, _countryCodeMeta));
     } else if (isInserting) {
       context.missing(_countryCodeMeta);
     }
     if (data.containsKey('entry_date')) {
-      context.handle(
-        _entryDateMeta,
-        entryDate.isAcceptableOrUnknown(data['entry_date']!, _entryDateMeta),
-      );
+      context.handle(_entryDateMeta,
+          entryDate.isAcceptableOrUnknown(data['entry_date']!, _entryDateMeta));
     } else if (isInserting) {
       context.missing(_entryDateMeta);
     }
     if (data.containsKey('days_spent')) {
-      context.handle(
-        _daysSpentMeta,
-        daysSpent.isAcceptableOrUnknown(data['days_spent']!, _daysSpentMeta),
-      );
+      context.handle(_daysSpentMeta,
+          daysSpent.isAcceptableOrUnknown(data['days_spent']!, _daysSpentMeta));
     } else if (isInserting) {
       context.missing(_daysSpentMeta);
     }
@@ -92,21 +68,12 @@ class $CountryVisitsTable extends CountryVisits
   CountryVisit map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return CountryVisit(
-      countryCode:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.string,
-            data['${effectivePrefix}country_code'],
-          )!,
-      entryDate:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.dateTime,
-            data['${effectivePrefix}entry_date'],
-          )!,
-      daysSpent:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.int,
-            data['${effectivePrefix}days_spent'],
-          )!,
+      countryCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}country_code'])!,
+      entryDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}entry_date'])!,
+      daysSpent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}days_spent'])!,
     );
   }
 
@@ -120,11 +87,10 @@ class CountryVisit extends DataClass implements Insertable<CountryVisit> {
   final String countryCode;
   final DateTime entryDate;
   final int daysSpent;
-  const CountryVisit({
-    required this.countryCode,
-    required this.entryDate,
-    required this.daysSpent,
-  });
+  const CountryVisit(
+      {required this.countryCode,
+      required this.entryDate,
+      required this.daysSpent});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -142,10 +108,8 @@ class CountryVisit extends DataClass implements Insertable<CountryVisit> {
     );
   }
 
-  factory CountryVisit.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory CountryVisit.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CountryVisit(
       countryCode: serializer.fromJson<String>(json['countryCode']),
@@ -163,15 +127,13 @@ class CountryVisit extends DataClass implements Insertable<CountryVisit> {
     };
   }
 
-  CountryVisit copyWith({
-    String? countryCode,
-    DateTime? entryDate,
-    int? daysSpent,
-  }) => CountryVisit(
-    countryCode: countryCode ?? this.countryCode,
-    entryDate: entryDate ?? this.entryDate,
-    daysSpent: daysSpent ?? this.daysSpent,
-  );
+  CountryVisit copyWith(
+          {String? countryCode, DateTime? entryDate, int? daysSpent}) =>
+      CountryVisit(
+        countryCode: countryCode ?? this.countryCode,
+        entryDate: entryDate ?? this.entryDate,
+        daysSpent: daysSpent ?? this.daysSpent,
+      );
   CountryVisit copyWithCompanion(CountryVisitsCompanion data) {
     return CountryVisit(
       countryCode:
@@ -218,9 +180,9 @@ class CountryVisitsCompanion extends UpdateCompanion<CountryVisit> {
     required DateTime entryDate,
     required int daysSpent,
     this.rowid = const Value.absent(),
-  }) : countryCode = Value(countryCode),
-       entryDate = Value(entryDate),
-       daysSpent = Value(daysSpent);
+  })  : countryCode = Value(countryCode),
+        entryDate = Value(entryDate),
+        daysSpent = Value(daysSpent);
   static Insertable<CountryVisit> custom({
     Expression<String>? countryCode,
     Expression<DateTime>? entryDate,
@@ -235,12 +197,11 @@ class CountryVisitsCompanion extends UpdateCompanion<CountryVisit> {
     });
   }
 
-  CountryVisitsCompanion copyWith({
-    Value<String>? countryCode,
-    Value<DateTime>? entryDate,
-    Value<int>? daysSpent,
-    Value<int>? rowid,
-  }) {
+  CountryVisitsCompanion copyWith(
+      {Value<String>? countryCode,
+      Value<DateTime>? entryDate,
+      Value<int>? daysSpent,
+      Value<int>? rowid}) {
     return CountryVisitsCompanion(
       countryCode: countryCode ?? this.countryCode,
       entryDate: entryDate ?? this.entryDate,
@@ -288,47 +249,29 @@ class $LocationLogsTable extends LocationLogs
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-    'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _logDateTimeMeta = const VerificationMeta(
-    'logDateTime',
-  );
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _logDateTimeMeta =
+      const VerificationMeta('logDateTime');
   @override
   late final GeneratedColumn<DateTime> logDateTime = GeneratedColumn<DateTime>(
-    'log_date_time',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
-  );
+      'log_date_time', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
   @override
   late final GeneratedColumn<String> status = GeneratedColumn<String>(
-    'status',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _countryCodeMeta = const VerificationMeta(
-    'countryCode',
-  );
+      'status', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _countryCodeMeta =
+      const VerificationMeta('countryCode');
   @override
   late final GeneratedColumn<String> countryCode = GeneratedColumn<String>(
-    'country_code',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
+      'country_code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [id, logDateTime, status, countryCode];
   @override
@@ -337,10 +280,8 @@ class $LocationLogsTable extends LocationLogs
   String get actualTableName => $name;
   static const String $name = 'location_logs';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<LocationLog> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<LocationLog> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
@@ -348,31 +289,23 @@ class $LocationLogsTable extends LocationLogs
     }
     if (data.containsKey('log_date_time')) {
       context.handle(
-        _logDateTimeMeta,
-        logDateTime.isAcceptableOrUnknown(
-          data['log_date_time']!,
           _logDateTimeMeta,
-        ),
-      );
+          logDateTime.isAcceptableOrUnknown(
+              data['log_date_time']!, _logDateTimeMeta));
     } else if (isInserting) {
       context.missing(_logDateTimeMeta);
     }
     if (data.containsKey('status')) {
-      context.handle(
-        _statusMeta,
-        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
-      );
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
     } else if (isInserting) {
       context.missing(_statusMeta);
     }
     if (data.containsKey('country_code')) {
       context.handle(
-        _countryCodeMeta,
-        countryCode.isAcceptableOrUnknown(
-          data['country_code']!,
           _countryCodeMeta,
-        ),
-      );
+          countryCode.isAcceptableOrUnknown(
+              data['country_code']!, _countryCodeMeta));
     }
     return context;
   }
@@ -383,25 +316,14 @@ class $LocationLogsTable extends LocationLogs
   LocationLog map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return LocationLog(
-      id:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.int,
-            data['${effectivePrefix}id'],
-          )!,
-      logDateTime:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.dateTime,
-            data['${effectivePrefix}log_date_time'],
-          )!,
-      status:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.string,
-            data['${effectivePrefix}status'],
-          )!,
-      countryCode: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}country_code'],
-      ),
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      logDateTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}log_date_time'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      countryCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}country_code']),
     );
   }
 
@@ -416,12 +338,11 @@ class LocationLog extends DataClass implements Insertable<LocationLog> {
   final DateTime logDateTime;
   final String status;
   final String? countryCode;
-  const LocationLog({
-    required this.id,
-    required this.logDateTime,
-    required this.status,
-    this.countryCode,
-  });
+  const LocationLog(
+      {required this.id,
+      required this.logDateTime,
+      required this.status,
+      this.countryCode});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -439,17 +360,14 @@ class LocationLog extends DataClass implements Insertable<LocationLog> {
       id: Value(id),
       logDateTime: Value(logDateTime),
       status: Value(status),
-      countryCode:
-          countryCode == null && nullToAbsent
-              ? const Value.absent()
-              : Value(countryCode),
+      countryCode: countryCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(countryCode),
     );
   }
 
-  factory LocationLog.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory LocationLog.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LocationLog(
       id: serializer.fromJson<int>(json['id']),
@@ -469,17 +387,17 @@ class LocationLog extends DataClass implements Insertable<LocationLog> {
     };
   }
 
-  LocationLog copyWith({
-    int? id,
-    DateTime? logDateTime,
-    String? status,
-    Value<String?> countryCode = const Value.absent(),
-  }) => LocationLog(
-    id: id ?? this.id,
-    logDateTime: logDateTime ?? this.logDateTime,
-    status: status ?? this.status,
-    countryCode: countryCode.present ? countryCode.value : this.countryCode,
-  );
+  LocationLog copyWith(
+          {int? id,
+          DateTime? logDateTime,
+          String? status,
+          Value<String?> countryCode = const Value.absent()}) =>
+      LocationLog(
+        id: id ?? this.id,
+        logDateTime: logDateTime ?? this.logDateTime,
+        status: status ?? this.status,
+        countryCode: countryCode.present ? countryCode.value : this.countryCode,
+      );
   LocationLog copyWithCompanion(LocationLogsCompanion data) {
     return LocationLog(
       id: data.id.present ? data.id.value : this.id,
@@ -530,8 +448,8 @@ class LocationLogsCompanion extends UpdateCompanion<LocationLog> {
     required DateTime logDateTime,
     required String status,
     this.countryCode = const Value.absent(),
-  }) : logDateTime = Value(logDateTime),
-       status = Value(status);
+  })  : logDateTime = Value(logDateTime),
+        status = Value(status);
   static Insertable<LocationLog> custom({
     Expression<int>? id,
     Expression<DateTime>? logDateTime,
@@ -546,12 +464,11 @@ class LocationLogsCompanion extends UpdateCompanion<LocationLog> {
     });
   }
 
-  LocationLogsCompanion copyWith({
-    Value<int>? id,
-    Value<DateTime>? logDateTime,
-    Value<String>? status,
-    Value<String?>? countryCode,
-  }) {
+  LocationLogsCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? logDateTime,
+      Value<String>? status,
+      Value<String?>? countryCode}) {
     return LocationLogsCompanion(
       id: id ?? this.id,
       logDateTime: logDateTime ?? this.logDateTime,
@@ -599,29 +516,20 @@ class $LogCountryRelationsTable extends LogCountryRelations
   static const VerificationMeta _logIdMeta = const VerificationMeta('logId');
   @override
   late final GeneratedColumn<int> logId = GeneratedColumn<int>(
-    'log_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES location_logs (id)',
-    ),
-  );
-  static const VerificationMeta _countryCodeMeta = const VerificationMeta(
-    'countryCode',
-  );
+      'log_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES location_logs (id)'));
+  static const VerificationMeta _countryCodeMeta =
+      const VerificationMeta('countryCode');
   @override
   late final GeneratedColumn<String> countryCode = GeneratedColumn<String>(
-    'country_code',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES country_visits (country_code)',
-    ),
-  );
+      'country_code', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES country_visits (country_code)'));
   @override
   List<GeneratedColumn> get $columns => [logId, countryCode];
   @override
@@ -630,28 +538,21 @@ class $LogCountryRelationsTable extends LogCountryRelations
   String get actualTableName => $name;
   static const String $name = 'log_country_relations';
   @override
-  VerificationContext validateIntegrity(
-    Insertable<LogCountryRelation> instance, {
-    bool isInserting = false,
-  }) {
+  VerificationContext validateIntegrity(Insertable<LogCountryRelation> instance,
+      {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('log_id')) {
       context.handle(
-        _logIdMeta,
-        logId.isAcceptableOrUnknown(data['log_id']!, _logIdMeta),
-      );
+          _logIdMeta, logId.isAcceptableOrUnknown(data['log_id']!, _logIdMeta));
     } else if (isInserting) {
       context.missing(_logIdMeta);
     }
     if (data.containsKey('country_code')) {
       context.handle(
-        _countryCodeMeta,
-        countryCode.isAcceptableOrUnknown(
-          data['country_code']!,
           _countryCodeMeta,
-        ),
-      );
+          countryCode.isAcceptableOrUnknown(
+              data['country_code']!, _countryCodeMeta));
     } else if (isInserting) {
       context.missing(_countryCodeMeta);
     }
@@ -664,16 +565,10 @@ class $LogCountryRelationsTable extends LogCountryRelations
   LogCountryRelation map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return LogCountryRelation(
-      logId:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.int,
-            data['${effectivePrefix}log_id'],
-          )!,
-      countryCode:
-          attachedDatabase.typeMapping.read(
-            DriftSqlType.string,
-            data['${effectivePrefix}country_code'],
-          )!,
+      logId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}log_id'])!,
+      countryCode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}country_code'])!,
     );
   }
 
@@ -703,10 +598,8 @@ class LogCountryRelation extends DataClass
     );
   }
 
-  factory LogCountryRelation.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
+  factory LogCountryRelation.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return LogCountryRelation(
       logId: serializer.fromJson<int>(json['logId']),
@@ -767,8 +660,8 @@ class LogCountryRelationsCompanion extends UpdateCompanion<LogCountryRelation> {
     required int logId,
     required String countryCode,
     this.rowid = const Value.absent(),
-  }) : logId = Value(logId),
-       countryCode = Value(countryCode);
+  })  : logId = Value(logId),
+        countryCode = Value(countryCode);
   static Insertable<LogCountryRelation> custom({
     Expression<int>? logId,
     Expression<String>? countryCode,
@@ -781,11 +674,8 @@ class LogCountryRelationsCompanion extends UpdateCompanion<LogCountryRelation> {
     });
   }
 
-  LogCountryRelationsCompanion copyWith({
-    Value<int>? logId,
-    Value<String>? countryCode,
-    Value<int>? rowid,
-  }) {
+  LogCountryRelationsCompanion copyWith(
+      {Value<int>? logId, Value<String>? countryCode, Value<int>? rowid}) {
     return LogCountryRelationsCompanion(
       logId: logId ?? this.logId,
       countryCode: countryCode ?? this.countryCode,
@@ -830,65 +720,47 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [
-    countryVisits,
-    locationLogs,
-    logCountryRelations,
-  ];
+  List<DatabaseSchemaEntity> get allSchemaEntities =>
+      [countryVisits, locationLogs, logCountryRelations];
 }
 
-typedef $$CountryVisitsTableCreateCompanionBuilder =
-    CountryVisitsCompanion Function({
-      required String countryCode,
-      required DateTime entryDate,
-      required int daysSpent,
-      Value<int> rowid,
-    });
-typedef $$CountryVisitsTableUpdateCompanionBuilder =
-    CountryVisitsCompanion Function({
-      Value<String> countryCode,
-      Value<DateTime> entryDate,
-      Value<int> daysSpent,
-      Value<int> rowid,
-    });
+typedef $$CountryVisitsTableCreateCompanionBuilder = CountryVisitsCompanion
+    Function({
+  required String countryCode,
+  required DateTime entryDate,
+  required int daysSpent,
+  Value<int> rowid,
+});
+typedef $$CountryVisitsTableUpdateCompanionBuilder = CountryVisitsCompanion
+    Function({
+  Value<String> countryCode,
+  Value<DateTime> entryDate,
+  Value<int> daysSpent,
+  Value<int> rowid,
+});
 
 final class $$CountryVisitsTableReferences
     extends BaseReferences<_$AppDatabase, $CountryVisitsTable, CountryVisit> {
   $$CountryVisitsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
+      super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<
-    $LogCountryRelationsTable,
-    List<LogCountryRelation>
-  >
-  _logCountryRelationsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.logCountryRelations,
-        aliasName: $_aliasNameGenerator(
-          db.countryVisits.countryCode,
-          db.logCountryRelations.countryCode,
-        ),
-      );
+  static MultiTypedResultKey<$LogCountryRelationsTable,
+      List<LogCountryRelation>> _logCountryRelationsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.logCountryRelations,
+          aliasName: $_aliasNameGenerator(db.countryVisits.countryCode,
+              db.logCountryRelations.countryCode));
 
   $$LogCountryRelationsTableProcessedTableManager get logCountryRelationsRefs {
-    final manager = $$LogCountryRelationsTableTableManager(
-      $_db,
-      $_db.logCountryRelations,
-    ).filter(
-      (f) => f.countryCode.countryCode.sqlEquals(
-        $_itemColumn<String>('country_code')!,
-      ),
-    );
+    final manager =
+        $$LogCountryRelationsTableTableManager($_db, $_db.logCountryRelations)
+            .filter((f) => f.countryCode.countryCode
+                .sqlEquals($_itemColumn<String>('country_code')!));
 
-    final cache = $_typedResult.readTableOrNull(
-      _logCountryRelationsRefsTable($_db),
-    );
+    final cache =
+        $_typedResult.readTableOrNull(_logCountryRelationsRefsTable($_db));
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
+        manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
@@ -902,42 +774,32 @@ class $$CountryVisitsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<String> get countryCode => $composableBuilder(
-    column: $table.countryCode,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.countryCode, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get entryDate => $composableBuilder(
-    column: $table.entryDate,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.entryDate, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get daysSpent => $composableBuilder(
-    column: $table.daysSpent,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.daysSpent, builder: (column) => ColumnFilters(column));
 
   Expression<bool> logCountryRelationsRefs(
-    Expression<bool> Function($$LogCountryRelationsTableFilterComposer f) f,
-  ) {
+      Expression<bool> Function($$LogCountryRelationsTableFilterComposer f) f) {
     final $$LogCountryRelationsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.countryCode,
-      referencedTable: $db.logCountryRelations,
-      getReferencedColumn: (t) => t.countryCode,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LogCountryRelationsTableFilterComposer(
-            $db: $db,
-            $table: $db.logCountryRelations,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.countryCode,
+        referencedTable: $db.logCountryRelations,
+        getReferencedColumn: (t) => t.countryCode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LogCountryRelationsTableFilterComposer(
+              $db: $db,
+              $table: $db.logCountryRelations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
@@ -952,19 +814,13 @@ class $$CountryVisitsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<String> get countryCode => $composableBuilder(
-    column: $table.countryCode,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.countryCode, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get entryDate => $composableBuilder(
-    column: $table.entryDate,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.entryDate, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get daysSpent => $composableBuilder(
-    column: $table.daysSpent,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.daysSpent, builder: (column) => ColumnOrderings(column));
 }
 
 class $$CountryVisitsTableAnnotationComposer
@@ -977,9 +833,7 @@ class $$CountryVisitsTableAnnotationComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   GeneratedColumn<String> get countryCode => $composableBuilder(
-    column: $table.countryCode,
-    builder: (column) => column,
-  );
+      column: $table.countryCode, builder: (column) => column);
 
   GeneratedColumn<DateTime> get entryDate =>
       $composableBuilder(column: $table.entryDate, builder: (column) => column);
@@ -988,193 +842,157 @@ class $$CountryVisitsTableAnnotationComposer
       $composableBuilder(column: $table.daysSpent, builder: (column) => column);
 
   Expression<T> logCountryRelationsRefs<T extends Object>(
-    Expression<T> Function($$LogCountryRelationsTableAnnotationComposer a) f,
-  ) {
+      Expression<T> Function($$LogCountryRelationsTableAnnotationComposer a)
+          f) {
     final $$LogCountryRelationsTableAnnotationComposer composer =
         $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.countryCode,
-          referencedTable: $db.logCountryRelations,
-          getReferencedColumn: (t) => t.countryCode,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$LogCountryRelationsTableAnnotationComposer(
-                $db: $db,
-                $table: $db.logCountryRelations,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
+            composer: this,
+            getCurrentColumn: (t) => t.countryCode,
+            referencedTable: $db.logCountryRelations,
+            getReferencedColumn: (t) => t.countryCode,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$LogCountryRelationsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.logCountryRelations,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return f(composer);
   }
 }
 
-class $$CountryVisitsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $CountryVisitsTable,
-          CountryVisit,
-          $$CountryVisitsTableFilterComposer,
-          $$CountryVisitsTableOrderingComposer,
-          $$CountryVisitsTableAnnotationComposer,
-          $$CountryVisitsTableCreateCompanionBuilder,
-          $$CountryVisitsTableUpdateCompanionBuilder,
-          (CountryVisit, $$CountryVisitsTableReferences),
-          CountryVisit,
-          PrefetchHooks Function({bool logCountryRelationsRefs})
-        > {
+class $$CountryVisitsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $CountryVisitsTable,
+    CountryVisit,
+    $$CountryVisitsTableFilterComposer,
+    $$CountryVisitsTableOrderingComposer,
+    $$CountryVisitsTableAnnotationComposer,
+    $$CountryVisitsTableCreateCompanionBuilder,
+    $$CountryVisitsTableUpdateCompanionBuilder,
+    (CountryVisit, $$CountryVisitsTableReferences),
+    CountryVisit,
+    PrefetchHooks Function({bool logCountryRelationsRefs})> {
   $$CountryVisitsTableTableManager(_$AppDatabase db, $CountryVisitsTable table)
-    : super(
-        TableManagerState(
+      : super(TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer:
-              () => $$CountryVisitsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer:
-              () =>
-                  $$CountryVisitsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer:
-              () => $$CountryVisitsTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<String> countryCode = const Value.absent(),
-                Value<DateTime> entryDate = const Value.absent(),
-                Value<int> daysSpent = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => CountryVisitsCompanion(
-                countryCode: countryCode,
-                entryDate: entryDate,
-                daysSpent: daysSpent,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required String countryCode,
-                required DateTime entryDate,
-                required int daysSpent,
-                Value<int> rowid = const Value.absent(),
-              }) => CountryVisitsCompanion.insert(
-                countryCode: countryCode,
-                entryDate: entryDate,
-                daysSpent: daysSpent,
-                rowid: rowid,
-              ),
-          withReferenceMapper:
-              (p0) =>
-                  p0
-                      .map(
-                        (e) => (
-                          e.readTable(table),
-                          $$CountryVisitsTableReferences(db, table, e),
-                        ),
-                      )
-                      .toList(),
+          createFilteringComposer: () =>
+              $$CountryVisitsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CountryVisitsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CountryVisitsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> countryCode = const Value.absent(),
+            Value<DateTime> entryDate = const Value.absent(),
+            Value<int> daysSpent = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CountryVisitsCompanion(
+            countryCode: countryCode,
+            entryDate: entryDate,
+            daysSpent: daysSpent,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String countryCode,
+            required DateTime entryDate,
+            required int daysSpent,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CountryVisitsCompanion.insert(
+            countryCode: countryCode,
+            entryDate: entryDate,
+            daysSpent: daysSpent,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$CountryVisitsTableReferences(db, table, e)
+                  ))
+              .toList(),
           prefetchHooksCallback: ({logCountryRelationsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (logCountryRelationsRefs) db.logCountryRelations,
+                if (logCountryRelationsRefs) db.logCountryRelations
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (logCountryRelationsRefs)
-                    await $_getPrefetchedData<
-                      CountryVisit,
-                      $CountryVisitsTable,
-                      LogCountryRelation
-                    >(
-                      currentTable: table,
-                      referencedTable: $$CountryVisitsTableReferences
-                          ._logCountryRelationsRefsTable(db),
-                      managerFromTypedResult:
-                          (p0) =>
-                              $$CountryVisitsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).logCountryRelationsRefs,
-                      referencedItemsForCurrentItem:
-                          (item, referencedItems) => referencedItems.where(
-                            (e) => e.countryCode == item.countryCode,
-                          ),
-                      typedResults: items,
-                    ),
+                    await $_getPrefetchedData<CountryVisit, $CountryVisitsTable,
+                            LogCountryRelation>(
+                        currentTable: table,
+                        referencedTable: $$CountryVisitsTableReferences
+                            ._logCountryRelationsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$CountryVisitsTableReferences(db, table, p0)
+                                .logCountryRelationsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems.where(
+                                (e) => e.countryCode == item.countryCode),
+                        typedResults: items)
                 ];
               },
             );
           },
-        ),
-      );
+        ));
 }
 
-typedef $$CountryVisitsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $CountryVisitsTable,
-      CountryVisit,
-      $$CountryVisitsTableFilterComposer,
-      $$CountryVisitsTableOrderingComposer,
-      $$CountryVisitsTableAnnotationComposer,
-      $$CountryVisitsTableCreateCompanionBuilder,
-      $$CountryVisitsTableUpdateCompanionBuilder,
-      (CountryVisit, $$CountryVisitsTableReferences),
-      CountryVisit,
-      PrefetchHooks Function({bool logCountryRelationsRefs})
-    >;
-typedef $$LocationLogsTableCreateCompanionBuilder =
-    LocationLogsCompanion Function({
-      Value<int> id,
-      required DateTime logDateTime,
-      required String status,
-      Value<String?> countryCode,
-    });
-typedef $$LocationLogsTableUpdateCompanionBuilder =
-    LocationLogsCompanion Function({
-      Value<int> id,
-      Value<DateTime> logDateTime,
-      Value<String> status,
-      Value<String?> countryCode,
-    });
+typedef $$CountryVisitsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $CountryVisitsTable,
+    CountryVisit,
+    $$CountryVisitsTableFilterComposer,
+    $$CountryVisitsTableOrderingComposer,
+    $$CountryVisitsTableAnnotationComposer,
+    $$CountryVisitsTableCreateCompanionBuilder,
+    $$CountryVisitsTableUpdateCompanionBuilder,
+    (CountryVisit, $$CountryVisitsTableReferences),
+    CountryVisit,
+    PrefetchHooks Function({bool logCountryRelationsRefs})>;
+typedef $$LocationLogsTableCreateCompanionBuilder = LocationLogsCompanion
+    Function({
+  Value<int> id,
+  required DateTime logDateTime,
+  required String status,
+  Value<String?> countryCode,
+});
+typedef $$LocationLogsTableUpdateCompanionBuilder = LocationLogsCompanion
+    Function({
+  Value<int> id,
+  Value<DateTime> logDateTime,
+  Value<String> status,
+  Value<String?> countryCode,
+});
 
 final class $$LocationLogsTableReferences
     extends BaseReferences<_$AppDatabase, $LocationLogsTable, LocationLog> {
   $$LocationLogsTableReferences(super.$_db, super.$_table, super.$_typedResult);
 
-  static MultiTypedResultKey<
-    $LogCountryRelationsTable,
-    List<LogCountryRelation>
-  >
-  _logCountryRelationsRefsTable(_$AppDatabase db) =>
-      MultiTypedResultKey.fromTable(
-        db.logCountryRelations,
-        aliasName: $_aliasNameGenerator(
-          db.locationLogs.id,
-          db.logCountryRelations.logId,
-        ),
-      );
+  static MultiTypedResultKey<$LogCountryRelationsTable,
+      List<LogCountryRelation>> _logCountryRelationsRefsTable(
+          _$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.logCountryRelations,
+          aliasName: $_aliasNameGenerator(
+              db.locationLogs.id, db.logCountryRelations.logId));
 
   $$LogCountryRelationsTableProcessedTableManager get logCountryRelationsRefs {
-    final manager = $$LogCountryRelationsTableTableManager(
-      $_db,
-      $_db.logCountryRelations,
-    ).filter((f) => f.logId.id.sqlEquals($_itemColumn<int>('id')!));
+    final manager =
+        $$LogCountryRelationsTableTableManager($_db, $_db.logCountryRelations)
+            .filter((f) => f.logId.id.sqlEquals($_itemColumn<int>('id')!));
 
-    final cache = $_typedResult.readTableOrNull(
-      _logCountryRelationsRefsTable($_db),
-    );
+    final cache =
+        $_typedResult.readTableOrNull(_logCountryRelationsRefsTable($_db));
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
+        manager.$state.copyWith(prefetchedData: cache));
   }
 }
 
@@ -1188,47 +1006,35 @@ class $$LocationLogsTableFilterComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnFilters<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.id, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get logDateTime => $composableBuilder(
-    column: $table.logDateTime,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.logDateTime, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.status, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get countryCode => $composableBuilder(
-    column: $table.countryCode,
-    builder: (column) => ColumnFilters(column),
-  );
+      column: $table.countryCode, builder: (column) => ColumnFilters(column));
 
   Expression<bool> logCountryRelationsRefs(
-    Expression<bool> Function($$LogCountryRelationsTableFilterComposer f) f,
-  ) {
+      Expression<bool> Function($$LogCountryRelationsTableFilterComposer f) f) {
     final $$LogCountryRelationsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.logCountryRelations,
-      getReferencedColumn: (t) => t.logId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LogCountryRelationsTableFilterComposer(
-            $db: $db,
-            $table: $db.logCountryRelations,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.logCountryRelations,
+        getReferencedColumn: (t) => t.logId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LogCountryRelationsTableFilterComposer(
+              $db: $db,
+              $table: $db.logCountryRelations,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
@@ -1243,24 +1049,16 @@ class $$LocationLogsTableOrderingComposer
     super.$removeJoinBuilderFromRootComposer,
   });
   ColumnOrderings<int> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.id, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get logDateTime => $composableBuilder(
-    column: $table.logDateTime,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.logDateTime, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get status => $composableBuilder(
-    column: $table.status,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.status, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get countryCode => $composableBuilder(
-    column: $table.countryCode,
-    builder: (column) => ColumnOrderings(column),
-  );
+      column: $table.countryCode, builder: (column) => ColumnOrderings(column));
 }
 
 class $$LocationLogsTableAnnotationComposer
@@ -1276,223 +1074,177 @@ class $$LocationLogsTableAnnotationComposer
       $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<DateTime> get logDateTime => $composableBuilder(
-    column: $table.logDateTime,
-    builder: (column) => column,
-  );
+      column: $table.logDateTime, builder: (column) => column);
 
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
 
   GeneratedColumn<String> get countryCode => $composableBuilder(
-    column: $table.countryCode,
-    builder: (column) => column,
-  );
+      column: $table.countryCode, builder: (column) => column);
 
   Expression<T> logCountryRelationsRefs<T extends Object>(
-    Expression<T> Function($$LogCountryRelationsTableAnnotationComposer a) f,
-  ) {
+      Expression<T> Function($$LogCountryRelationsTableAnnotationComposer a)
+          f) {
     final $$LogCountryRelationsTableAnnotationComposer composer =
         $composerBuilder(
-          composer: this,
-          getCurrentColumn: (t) => t.id,
-          referencedTable: $db.logCountryRelations,
-          getReferencedColumn: (t) => t.logId,
-          builder:
-              (
-                joinBuilder, {
-                $addJoinBuilderToRootComposer,
-                $removeJoinBuilderFromRootComposer,
-              }) => $$LogCountryRelationsTableAnnotationComposer(
-                $db: $db,
-                $table: $db.logCountryRelations,
-                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-                joinBuilder: joinBuilder,
-                $removeJoinBuilderFromRootComposer:
-                    $removeJoinBuilderFromRootComposer,
-              ),
-        );
+            composer: this,
+            getCurrentColumn: (t) => t.id,
+            referencedTable: $db.logCountryRelations,
+            getReferencedColumn: (t) => t.logId,
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$LogCountryRelationsTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.logCountryRelations,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return f(composer);
   }
 }
 
-class $$LocationLogsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $LocationLogsTable,
-          LocationLog,
-          $$LocationLogsTableFilterComposer,
-          $$LocationLogsTableOrderingComposer,
-          $$LocationLogsTableAnnotationComposer,
-          $$LocationLogsTableCreateCompanionBuilder,
-          $$LocationLogsTableUpdateCompanionBuilder,
-          (LocationLog, $$LocationLogsTableReferences),
-          LocationLog,
-          PrefetchHooks Function({bool logCountryRelationsRefs})
-        > {
+class $$LocationLogsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $LocationLogsTable,
+    LocationLog,
+    $$LocationLogsTableFilterComposer,
+    $$LocationLogsTableOrderingComposer,
+    $$LocationLogsTableAnnotationComposer,
+    $$LocationLogsTableCreateCompanionBuilder,
+    $$LocationLogsTableUpdateCompanionBuilder,
+    (LocationLog, $$LocationLogsTableReferences),
+    LocationLog,
+    PrefetchHooks Function({bool logCountryRelationsRefs})> {
   $$LocationLogsTableTableManager(_$AppDatabase db, $LocationLogsTable table)
-    : super(
-        TableManagerState(
+      : super(TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer:
-              () => $$LocationLogsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer:
-              () => $$LocationLogsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer:
-              () =>
-                  $$LocationLogsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                Value<DateTime> logDateTime = const Value.absent(),
-                Value<String> status = const Value.absent(),
-                Value<String?> countryCode = const Value.absent(),
-              }) => LocationLogsCompanion(
-                id: id,
-                logDateTime: logDateTime,
-                status: status,
-                countryCode: countryCode,
-              ),
-          createCompanionCallback:
-              ({
-                Value<int> id = const Value.absent(),
-                required DateTime logDateTime,
-                required String status,
-                Value<String?> countryCode = const Value.absent(),
-              }) => LocationLogsCompanion.insert(
-                id: id,
-                logDateTime: logDateTime,
-                status: status,
-                countryCode: countryCode,
-              ),
-          withReferenceMapper:
-              (p0) =>
-                  p0
-                      .map(
-                        (e) => (
-                          e.readTable(table),
-                          $$LocationLogsTableReferences(db, table, e),
-                        ),
-                      )
-                      .toList(),
+          createFilteringComposer: () =>
+              $$LocationLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocationLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocationLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<DateTime> logDateTime = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<String?> countryCode = const Value.absent(),
+          }) =>
+              LocationLogsCompanion(
+            id: id,
+            logDateTime: logDateTime,
+            status: status,
+            countryCode: countryCode,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required DateTime logDateTime,
+            required String status,
+            Value<String?> countryCode = const Value.absent(),
+          }) =>
+              LocationLogsCompanion.insert(
+            id: id,
+            logDateTime: logDateTime,
+            status: status,
+            countryCode: countryCode,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$LocationLogsTableReferences(db, table, e)
+                  ))
+              .toList(),
           prefetchHooksCallback: ({logCountryRelationsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (logCountryRelationsRefs) db.logCountryRelations,
+                if (logCountryRelationsRefs) db.logCountryRelations
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (logCountryRelationsRefs)
-                    await $_getPrefetchedData<
-                      LocationLog,
-                      $LocationLogsTable,
-                      LogCountryRelation
-                    >(
-                      currentTable: table,
-                      referencedTable: $$LocationLogsTableReferences
-                          ._logCountryRelationsRefsTable(db),
-                      managerFromTypedResult:
-                          (p0) =>
-                              $$LocationLogsTableReferences(
-                                db,
-                                table,
-                                p0,
-                              ).logCountryRelationsRefs,
-                      referencedItemsForCurrentItem:
-                          (item, referencedItems) =>
-                              referencedItems.where((e) => e.logId == item.id),
-                      typedResults: items,
-                    ),
+                    await $_getPrefetchedData<LocationLog, $LocationLogsTable,
+                            LogCountryRelation>(
+                        currentTable: table,
+                        referencedTable: $$LocationLogsTableReferences
+                            ._logCountryRelationsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$LocationLogsTableReferences(db, table, p0)
+                                .logCountryRelationsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.logId == item.id),
+                        typedResults: items)
                 ];
               },
             );
           },
-        ),
-      );
+        ));
 }
 
-typedef $$LocationLogsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $LocationLogsTable,
-      LocationLog,
-      $$LocationLogsTableFilterComposer,
-      $$LocationLogsTableOrderingComposer,
-      $$LocationLogsTableAnnotationComposer,
-      $$LocationLogsTableCreateCompanionBuilder,
-      $$LocationLogsTableUpdateCompanionBuilder,
-      (LocationLog, $$LocationLogsTableReferences),
-      LocationLog,
-      PrefetchHooks Function({bool logCountryRelationsRefs})
-    >;
-typedef $$LogCountryRelationsTableCreateCompanionBuilder =
-    LogCountryRelationsCompanion Function({
-      required int logId,
-      required String countryCode,
-      Value<int> rowid,
-    });
-typedef $$LogCountryRelationsTableUpdateCompanionBuilder =
-    LogCountryRelationsCompanion Function({
-      Value<int> logId,
-      Value<String> countryCode,
-      Value<int> rowid,
-    });
+typedef $$LocationLogsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $LocationLogsTable,
+    LocationLog,
+    $$LocationLogsTableFilterComposer,
+    $$LocationLogsTableOrderingComposer,
+    $$LocationLogsTableAnnotationComposer,
+    $$LocationLogsTableCreateCompanionBuilder,
+    $$LocationLogsTableUpdateCompanionBuilder,
+    (LocationLog, $$LocationLogsTableReferences),
+    LocationLog,
+    PrefetchHooks Function({bool logCountryRelationsRefs})>;
+typedef $$LogCountryRelationsTableCreateCompanionBuilder
+    = LogCountryRelationsCompanion Function({
+  required int logId,
+  required String countryCode,
+  Value<int> rowid,
+});
+typedef $$LogCountryRelationsTableUpdateCompanionBuilder
+    = LogCountryRelationsCompanion Function({
+  Value<int> logId,
+  Value<String> countryCode,
+  Value<int> rowid,
+});
 
-final class $$LogCountryRelationsTableReferences
-    extends
-        BaseReferences<
-          _$AppDatabase,
-          $LogCountryRelationsTable,
-          LogCountryRelation
-        > {
+final class $$LogCountryRelationsTableReferences extends BaseReferences<
+    _$AppDatabase, $LogCountryRelationsTable, LogCountryRelation> {
   $$LogCountryRelationsTableReferences(
-    super.$_db,
-    super.$_table,
-    super.$_typedResult,
-  );
+      super.$_db, super.$_table, super.$_typedResult);
 
   static $LocationLogsTable _logIdTable(_$AppDatabase db) =>
-      db.locationLogs.createAlias(
-        $_aliasNameGenerator(db.logCountryRelations.logId, db.locationLogs.id),
-      );
+      db.locationLogs.createAlias($_aliasNameGenerator(
+          db.logCountryRelations.logId, db.locationLogs.id));
 
   $$LocationLogsTableProcessedTableManager get logId {
     final $_column = $_itemColumn<int>('log_id')!;
 
-    final manager = $$LocationLogsTableTableManager(
-      $_db,
-      $_db.locationLogs,
-    ).filter((f) => f.id.sqlEquals($_column));
+    final manager = $$LocationLogsTableTableManager($_db, $_db.locationLogs)
+        .filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_logIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+        manager.$state.copyWith(prefetchedData: [item]));
   }
 
   static $CountryVisitsTable _countryCodeTable(_$AppDatabase db) =>
-      db.countryVisits.createAlias(
-        $_aliasNameGenerator(
-          db.logCountryRelations.countryCode,
-          db.countryVisits.countryCode,
-        ),
-      );
+      db.countryVisits.createAlias($_aliasNameGenerator(
+          db.logCountryRelations.countryCode, db.countryVisits.countryCode));
 
   $$CountryVisitsTableProcessedTableManager get countryCode {
     final $_column = $_itemColumn<String>('country_code')!;
 
-    final manager = $$CountryVisitsTableTableManager(
-      $_db,
-      $_db.countryVisits,
-    ).filter((f) => f.countryCode.sqlEquals($_column));
+    final manager = $$CountryVisitsTableTableManager($_db, $_db.countryVisits)
+        .filter((f) => f.countryCode.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_countryCodeTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
+        manager.$state.copyWith(prefetchedData: [item]));
   }
 }
 
@@ -1507,47 +1259,41 @@ class $$LogCountryRelationsTableFilterComposer
   });
   $$LocationLogsTableFilterComposer get logId {
     final $$LocationLogsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.logId,
-      referencedTable: $db.locationLogs,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LocationLogsTableFilterComposer(
-            $db: $db,
-            $table: $db.locationLogs,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.logId,
+        referencedTable: $db.locationLogs,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LocationLogsTableFilterComposer(
+              $db: $db,
+              $table: $db.locationLogs,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$CountryVisitsTableFilterComposer get countryCode {
     final $$CountryVisitsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.countryCode,
-      referencedTable: $db.countryVisits,
-      getReferencedColumn: (t) => t.countryCode,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CountryVisitsTableFilterComposer(
-            $db: $db,
-            $table: $db.countryVisits,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.countryCode,
+        referencedTable: $db.countryVisits,
+        getReferencedColumn: (t) => t.countryCode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CountryVisitsTableFilterComposer(
+              $db: $db,
+              $table: $db.countryVisits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
@@ -1563,47 +1309,41 @@ class $$LogCountryRelationsTableOrderingComposer
   });
   $$LocationLogsTableOrderingComposer get logId {
     final $$LocationLogsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.logId,
-      referencedTable: $db.locationLogs,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LocationLogsTableOrderingComposer(
-            $db: $db,
-            $table: $db.locationLogs,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.logId,
+        referencedTable: $db.locationLogs,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LocationLogsTableOrderingComposer(
+              $db: $db,
+              $table: $db.locationLogs,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$CountryVisitsTableOrderingComposer get countryCode {
     final $$CountryVisitsTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.countryCode,
-      referencedTable: $db.countryVisits,
-      getReferencedColumn: (t) => t.countryCode,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CountryVisitsTableOrderingComposer(
-            $db: $db,
-            $table: $db.countryVisits,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.countryCode,
+        referencedTable: $db.countryVisits,
+        getReferencedColumn: (t) => t.countryCode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CountryVisitsTableOrderingComposer(
+              $db: $db,
+              $table: $db.countryVisits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
@@ -1619,166 +1359,133 @@ class $$LogCountryRelationsTableAnnotationComposer
   });
   $$LocationLogsTableAnnotationComposer get logId {
     final $$LocationLogsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.logId,
-      referencedTable: $db.locationLogs,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$LocationLogsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.locationLogs,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.logId,
+        referencedTable: $db.locationLogs,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$LocationLogsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.locationLogs,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$CountryVisitsTableAnnotationComposer get countryCode {
     final $$CountryVisitsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.countryCode,
-      referencedTable: $db.countryVisits,
-      getReferencedColumn: (t) => t.countryCode,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$CountryVisitsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.countryVisits,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
+        composer: this,
+        getCurrentColumn: (t) => t.countryCode,
+        referencedTable: $db.countryVisits,
+        getReferencedColumn: (t) => t.countryCode,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$CountryVisitsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.countryVisits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
 
-class $$LogCountryRelationsTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $LogCountryRelationsTable,
-          LogCountryRelation,
-          $$LogCountryRelationsTableFilterComposer,
-          $$LogCountryRelationsTableOrderingComposer,
-          $$LogCountryRelationsTableAnnotationComposer,
-          $$LogCountryRelationsTableCreateCompanionBuilder,
-          $$LogCountryRelationsTableUpdateCompanionBuilder,
-          (LogCountryRelation, $$LogCountryRelationsTableReferences),
-          LogCountryRelation,
-          PrefetchHooks Function({bool logId, bool countryCode})
-        > {
+class $$LogCountryRelationsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $LogCountryRelationsTable,
+    LogCountryRelation,
+    $$LogCountryRelationsTableFilterComposer,
+    $$LogCountryRelationsTableOrderingComposer,
+    $$LogCountryRelationsTableAnnotationComposer,
+    $$LogCountryRelationsTableCreateCompanionBuilder,
+    $$LogCountryRelationsTableUpdateCompanionBuilder,
+    (LogCountryRelation, $$LogCountryRelationsTableReferences),
+    LogCountryRelation,
+    PrefetchHooks Function({bool logId, bool countryCode})> {
   $$LogCountryRelationsTableTableManager(
-    _$AppDatabase db,
-    $LogCountryRelationsTable table,
-  ) : super(
-        TableManagerState(
+      _$AppDatabase db, $LogCountryRelationsTable table)
+      : super(TableManagerState(
           db: db,
           table: table,
-          createFilteringComposer:
-              () => $$LogCountryRelationsTableFilterComposer(
-                $db: db,
-                $table: table,
-              ),
-          createOrderingComposer:
-              () => $$LogCountryRelationsTableOrderingComposer(
-                $db: db,
-                $table: table,
-              ),
-          createComputedFieldComposer:
-              () => $$LogCountryRelationsTableAnnotationComposer(
-                $db: db,
-                $table: table,
-              ),
-          updateCompanionCallback:
-              ({
-                Value<int> logId = const Value.absent(),
-                Value<String> countryCode = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => LogCountryRelationsCompanion(
-                logId: logId,
-                countryCode: countryCode,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                required int logId,
-                required String countryCode,
-                Value<int> rowid = const Value.absent(),
-              }) => LogCountryRelationsCompanion.insert(
-                logId: logId,
-                countryCode: countryCode,
-                rowid: rowid,
-              ),
-          withReferenceMapper:
-              (p0) =>
-                  p0
-                      .map(
-                        (e) => (
-                          e.readTable(table),
-                          $$LogCountryRelationsTableReferences(db, table, e),
-                        ),
-                      )
-                      .toList(),
+          createFilteringComposer: () =>
+              $$LogCountryRelationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LogCountryRelationsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LogCountryRelationsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> logId = const Value.absent(),
+            Value<String> countryCode = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LogCountryRelationsCompanion(
+            logId: logId,
+            countryCode: countryCode,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int logId,
+            required String countryCode,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LogCountryRelationsCompanion.insert(
+            logId: logId,
+            countryCode: countryCode,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$LogCountryRelationsTableReferences(db, table, e)
+                  ))
+              .toList(),
           prefetchHooksCallback: ({logId = false, countryCode = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
               addJoins: <
-                T extends TableManagerState<
-                  dynamic,
-                  dynamic,
-                  dynamic,
-                  dynamic,
-                  dynamic,
-                  dynamic,
-                  dynamic,
-                  dynamic,
-                  dynamic,
-                  dynamic,
-                  dynamic
-                >
-              >(state) {
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
                 if (logId) {
-                  state =
-                      state.withJoin(
-                            currentTable: table,
-                            currentColumn: table.logId,
-                            referencedTable:
-                                $$LogCountryRelationsTableReferences
-                                    ._logIdTable(db),
-                            referencedColumn:
-                                $$LogCountryRelationsTableReferences
-                                    ._logIdTable(db)
-                                    .id,
-                          )
-                          as T;
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.logId,
+                    referencedTable:
+                        $$LogCountryRelationsTableReferences._logIdTable(db),
+                    referencedColumn:
+                        $$LogCountryRelationsTableReferences._logIdTable(db).id,
+                  ) as T;
                 }
                 if (countryCode) {
-                  state =
-                      state.withJoin(
-                            currentTable: table,
-                            currentColumn: table.countryCode,
-                            referencedTable:
-                                $$LogCountryRelationsTableReferences
-                                    ._countryCodeTable(db),
-                            referencedColumn:
-                                $$LogCountryRelationsTableReferences
-                                    ._countryCodeTable(db)
-                                    .countryCode,
-                          )
-                          as T;
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.countryCode,
+                    referencedTable: $$LogCountryRelationsTableReferences
+                        ._countryCodeTable(db),
+                    referencedColumn: $$LogCountryRelationsTableReferences
+                        ._countryCodeTable(db)
+                        .countryCode,
+                  ) as T;
                 }
 
                 return state;
@@ -1788,24 +1495,21 @@ class $$LogCountryRelationsTableTableManager
               },
             );
           },
-        ),
-      );
+        ));
 }
 
-typedef $$LogCountryRelationsTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $LogCountryRelationsTable,
-      LogCountryRelation,
-      $$LogCountryRelationsTableFilterComposer,
-      $$LogCountryRelationsTableOrderingComposer,
-      $$LogCountryRelationsTableAnnotationComposer,
-      $$LogCountryRelationsTableCreateCompanionBuilder,
-      $$LogCountryRelationsTableUpdateCompanionBuilder,
-      (LogCountryRelation, $$LogCountryRelationsTableReferences),
-      LogCountryRelation,
-      PrefetchHooks Function({bool logId, bool countryCode})
-    >;
+typedef $$LogCountryRelationsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $LogCountryRelationsTable,
+    LogCountryRelation,
+    $$LogCountryRelationsTableFilterComposer,
+    $$LogCountryRelationsTableOrderingComposer,
+    $$LogCountryRelationsTableAnnotationComposer,
+    $$LogCountryRelationsTableCreateCompanionBuilder,
+    $$LogCountryRelationsTableUpdateCompanionBuilder,
+    (LogCountryRelation, $$LogCountryRelationsTableReferences),
+    LogCountryRelation,
+    PrefetchHooks Function({bool logId, bool countryCode})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;

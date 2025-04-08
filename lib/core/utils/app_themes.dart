@@ -6,7 +6,7 @@ class AppThemes {
     primaryColor: Colors.pink,
     secondaryHeaderColor: Colors.pink,
     hintColor: Colors.pink,
-    colorScheme: ColorScheme.light(
+    colorScheme: const ColorScheme.light(
       primary: Colors.pink,
       secondary: Colors.pinkAccent,
     ),
@@ -29,7 +29,7 @@ class AppThemes {
     primaryColor: Colors.blueAccent,
     secondaryHeaderColor: Colors.blueAccent,
     hintColor: Colors.blueAccent,
-    colorScheme: ColorScheme.dark(
+    colorScheme: const ColorScheme.dark(
       primary: Colors.blueAccent,
       secondary: Colors.blue,
     ),

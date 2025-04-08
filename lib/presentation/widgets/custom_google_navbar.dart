@@ -14,21 +14,21 @@ class CustomGoogleNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double gap = 10;
-    final padding = EdgeInsets.symmetric(horizontal: 18, vertical: 12);
+    const double gap = 10;
+    const padding = EdgeInsets.symmetric(horizontal: 18, vertical: 12);
 
     return SafeArea(
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.all(Radius.circular(100)),
+          borderRadius: const BorderRadius.all(Radius.circular(100)),
           boxShadow: [
             BoxShadow(
               spreadRadius: -10,
               blurRadius: 60,
               color: Colors.black.withValues(alpha: 0.4),
-              offset: Offset(0, 25),
+              offset: const Offset(0, 25),
             ),
           ],
         ),

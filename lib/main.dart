@@ -1,102 +1,48 @@
-import 'dart:async';
+import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trackie/core/app_initialization.dart';
 import 'package:trackie/core/utils/app_themes.dart';
-import 'package:trackie/presentation/screens/home_screen.dart';
-import 'package:trackie/presentation/screens/error_screen.dart';
-import 'package:trackie/core/error/error_reporter.dart';
-import 'package:trackie/core/error/error_handling.dart';
-import 'package:trackie/core/scheduler/background_task.dart';
-import 'package:trackie/presentation/providers/theme_preferences_provider.dart';
+import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
+import 'package:trackie/presentation/bloc/theme/theme_state.dart';
+import 'package:trackie/core/routes/app_router.dart';
+import 'package:trackie/presentation/widgets/app_bloc_provider.dart';
 
-// Global key for showing snackbars from anywhere
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-Future main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Initialize error handling - pass null for context since app hasn't started
-  initializeErrorHandling(null);
-
+void main() async {
   try {
-    // Initialize Workmanager for background tasks
-    initializeWorkmanager();
-    runApp(const ProviderScope(child: MyApp()));
-  } catch (error, stackTrace) {
-    // Pass null for context since we don't have a valid context yet
-    ErrorReporter.reportError(null, error, stackTrace);
-    runApp(ErrorApp(error: error.toString()));
+    await AppInitialization.init();
+    runApp(const MyApp());
+  } catch (e) {
+    // Handle initialization errors
+    log(
+  'App initialization failed',
+  name: 'Main',
+  error: e,
+  level: 1000, // Optional: indicates a severe error
+);
+
+    // You might want to show an error screen or retry logic here
   }
 }
 
-class MyApp extends ConsumerStatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  MyAppState createState() => MyAppState();
-}
-
-class MyAppState extends ConsumerState<MyApp> {
-  // This will be called when theme is changed in Settings
-  void _handleThemeChanged(bool isDark, bool useSystemTheme) {
-    ref
-        .read(themePreferencesProvider.notifier)
-        .setThemeMode(isDarkMode: isDark, useSystemTheme: useSystemTheme);
-  }
-
-  @override
   Widget build(BuildContext context) {
-    // Watch theme preferences
-    final themePrefsAsync = ref.watch(themePreferencesProvider);
-
-    return themePrefsAsync.when(
-      data: (themePrefs) {
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          title: 'Travel Tracker',
-          themeMode:
-              themePrefs.useSystemTheme
-                  ? ThemeMode.system
-                  : (themePrefs.isDarkMode ? ThemeMode.dark : ThemeMode.light),
-          theme: AppThemes.lightTheme,
-          darkTheme: AppThemes.darkTheme,
-          home: HomeScreen(
-            onThemeChanged: _handleThemeChanged,
-            isDarkMode: themePrefs.isDarkMode,
-            useSystemTheme: themePrefs.useSystemTheme,
-          ),
-          builder: (context, child) {
-            return child ?? const SizedBox.shrink();
-          },
-        );
-      },
-      loading:
-          () => MaterialApp(
+    return AppBlocProvider(
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp.router(
+            title: 'Travel Companion',
+            themeMode: themeState.themeMode,
             theme: AppThemes.lightTheme,
-            home: const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
-          ),
-      error:
-          (error, stack) => MaterialApp(
-            theme: AppThemes.lightTheme,
-            home: ErrorScreen(error: error.toString()),
-          ),
-    );
-  }
-}
-
-class ErrorApp extends StatelessWidget {
-  final String error;
-
-  const ErrorApp({super.key, required this.error});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: ErrorScreen(error: error),
+            darkTheme: AppThemes.darkTheme,
+            routerConfig: router,
+          );
+        },
+      ),
     );
   }
 }
