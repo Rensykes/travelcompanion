@@ -8,7 +8,7 @@ import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
-import 'package:trackie/core/di/injection_container.dart';
+import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 
 class EntriesScreen extends StatefulWidget {

@@ -8,7 +8,7 @@ import 'package:trackie/presentation/widgets/log_entry_tile.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
-import 'package:trackie/core/di/injection_container.dart';
+import 'package:trackie/core/di/dependency_injection.dart';
 
 class LogsScreen extends StatefulWidget {
   const LogsScreen({super.key});

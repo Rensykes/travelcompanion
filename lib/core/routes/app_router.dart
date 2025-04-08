@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
