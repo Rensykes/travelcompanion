@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
+import 'package:go_router/go_router.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/core/di/injection_container.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
@@ -55,12 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: const Text('Advanced Settings'),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AdvancedSettingsScreen(),
-                    ),
-                  );
+                  context.push('/settings/advanced');
                 },
               ),
               const SizedBox(height: 24),

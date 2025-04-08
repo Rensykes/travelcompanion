@@ -11,7 +11,7 @@ import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_state.dart';
-import 'package:trackie/presentation/screens/home_screen.dart';
+import 'package:trackie/core/routes/app_router.dart';
 
 final getIt = GetIt.instance;
 
@@ -60,12 +60,12 @@ class MyApp extends StatelessWidget {
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
-          return MaterialApp(
+          return MaterialApp.router(
             title: 'Travel Companion',
             themeMode: themeState.themeMode,
             theme: AppThemes.lightTheme,
             darkTheme: AppThemes.darkTheme,
-            home: const HomeScreen(),
+            routerConfig: router,
           );
         },
       ),

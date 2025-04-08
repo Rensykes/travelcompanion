@@ -5,7 +5,9 @@ import 'package:trackie/application/services/sim_info_service.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
+import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
+import 'package:trackie/presentation/bloc/location_logs/location_logs_state.dart';
 import 'package:trackie/presentation/bloc/home/home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
@@ -32,8 +34,17 @@ class HomeCubit extends Cubit<HomeState> {
           countryCode: isoCode,
         );
 
-        // Refresh data
-        await refresh();
+        // Refresh data only in the relevant cubits
+        final locationLogsCubit = GetIt.instance.get<LocationLogsCubit>();
+        final countryVisitsCubit = GetIt.instance.get<CountryVisitsCubit>();
+
+        // Only refresh if the cubits are initialized
+        if (locationLogsCubit.state is! LocationLogsInitial) {
+          await locationLogsCubit.refresh();
+        }
+        if (countryVisitsCubit.state is! CountryVisitsInitial) {
+          await countryVisitsCubit.refresh();
+        }
 
         showSnackBar(
           'Location Retrieved!',
@@ -48,15 +59,6 @@ class HomeCubit extends Cubit<HomeState> {
     } finally {
       emit(state.copyWith(isFetchingLocation: false));
     }
-  }
-
-  Future<void> refresh() async {
-    // Refresh data in other cubits
-    final locationLogsCubit = GetIt.instance.get<LocationLogsCubit>();
-    final countryVisitsCubit = GetIt.instance.get<CountryVisitsCubit>();
-
-    await locationLogsCubit.refresh();
-    await countryVisitsCubit.refresh();
   }
 
   void _handleLocationError(

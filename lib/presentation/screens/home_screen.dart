@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
@@ -15,14 +16,18 @@ import 'package:trackie/presentation/bloc/home/home_cubit.dart';
 import 'package:trackie/presentation/bloc/home/home_state.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final Widget child;
+
+  const HomeScreen({
+    super.key,
+    required this.child,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  int _selectedTabIndex = 0;
   late final HomeCubit _homeCubit;
 
   @override
@@ -55,6 +60,28 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     context.read<CountryVisitsCubit>().refresh();
   }
 
+  int _getCurrentIndex(BuildContext context) {
+    final location =
+        GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
+    if (location.startsWith('/logs')) return 1;
+    if (location.startsWith('/settings')) return 2;
+    return 0;
+  }
+
+  void _onTabChange(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        context.go('/');
+        break;
+      case 1:
+        context.go('/logs');
+        break;
+      case 2:
+        context.go('/settings');
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
@@ -64,24 +91,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           return Scaffold(
             appBar: AppBar(title: const Text('Trackie')),
             body: SafeArea(
-              child: IndexedStack(
-                index: _selectedTabIndex,
-                children: const [
-                  EntriesScreen(),
-                  LogsScreen(),
-                  SettingsScreen(),
-                ],
-              ),
+              child: widget.child,
             ),
             bottomNavigationBar: CustomGoogleNavBar(
-              selectedIndex: _selectedTabIndex,
-              onTabChange: (index) {
-                setState(() {
-                  _selectedTabIndex = index;
-                });
-              },
+              selectedIndex: _getCurrentIndex(context),
+              onTabChange: (index) => _onTabChange(context, index),
             ),
-            floatingActionButton: _selectedTabIndex != 2
+            floatingActionButton: _getCurrentIndex(context) != 2
                 ? FloatingActionButton(
                     onPressed: homeState.isFetchingLocation
                         ? null
@@ -94,8 +110,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                   message,
                                   status,
                                 );
-                                // Ensure data is refreshed after adding country
-                                refreshAllData();
                               },
                             );
                           },
