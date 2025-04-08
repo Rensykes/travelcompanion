@@ -7,24 +7,21 @@ part of 'logs_screen_controller.dart';
 // **************************************************************************
 
 String _$logsScreenControllerHash() =>
-    r'4ad217bf5961fe7eb8695b2af4e47d3dcb240766';
+    r'c703f635569056283d47ec75d49a606fa5d9e201';
 
 /// See also [LogsScreenController].
 @ProviderFor(LogsScreenController)
-final logsScreenControllerProvider = AutoDisposeAsyncNotifierProvider<
-  LogsScreenController,
-  LogsScreenStateData
->.internal(
+final logsScreenControllerProvider = AutoDisposeNotifierProvider<
+    LogsScreenController, LogsScreenStateData>.internal(
   LogsScreenController.new,
   name: r'logsScreenControllerProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$logsScreenControllerHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$logsScreenControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-typedef _$LogsScreenController = AutoDisposeAsyncNotifier<LogsScreenStateData>;
+typedef _$LogsScreenController = AutoDisposeNotifier<LogsScreenStateData>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

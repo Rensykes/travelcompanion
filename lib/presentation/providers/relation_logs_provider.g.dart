@@ -6,8 +6,7 @@ part of 'relation_logs_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$relationLogsStreamHash() =>
-    r'48a0f7ae4a355df8aaa25be3d5c4f2c446812ba5';
+String _$relationLogsHash() => r'9714a3f27091898b0a43804b075f23972b2ed424';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -30,129 +29,6 @@ class _SystemHash {
   }
 }
 
-/// See also [relationLogsStream].
-@ProviderFor(relationLogsStream)
-const relationLogsStreamProvider = RelationLogsStreamFamily();
-
-/// See also [relationLogsStream].
-class RelationLogsStreamFamily extends Family<AsyncValue<List<LocationLog>>> {
-  /// See also [relationLogsStream].
-  const RelationLogsStreamFamily();
-
-  /// See also [relationLogsStream].
-  RelationLogsStreamProvider call(String countryCode) {
-    return RelationLogsStreamProvider(countryCode);
-  }
-
-  @override
-  RelationLogsStreamProvider getProviderOverride(
-    covariant RelationLogsStreamProvider provider,
-  ) {
-    return call(provider.countryCode);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'relationLogsStreamProvider';
-}
-
-/// See also [relationLogsStream].
-class RelationLogsStreamProvider
-    extends AutoDisposeStreamProvider<List<LocationLog>> {
-  /// See also [relationLogsStream].
-  RelationLogsStreamProvider(String countryCode)
-    : this._internal(
-        (ref) => relationLogsStream(ref as RelationLogsStreamRef, countryCode),
-        from: relationLogsStreamProvider,
-        name: r'relationLogsStreamProvider',
-        debugGetCreateSourceHash:
-            const bool.fromEnvironment('dart.vm.product')
-                ? null
-                : _$relationLogsStreamHash,
-        dependencies: RelationLogsStreamFamily._dependencies,
-        allTransitiveDependencies:
-            RelationLogsStreamFamily._allTransitiveDependencies,
-        countryCode: countryCode,
-      );
-
-  RelationLogsStreamProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.countryCode,
-  }) : super.internal();
-
-  final String countryCode;
-
-  @override
-  Override overrideWith(
-    Stream<List<LocationLog>> Function(RelationLogsStreamRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: RelationLogsStreamProvider._internal(
-        (ref) => create(ref as RelationLogsStreamRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        countryCode: countryCode,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeStreamProviderElement<List<LocationLog>> createElement() {
-    return _RelationLogsStreamProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is RelationLogsStreamProvider &&
-        other.countryCode == countryCode;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, countryCode.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
-}
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin RelationLogsStreamRef on AutoDisposeStreamProviderRef<List<LocationLog>> {
-  /// The parameter `countryCode` of this provider.
-  String get countryCode;
-}
-
-class _RelationLogsStreamProviderElement
-    extends AutoDisposeStreamProviderElement<List<LocationLog>>
-    with RelationLogsStreamRef {
-  _RelationLogsStreamProviderElement(super.provider);
-
-  @override
-  String get countryCode => (origin as RelationLogsStreamProvider).countryCode;
-}
-
-String _$relationLogsHash() => r'addf95fbb5d9d9f1335aa130793a2f8fe88ad174';
-
 /// See also [relationLogs].
 @ProviderFor(relationLogs)
 const relationLogsProvider = RelationLogsFamily();
@@ -163,15 +39,21 @@ class RelationLogsFamily extends Family<AsyncValue<List<LocationLog>>> {
   const RelationLogsFamily();
 
   /// See also [relationLogs].
-  RelationLogsProvider call(String countryCode) {
-    return RelationLogsProvider(countryCode);
+  RelationLogsProvider call(
+    String countryCode,
+  ) {
+    return RelationLogsProvider(
+      countryCode,
+    );
   }
 
   @override
   RelationLogsProvider getProviderOverride(
     covariant RelationLogsProvider provider,
   ) {
-    return call(provider.countryCode);
+    return call(
+      provider.countryCode,
+    );
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -193,20 +75,24 @@ class RelationLogsFamily extends Family<AsyncValue<List<LocationLog>>> {
 class RelationLogsProvider
     extends AutoDisposeFutureProvider<List<LocationLog>> {
   /// See also [relationLogs].
-  RelationLogsProvider(String countryCode)
-    : this._internal(
-        (ref) => relationLogs(ref as RelationLogsRef, countryCode),
-        from: relationLogsProvider,
-        name: r'relationLogsProvider',
-        debugGetCreateSourceHash:
-            const bool.fromEnvironment('dart.vm.product')
-                ? null
-                : _$relationLogsHash,
-        dependencies: RelationLogsFamily._dependencies,
-        allTransitiveDependencies:
-            RelationLogsFamily._allTransitiveDependencies,
-        countryCode: countryCode,
-      );
+  RelationLogsProvider(
+    String countryCode,
+  ) : this._internal(
+          (ref) => relationLogs(
+            ref as RelationLogsRef,
+            countryCode,
+          ),
+          from: relationLogsProvider,
+          name: r'relationLogsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$relationLogsHash,
+          dependencies: RelationLogsFamily._dependencies,
+          allTransitiveDependencies:
+              RelationLogsFamily._allTransitiveDependencies,
+          countryCode: countryCode,
+        );
 
   RelationLogsProvider._internal(
     super._createNotifier, {
@@ -272,6 +158,5 @@ class _RelationLogsProviderElement
   @override
   String get countryCode => (origin as RelationLogsProvider).countryCode;
 }
-
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

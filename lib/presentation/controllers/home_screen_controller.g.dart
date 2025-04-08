@@ -7,20 +7,17 @@ part of 'home_screen_controller.dart';
 // **************************************************************************
 
 String _$homeScreenControllerHash() =>
-    r'107b6b7fc4462fc2dab05e4f3d9423cf61934d45';
+    r'0c5d555a19e140111655de753c9cb6ec5187b91a';
 
 /// See also [HomeScreenController].
 @ProviderFor(HomeScreenController)
 final homeScreenControllerProvider = AutoDisposeNotifierProvider<
-  HomeScreenController,
-  HomeScreenStateData
->.internal(
+    HomeScreenController, HomeScreenStateData>.internal(
   HomeScreenController.new,
   name: r'homeScreenControllerProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$homeScreenControllerHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$homeScreenControllerHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

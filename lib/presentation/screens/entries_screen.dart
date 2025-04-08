@@ -8,8 +8,22 @@ import 'package:trackie/presentation/providers/country_data_service_provider.dar
 import 'package:trackie/presentation/providers/country_visits_provider.dart';
 import 'relations_screen.dart';
 
-class EntriesScreen extends ConsumerWidget {
+class EntriesScreen extends ConsumerStatefulWidget {
   const EntriesScreen({super.key});
+
+  @override
+  ConsumerState<EntriesScreen> createState() => _EntriesScreenState();
+}
+
+class _EntriesScreenState extends ConsumerState<EntriesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Initial load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(countryVisitsProvider.notifier).refresh();
+    });
+  }
 
   // Show confirmation dialog before deleting
   Future<bool> _showDeleteConfirmation(
@@ -57,6 +71,8 @@ class EntriesScreen extends ConsumerWidget {
             ContentType.success,
           );
         }
+        // Refresh the visits after deletion
+        ref.read(countryVisitsProvider.notifier).refresh();
         return true;
       } catch (e) {
         if (context.mounted) {
@@ -75,12 +91,12 @@ class EntriesScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final visitsStream = ref.watch(allVisitsProvider);
+  Widget build(BuildContext context) {
+    final visitsAsync = ref.watch(countryVisitsProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Country Visits')),
-      body: visitsStream.when(
+      body: visitsAsync.when(
         data: (visits) {
           if (visits.isEmpty) {
             return const Center(child: Text('No country visits recorded'));

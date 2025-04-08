@@ -13,26 +13,9 @@ part 'relations_screen_controller.g.dart';
 
 @riverpod
 class RelationsScreenController extends _$RelationsScreenController {
-  late final LocationLogsRepository _logsRepository;
-
   @override
   Future<List<LocationLog>> build(String countryCode) async {
-    _logsRepository = ref.read(locationLogsRepositoryProvider);
-    return await _fetchLogs(countryCode);
-  }
-
-  Future<List<LocationLog>> _fetchLogs(String countryCode) async {
-    return await ref.read(relationLogsProvider(countryCode).future);
-  }
-
-  Future<void> refreshLogs(String countryCode) async {
-    state = const AsyncValue.loading();
-    try {
-      final logs = await _fetchLogs(countryCode);
-      state = AsyncValue.data(logs);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-    }
+    return ref.read(relationLogsProvider(countryCode).future);
   }
 
   Future<void> deleteLog({
@@ -42,9 +25,8 @@ class RelationsScreenController extends _$RelationsScreenController {
     required Function(String, String, ContentType) showSnackBar,
   }) async {
     try {
-      await _logsRepository.deleteLog(logId);
-      await refreshLogs(countryCode);
-
+      await ref.read(locationLogsRepositoryProvider).deleteLog(logId);
+      ref.invalidate(relationLogsProvider(countryCode));
       if (context.mounted) {
         showSnackBar(
           "Deleted",
@@ -53,10 +35,17 @@ class RelationsScreenController extends _$RelationsScreenController {
         );
       }
     } catch (e) {
-      log('Error deleting log: $e');
       if (context.mounted) {
         showSnackBar("Error", 'Failed to delete log: $e', ContentType.failure);
       }
     }
+  }
+}
+
+class RelationsScreenStateData {
+  const RelationsScreenStateData();
+
+  RelationsScreenStateData copyWith() {
+    return const RelationsScreenStateData();
   }
 }

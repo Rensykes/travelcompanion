@@ -7,7 +7,7 @@ import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
 import 'package:trackie/presentation/widgets/custom_google_navbar.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   final Function(bool, bool) onThemeChanged;
   final bool isDarkMode;
   final bool useSystemTheme;
@@ -20,7 +20,33 @@ class HomeScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh data when app comes to foreground
+      ref.read(homeScreenControllerProvider.notifier).refreshAllData();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(homeScreenControllerProvider);
     final controller = ref.read(homeScreenControllerProvider.notifier);
 
@@ -36,7 +62,7 @@ class HomeScreen extends ConsumerWidget {
           children: [
             const EntriesScreen(),
             const LogsScreen(),
-            SettingsScreen(onThemeChanged: onThemeChanged),
+            SettingsScreen(onThemeChanged: widget.onThemeChanged),
           ],
         ),
       ),

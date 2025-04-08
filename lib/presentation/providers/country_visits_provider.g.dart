@@ -13,38 +13,34 @@ String _$countryVisitsRepositoryHash() =>
 @ProviderFor(countryVisitsRepository)
 final countryVisitsRepositoryProvider =
     AutoDisposeProvider<CountryVisitsRepository>.internal(
-      countryVisitsRepository,
-      name: r'countryVisitsRepositoryProvider',
-      debugGetCreateSourceHash:
-          const bool.fromEnvironment('dart.vm.product')
-              ? null
-              : _$countryVisitsRepositoryHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  countryVisitsRepository,
+  name: r'countryVisitsRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$countryVisitsRepositoryHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef CountryVisitsRepositoryRef =
-    AutoDisposeProviderRef<CountryVisitsRepository>;
-String _$allVisitsHash() => r'0d3f885c77f60871a6607990f1f02f034effeda7';
+typedef CountryVisitsRepositoryRef
+    = AutoDisposeProviderRef<CountryVisitsRepository>;
+String _$countryVisitsHash() => r'2e35f0b3023262b33d287451a5bc2549cf974533';
 
-/// See also [allVisits].
-@ProviderFor(allVisits)
-final allVisitsProvider =
-    AutoDisposeStreamProvider<List<CountryVisit>>.internal(
-      allVisits,
-      name: r'allVisitsProvider',
-      debugGetCreateSourceHash:
-          const bool.fromEnvironment('dart.vm.product')
-              ? null
-              : _$allVisitsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+/// See also [CountryVisits].
+@ProviderFor(CountryVisits)
+final countryVisitsProvider = AutoDisposeAsyncNotifierProvider<CountryVisits,
+    List<CountryVisit>>.internal(
+  CountryVisits.new,
+  name: r'countryVisitsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$countryVisitsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AllVisitsRef = AutoDisposeStreamProviderRef<List<CountryVisit>>;
+typedef _$CountryVisits = AutoDisposeAsyncNotifier<List<CountryVisit>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

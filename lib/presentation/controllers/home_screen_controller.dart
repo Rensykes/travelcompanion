@@ -17,6 +17,12 @@ class HomeScreenController extends _$HomeScreenController {
   HomeScreenStateData build() {
     _countryVisitsRepository = ref.read(countryVisitsRepositoryProvider);
     _locationLogsRepository = ref.read(locationLogsRepositoryProvider);
+
+    // Set up app state change listener
+    ref.onDispose(() {
+      // Clean up any listeners if needed
+    });
+
     return const HomeScreenStateData();
   }
 
@@ -24,16 +30,16 @@ class HomeScreenController extends _$HomeScreenController {
     Function(String, String, ContentType) showSnackBar,
   ) async {
     state = state.copyWith(isFetchingLocation: true);
-
     try {
       final isoCode = await SimInfoService.getIsoCode();
-
       if (isoCode != null) {
         await _countryVisitsRepository.saveCountryVisit(isoCode);
         await _locationLogsRepository.logEntry(
           status: 'success',
           countryCode: isoCode,
         );
+        ref.invalidate(countryVisitsProvider);
+        ref.invalidate(locationLogsProvider);
         showSnackBar(
           'Location Retrieved!',
           'You are currently in: $isoCode 👌',
@@ -62,6 +68,12 @@ class HomeScreenController extends _$HomeScreenController {
       'Cannot retrieve your location 😢',
       ContentType.failure,
     );
+  }
+
+  // Method to refresh all data
+  Future<void> refreshAllData() async {
+    await ref.read(countryVisitsProvider.notifier).refresh();
+    await ref.read(locationLogsProvider.notifier).refresh();
   }
 }
 

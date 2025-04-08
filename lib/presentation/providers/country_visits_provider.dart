@@ -13,7 +13,18 @@ CountryVisitsRepository countryVisitsRepository(Ref ref) {
 }
 
 @riverpod
-Stream<List<CountryVisit>> allVisits(Ref ref) {
-  final repository = ref.watch(countryVisitsRepositoryProvider);
-  return repository.watchAllVisits();
+class CountryVisits extends _$CountryVisits {
+  @override
+  Future<List<CountryVisit>> build() async {
+    final repository = ref.watch(countryVisitsRepositoryProvider);
+    return repository.getAllVisits();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final repository = ref.read(countryVisitsRepositoryProvider);
+      return repository.getAllVisits();
+    });
+  }
 }

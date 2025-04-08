@@ -11,15 +11,12 @@ String _$themePreferencesHash() => r'5d95b80a4c1e51d3533bf7ff292cc6ded1467ff2';
 /// See also [ThemePreferences].
 @ProviderFor(ThemePreferences)
 final themePreferencesProvider = AutoDisposeAsyncNotifierProvider<
-  ThemePreferences,
-  ThemePreferencesState
->.internal(
+    ThemePreferences, ThemePreferencesState>.internal(
   ThemePreferences.new,
   name: r'themePreferencesProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$themePreferencesHash,
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$themePreferencesHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );

@@ -12,15 +12,14 @@ String _$sharedPreferencesHash() => r'dc403fbb1d968c7d5ab4ae1721a29ffe173701c7';
 @ProviderFor(sharedPreferences)
 final sharedPreferencesProvider =
     AutoDisposeFutureProvider<SharedPreferences>.internal(
-      sharedPreferences,
-      name: r'sharedPreferencesProvider',
-      debugGetCreateSourceHash:
-          const bool.fromEnvironment('dart.vm.product')
-              ? null
-              : _$sharedPreferencesHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  sharedPreferences,
+  name: r'sharedPreferencesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$sharedPreferencesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
@@ -31,15 +30,14 @@ String _$showErrorLogsHash() => r'3bdb865edb358d8f3a0137df043ae1db3b8d68c8';
 @ProviderFor(ShowErrorLogs)
 final showErrorLogsProvider =
     AutoDisposeAsyncNotifierProvider<ShowErrorLogs, bool>.internal(
-      ShowErrorLogs.new,
-      name: r'showErrorLogsProvider',
-      debugGetCreateSourceHash:
-          const bool.fromEnvironment('dart.vm.product')
-              ? null
-              : _$showErrorLogsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+  ShowErrorLogs.new,
+  name: r'showErrorLogsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$showErrorLogsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
 
 typedef _$ShowErrorLogs = AutoDisposeAsyncNotifier<bool>;
 // ignore_for_file: type=lint

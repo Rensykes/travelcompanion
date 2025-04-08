@@ -31,3 +31,13 @@ flutter build appbundle --flavor prod -t lib/main_prod.dart
 flutter build apk --flavor dev -t lib/main_dev.dart
 
 
+# Logging Emojis
+The logs use emojis for better visibility and include:
+🔍 For search operations
+📝 For logging operations
+✅ For successful operations
+❌ For errors
+🔄 For recalculation operations
+�� For data retrieval
+🗑️ For deletion operations
+ℹ️ For informational messages

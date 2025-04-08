@@ -13,36 +13,19 @@ String _$locationLogsRepositoryHash() =>
 @ProviderFor(locationLogsRepository)
 final locationLogsRepositoryProvider =
     AutoDisposeProvider<LocationLogsRepository>.internal(
-      locationLogsRepository,
-      name: r'locationLogsRepositoryProvider',
-      debugGetCreateSourceHash:
-          const bool.fromEnvironment('dart.vm.product')
-              ? null
-              : _$locationLogsRepositoryHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef LocationLogsRepositoryRef =
-    AutoDisposeProviderRef<LocationLogsRepository>;
-String _$allLogsHash() => r'2dba77a334566eda4e85988eae9e3b31364f3a86';
-
-/// See also [allLogs].
-@ProviderFor(allLogs)
-final allLogsProvider = AutoDisposeStreamProvider<List<LocationLog>>.internal(
-  allLogs,
-  name: r'allLogsProvider',
-  debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$allLogsHash,
+  locationLogsRepository,
+  name: r'locationLogsRepositoryProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$locationLogsRepositoryHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef AllLogsRef = AutoDisposeStreamProviderRef<List<LocationLog>>;
+typedef LocationLogsRepositoryRef
+    = AutoDisposeProviderRef<LocationLogsRepository>;
 String _$filteredLogsHash() => r'073e55970cba0d588d9627a3b6bc84aa71a2c71a';
 
 /// Copied from Dart SDK
@@ -76,15 +59,21 @@ class FilteredLogsFamily extends Family<AsyncValue<List<LocationLog>>> {
   const FilteredLogsFamily();
 
   /// See also [filteredLogs].
-  FilteredLogsProvider call({required bool showErrorLogs}) {
-    return FilteredLogsProvider(showErrorLogs: showErrorLogs);
+  FilteredLogsProvider call({
+    required bool showErrorLogs,
+  }) {
+    return FilteredLogsProvider(
+      showErrorLogs: showErrorLogs,
+    );
   }
 
   @override
   FilteredLogsProvider getProviderOverride(
     covariant FilteredLogsProvider provider,
   ) {
-    return call(showErrorLogs: provider.showErrorLogs);
+    return call(
+      showErrorLogs: provider.showErrorLogs,
+    );
   }
 
   static const Iterable<ProviderOrFamily>? _dependencies = null;
@@ -106,21 +95,24 @@ class FilteredLogsFamily extends Family<AsyncValue<List<LocationLog>>> {
 class FilteredLogsProvider
     extends AutoDisposeFutureProvider<List<LocationLog>> {
   /// See also [filteredLogs].
-  FilteredLogsProvider({required bool showErrorLogs})
-    : this._internal(
-        (ref) =>
-            filteredLogs(ref as FilteredLogsRef, showErrorLogs: showErrorLogs),
-        from: filteredLogsProvider,
-        name: r'filteredLogsProvider',
-        debugGetCreateSourceHash:
-            const bool.fromEnvironment('dart.vm.product')
-                ? null
-                : _$filteredLogsHash,
-        dependencies: FilteredLogsFamily._dependencies,
-        allTransitiveDependencies:
-            FilteredLogsFamily._allTransitiveDependencies,
-        showErrorLogs: showErrorLogs,
-      );
+  FilteredLogsProvider({
+    required bool showErrorLogs,
+  }) : this._internal(
+          (ref) => filteredLogs(
+            ref as FilteredLogsRef,
+            showErrorLogs: showErrorLogs,
+          ),
+          from: filteredLogsProvider,
+          name: r'filteredLogsProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$filteredLogsHash,
+          dependencies: FilteredLogsFamily._dependencies,
+          allTransitiveDependencies:
+              FilteredLogsFamily._allTransitiveDependencies,
+          showErrorLogs: showErrorLogs,
+        );
 
   FilteredLogsProvider._internal(
     super._createNotifier, {
@@ -188,5 +180,20 @@ class _FilteredLogsProviderElement
   bool get showErrorLogs => (origin as FilteredLogsProvider).showErrorLogs;
 }
 
+String _$locationLogsHash() => r'99ec9b058330edc34c600c44e316506ea57248ac';
+
+/// See also [LocationLogs].
+@ProviderFor(LocationLogs)
+final locationLogsProvider =
+    AutoDisposeAsyncNotifierProvider<LocationLogs, List<LocationLog>>.internal(
+  LocationLogs.new,
+  name: r'locationLogsProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$locationLogsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$LocationLogs = AutoDisposeAsyncNotifier<List<LocationLog>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
