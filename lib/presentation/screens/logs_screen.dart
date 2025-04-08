@@ -17,20 +17,50 @@ class LogsScreen extends StatefulWidget {
   State<LogsScreen> createState() => _LogsScreenState();
 }
 
-class _LogsScreenState extends State<LogsScreen> {
+class _LogsScreenState extends State<LogsScreen>
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   bool _showErrorLogs = true;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Initial load
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<LocationLogsCubit>().refresh();
+      refreshData();
     });
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      refreshData();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    refreshData();
+  }
+
+  void refreshData() {
+    context.read<LocationLogsCubit>().refresh();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Location Logs'),
@@ -62,7 +92,10 @@ class _LogsScreenState extends State<LogsScreen> {
               return const Center(child: Text("No logs available"));
             }
 
-            return _DismissibleLogsList(filteredLogs: filteredLogs);
+            return _DismissibleLogsList(
+              filteredLogs: filteredLogs,
+              onRefresh: refreshData,
+            );
           }
 
           // Initial state
@@ -75,8 +108,12 @@ class _LogsScreenState extends State<LogsScreen> {
 
 class _DismissibleLogsList extends StatefulWidget {
   final List<LocationLog> filteredLogs;
+  final VoidCallback onRefresh;
 
-  const _DismissibleLogsList({required this.filteredLogs});
+  const _DismissibleLogsList({
+    required this.filteredLogs,
+    required this.onRefresh,
+  });
 
   @override
   State<_DismissibleLogsList> createState() => _DismissibleLogsListState();
@@ -107,66 +144,71 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
     final visibleLogs =
         logs.where((log) => !dismissedLogIds.contains(log.id)).toList();
 
-    return ListView.builder(
-      itemCount: visibleLogs.length,
-      itemBuilder: (context, index) {
-        final log = visibleLogs[index];
-
-        return Dismissible(
-          key: ValueKey<int>(log.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            color: Colors.red,
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: const Icon(Icons.delete, color: Colors.white),
-          ),
-          confirmDismiss: (direction) async {
-            try {
-              developer.log(
-                "🗑️ Confirming dismissal of log with ID: ${log.id}",
-              );
-              final repository = getIt<LocationLogsRepository>();
-              await repository.deleteLog(log.id);
-
-              if (context.mounted) {
-                SnackBarHelper.showSnackBar(
-                  context,
-                  "Deleted",
-                  'Log entry successfully removed',
-                  ContentType.success,
-                );
-              }
-              return true;
-            } catch (e) {
-              developer.log("❌ Error dismissing log with ID ${log.id}: $e");
-              if (context.mounted) {
-                SnackBarHelper.showSnackBar(
-                  context,
-                  "Error",
-                  'Failed to delete log: $e',
-                  ContentType.failure,
-                );
-              }
-              return false;
-            }
-          },
-          onDismissed: (direction) {
-            // Mark the log as dismissed
-            setState(() {
-              dismissedLogIds.add(log.id);
-            });
-
-            // Refresh logs after deletion
-            Future.delayed(const Duration(milliseconds: 300), () {
-              if (mounted) {
-                context.read<LocationLogsCubit>().refresh();
-              }
-            });
-          },
-          child: LogEntryTile(log: log),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        widget.onRefresh();
       },
+      child: ListView.builder(
+        itemCount: visibleLogs.length,
+        itemBuilder: (context, index) {
+          final log = visibleLogs[index];
+
+          return Dismissible(
+            key: ValueKey<int>(log.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: const Icon(Icons.delete, color: Colors.white),
+            ),
+            confirmDismiss: (direction) async {
+              try {
+                developer.log(
+                  "🗑️ Confirming dismissal of log with ID: ${log.id}",
+                );
+                final repository = getIt<LocationLogsRepository>();
+                await repository.deleteLog(log.id);
+
+                if (context.mounted) {
+                  SnackBarHelper.showSnackBar(
+                    context,
+                    "Deleted",
+                    'Log entry successfully removed',
+                    ContentType.success,
+                  );
+                }
+                return true;
+              } catch (e) {
+                developer.log("❌ Error dismissing log with ID ${log.id}: $e");
+                if (context.mounted) {
+                  SnackBarHelper.showSnackBar(
+                    context,
+                    "Error",
+                    'Failed to delete log: $e',
+                    ContentType.failure,
+                  );
+                }
+                return false;
+              }
+            },
+            onDismissed: (direction) {
+              // Mark the log as dismissed
+              setState(() {
+                dismissedLogIds.add(log.id);
+              });
+
+              // Refresh logs after deletion
+              Future.delayed(const Duration(milliseconds: 300), () {
+                if (mounted) {
+                  widget.onRefresh();
+                }
+              });
+            },
+            child: LogEntryTile(log: log),
+          );
+        },
+      ),
     );
   }
 }

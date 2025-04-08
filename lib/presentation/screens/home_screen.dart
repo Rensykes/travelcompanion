@@ -101,8 +101,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 ? FloatingActionButton(
                     onPressed: homeState.isFetchingLocation
                         ? null
-                        : () {
-                            _homeCubit.addCountry(
+                        : () async {
+                            await _homeCubit.addCountry(
                               (title, message, status) {
                                 SnackBarHelper.showSnackBar(
                                   context,
@@ -112,6 +112,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 );
                               },
                             );
+                            // Explicitly refresh both cubits from the context to ensure UI updates
+                            if (context.mounted) {
+                              refreshAllData();
+                            }
                           },
                     child: homeState.isFetchingLocation
                         ? const CircularProgressIndicator(color: Colors.white)

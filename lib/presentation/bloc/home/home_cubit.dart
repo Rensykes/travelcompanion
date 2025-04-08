@@ -34,17 +34,7 @@ class HomeCubit extends Cubit<HomeState> {
           countryCode: isoCode,
         );
 
-        // Refresh data only in the relevant cubits
-        final locationLogsCubit = GetIt.instance.get<LocationLogsCubit>();
-        final countryVisitsCubit = GetIt.instance.get<CountryVisitsCubit>();
-
-        // Only refresh if the cubits are initialized
-        if (locationLogsCubit.state is! LocationLogsInitial) {
-          await locationLogsCubit.refresh();
-        }
-        if (countryVisitsCubit.state is! CountryVisitsInitial) {
-          await countryVisitsCubit.refresh();
-        }
+        // Let the UI layer handle the refresh
 
         showSnackBar(
           'Location Retrieved!',

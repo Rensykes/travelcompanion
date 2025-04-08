@@ -1,6 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
@@ -8,6 +9,7 @@ import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.da
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/core/di/injection_container.dart';
+import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'relations_screen.dart';
 
 class EntriesScreen extends StatefulWidget {
@@ -17,14 +19,42 @@ class EntriesScreen extends StatefulWidget {
   State<EntriesScreen> createState() => _EntriesScreenState();
 }
 
-class _EntriesScreenState extends State<EntriesScreen> {
+class _EntriesScreenState extends State<EntriesScreen>
+    with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // Initial load
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<CountryVisitsCubit>().refresh();
+      refreshData();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      refreshData();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    refreshData();
+  }
+
+  void refreshData() {
+    context.read<CountryVisitsCubit>().refresh();
   }
 
   // Show confirmation dialog before deleting
@@ -70,8 +100,11 @@ class _EntriesScreenState extends State<EntriesScreen> {
             ContentType.success,
           );
         }
-        // Refresh the visits after deletion
-        context.read<CountryVisitsCubit>().refresh();
+        // Refresh both cubits after deletion
+        if (context.mounted) {
+          context.read<CountryVisitsCubit>().refresh();
+          context.read<LocationLogsCubit>().refresh();
+        }
         return true;
       } catch (e) {
         if (context.mounted) {
@@ -91,6 +124,8 @@ class _EntriesScreenState extends State<EntriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Country Visits')),
       body: BlocBuilder<CountryVisitsCubit, CountryVisitsState>(
@@ -132,16 +167,7 @@ class _EntriesScreenState extends State<EntriesScreen> {
                     subtitle: Text('Days: ${visit.daysSpent}'),
                     trailing: Text('Entry: ${_formatDate(visit.entryDate)}'),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              RelationsScreen(countryVisit: visit),
-                        ),
-                      ).then((_) {
-                        // Refresh data when returning from relations screen
-                        context.read<CountryVisitsCubit>().refresh();
-                      });
+                      context.push('/relations/${visit.countryCode}');
                     },
                   ),
                 );

@@ -8,6 +8,8 @@ import 'package:trackie/presentation/bloc/relation_logs/relation_logs_state.dart
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/core/di/injection_container.dart';
 import 'dart:developer' as developer;
+import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
+import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 
 class RelationsScreen extends StatefulWidget {
   final CountryVisit countryVisit;
@@ -63,8 +65,12 @@ class _RelationsScreenState extends State<RelationsScreen> {
             final logs = state.logs;
 
             if (logs.isEmpty) {
-              // If no logs are present, navigate back
-              Future.microtask(() => Navigator.of(context).pop());
+              // If no logs are present, refresh both cubits and navigate back
+              Future.microtask(() {
+                context.read<LocationLogsCubit>().refresh();
+                context.read<CountryVisitsCubit>().refresh();
+                Navigator.of(context).pop();
+              });
               return const Center(
                   child: Text('No logs found for this country'));
             }
@@ -72,7 +78,11 @@ class _RelationsScreenState extends State<RelationsScreen> {
             return _DismissibleLogsList(
               logs: logs,
               countryCode: widget.countryVisit.countryCode,
-              onDeleted: () => _relationLogsCubit.refresh(),
+              onDeleted: () {
+                _relationLogsCubit.refresh();
+                context.read<LocationLogsCubit>().refresh();
+                context.read<CountryVisitsCubit>().refresh();
+              },
             );
           }
 
