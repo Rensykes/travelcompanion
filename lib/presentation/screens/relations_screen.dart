@@ -1,37 +1,45 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/data/datasource/database.dart';
+import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
+import 'package:trackie/presentation/bloc/relation_logs/relation_logs_state.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
-import 'package:trackie/presentation/providers/location_logs_provider.dart';
-import 'package:trackie/presentation/providers/relation_logs_provider.dart';
+import 'package:trackie/core/di/injection_container.dart';
 import 'dart:developer' as developer;
 
-class RelationsScreen extends ConsumerStatefulWidget {
+class RelationsScreen extends StatefulWidget {
   final CountryVisit countryVisit;
 
   const RelationsScreen({super.key, required this.countryVisit});
 
   @override
-  ConsumerState<RelationsScreen> createState() => _RelationsScreenState();
+  State<RelationsScreen> createState() => _RelationsScreenState();
 }
 
-class _RelationsScreenState extends ConsumerState<RelationsScreen> {
+class _RelationsScreenState extends State<RelationsScreen> {
+  late final RelationLogsCubit _relationLogsCubit;
+
   @override
   void initState() {
     super.initState();
+    // Get the cubit from get_it
+    _relationLogsCubit = getIt<RelationLogsCubit>();
+
     // Initial load
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(relationLogsProvider(widget.countryVisit.countryCode));
+      _relationLogsCubit.loadLogsForCountry(widget.countryVisit.countryCode);
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    final logsAsync = ref.watch(
-      relationLogsProvider(widget.countryVisit.countryCode),
-    );
+  void dispose() {
+    super.dispose();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Logs for ${widget.countryVisit.countryCode}'),
@@ -39,28 +47,37 @@ class _RelationsScreenState extends ConsumerState<RelationsScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              ref.invalidate(
-                relationLogsProvider(widget.countryVisit.countryCode),
-              );
+              _relationLogsCubit.refresh();
             },
           ),
         ],
       ),
-      body: logsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Error: $err')),
-        data: (logs) {
-          if (logs.isEmpty) {
-            // If no logs are present, navigate back to EntriesScreen
-            Future.microtask(() => Navigator.of(context).pop());
-            return const Center(child: Text('No logs found for this country'));
+      body: BlocBuilder<RelationLogsCubit, RelationLogsState>(
+        bloc: _relationLogsCubit,
+        builder: (context, state) {
+          if (state is RelationLogsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is RelationLogsError) {
+            return Center(child: Text('Error: ${state.message}'));
+          } else if (state is RelationLogsLoaded) {
+            final logs = state.logs;
+
+            if (logs.isEmpty) {
+              // If no logs are present, navigate back
+              Future.microtask(() => Navigator.of(context).pop());
+              return const Center(
+                  child: Text('No logs found for this country'));
+            }
+
+            return _DismissibleLogsList(
+              logs: logs,
+              countryCode: widget.countryVisit.countryCode,
+              onDeleted: () => _relationLogsCubit.refresh(),
+            );
           }
 
-          return _DismissibleLogsList(
-            logs: logs,
-            ref: ref,
-            countryCode: widget.countryVisit.countryCode,
-          );
+          // Initial state
+          return const Center(child: CircularProgressIndicator());
         },
       ),
     );
@@ -69,13 +86,13 @@ class _RelationsScreenState extends ConsumerState<RelationsScreen> {
 
 class _DismissibleLogsList extends StatefulWidget {
   final List<LocationLog> logs;
-  final WidgetRef ref;
   final String countryCode;
+  final VoidCallback onDeleted;
 
   const _DismissibleLogsList({
     required this.logs,
-    required this.ref,
     required this.countryCode,
+    required this.onDeleted,
   });
 
   @override
@@ -126,9 +143,7 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               developer.log(
                 "🗑️ Confirming dismissal of log with ID: ${log.id}",
               );
-              final repository = widget.ref.read(
-                locationLogsRepositoryProvider,
-              );
+              final repository = getIt<LocationLogsRepository>();
               await repository.deleteLog(log.id);
 
               if (context.mounted) {
@@ -159,18 +174,17 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               dismissedLogIds.add(log.id);
             });
 
-            // Delay the provider invalidation
+            // Notify parent to refresh the data
             Future.delayed(const Duration(milliseconds: 300), () {
               if (mounted) {
-                widget.ref.invalidate(relationLogsProvider(widget.countryCode));
+                widget.onDeleted();
               }
             });
           },
           child: ListTile(
-            leading:
-                log.status == "success"
-                    ? const Icon(Icons.check_circle, color: Colors.green)
-                    : const Icon(Icons.error, color: Colors.red),
+            leading: log.status == "success"
+                ? const Icon(Icons.check_circle, color: Colors.green)
+                : const Icon(Icons.error, color: Colors.red),
             title: Text("Log #${log.id}"),
             subtitle: Text("Time: ${log.logDateTime}"),
           ),

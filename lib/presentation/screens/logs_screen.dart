@@ -1,83 +1,73 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
-import 'package:trackie/presentation/providers/location_logs_provider.dart';
-import 'package:trackie/presentation/providers/preferences_provider.dart';
+import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
+import 'package:trackie/presentation/bloc/location_logs/location_logs_state.dart';
 import 'package:trackie/presentation/widgets/log_entry_tile.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/data/datasource/database.dart';
+import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/core/di/injection_container.dart';
 
-class LogsScreen extends ConsumerStatefulWidget {
+class LogsScreen extends StatefulWidget {
   const LogsScreen({super.key});
 
   @override
-  ConsumerState<LogsScreen> createState() => _LogsScreenState();
+  State<LogsScreen> createState() => _LogsScreenState();
 }
 
-class _LogsScreenState extends ConsumerState<LogsScreen> {
+class _LogsScreenState extends State<LogsScreen> {
+  bool _showErrorLogs = true;
+
   @override
   void initState() {
     super.initState();
     // Initial load
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.invalidate(locationLogsProvider);
+      context.read<LocationLogsCubit>().refresh();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch the show error logs preference
-    final showErrorLogsAsync = ref.watch(showErrorLogsProvider);
-
-    // Watch the logs from the provider
-    final logsAsync = ref.watch(locationLogsProvider);
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Location Logs'),
         actions: [
           // Show error logs toggle switch
-          showErrorLogsAsync.when(
-            data:
-                (showErrorLogs) => Switch(
-                  value: showErrorLogs,
-                  onChanged: (value) async {
-                    await ref.read(showErrorLogsProvider.notifier).set(value);
-                  },
-                ),
-            loading:
-                () => const SizedBox(
-                  width: 24,
-                  height: 24,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-            error: (_, __) => const Icon(Icons.error),
+          Switch(
+            value: _showErrorLogs,
+            onChanged: (value) {
+              setState(() {
+                _showErrorLogs = value;
+              });
+            },
           ),
         ],
       ),
-      body: logsAsync.when(
-        data: (logs) {
-          return showErrorLogsAsync.when(
-            data: (showErrorLogs) {
-              // Apply filter based on user preference
-              final filteredLogs =
-                  showErrorLogs
-                      ? List.of(logs)
-                      : logs.where((log) => log.status != "error").toList();
+      body: BlocBuilder<LocationLogsCubit, LocationLogsState>(
+        builder: (context, state) {
+          if (state is LocationLogsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is LocationLogsError) {
+            return Center(child: Text('Error: ${state.message}'));
+          } else if (state is LocationLogsLoaded) {
+            // Apply filter based on user preference
+            final filteredLogs = _showErrorLogs
+                ? List.of(state.logs)
+                : state.logs.where((log) => log.status != "error").toList();
 
-              if (filteredLogs.isEmpty) {
-                return const Center(child: Text("No logs available"));
-              }
+            if (filteredLogs.isEmpty) {
+              return const Center(child: Text("No logs available"));
+            }
 
-              return _DismissibleLogsList(filteredLogs: filteredLogs, ref: ref);
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, _) => Center(child: Text('Error: $error')),
-          );
+            return _DismissibleLogsList(filteredLogs: filteredLogs);
+          }
+
+          // Initial state
+          return const Center(child: CircularProgressIndicator());
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(child: Text('Error: $error')),
       ),
     );
   }
@@ -85,9 +75,8 @@ class _LogsScreenState extends ConsumerState<LogsScreen> {
 
 class _DismissibleLogsList extends StatefulWidget {
   final List<LocationLog> filteredLogs;
-  final WidgetRef ref;
 
-  const _DismissibleLogsList({required this.filteredLogs, required this.ref});
+  const _DismissibleLogsList({required this.filteredLogs});
 
   @override
   State<_DismissibleLogsList> createState() => _DismissibleLogsListState();
@@ -137,9 +126,7 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               developer.log(
                 "🗑️ Confirming dismissal of log with ID: ${log.id}",
               );
-              final repository = widget.ref.read(
-                locationLogsRepositoryProvider,
-              );
+              final repository = getIt<LocationLogsRepository>();
               await repository.deleteLog(log.id);
 
               if (context.mounted) {
@@ -170,10 +157,10 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               dismissedLogIds.add(log.id);
             });
 
-            // Delay the provider invalidation
+            // Refresh logs after deletion
             Future.delayed(const Duration(milliseconds: 300), () {
               if (mounted) {
-                widget.ref.invalidate(locationLogsProvider);
+                context.read<LocationLogsCubit>().refresh();
               }
             });
           },
