@@ -66,7 +66,7 @@ dependencies:
   # Utils
   intl: ^0.19.0 # For date formatting
   path: ^1.8.3
-  shared_preferences: ^2.2.2
+  shared_preferences: ^2.5.3
 
   # Riverpod
   flutter_riverpod: ^2.4.9

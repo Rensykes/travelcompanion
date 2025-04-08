@@ -9,6 +9,8 @@ import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
+import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
+import 'package:trackie/presentation/bloc/theme/theme_state.dart';
 import 'package:trackie/presentation/screens/home_screen.dart';
 
 final getIt = GetIt.instance;
@@ -35,6 +37,7 @@ Future<void> setup() async {
   getIt.registerFactory<RelationLogsCubit>(
     () => RelationLogsCubit(getIt<LocationLogsRepository>()),
   );
+  getIt.registerSingleton<ThemeCubit>(ThemeCubit());
 }
 
 void main() async {
@@ -53,13 +56,18 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => getIt<LocationLogsCubit>()),
         BlocProvider(create: (_) => getIt<CountryVisitsCubit>()),
         BlocProvider(create: (_) => getIt<RelationLogsCubit>()),
+        BlocProvider(create: (_) => getIt<ThemeCubit>()),
       ],
-      child: MaterialApp(
-        title: 'Travel Companion',
-        themeMode: ThemeMode.system,
-        theme: AppThemes.lightTheme,
-        darkTheme: AppThemes.darkTheme,
-        home: const HomeScreen(),
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, themeState) {
+          return MaterialApp(
+            title: 'Travel Companion',
+            themeMode: themeState.themeMode,
+            theme: AppThemes.lightTheme,
+            darkTheme: AppThemes.darkTheme,
+            home: const HomeScreen(),
+          );
+        },
       ),
     );
   }

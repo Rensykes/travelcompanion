@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/core/di/injection_container.dart';
-
-class SettingsScreenState {
-  final bool isDarkMode;
-  final bool useSystemTheme;
-
-  SettingsScreenState({
-    required this.isDarkMode,
-    required this.useSystemTheme,
-  });
-}
+import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
+import 'package:trackie/presentation/bloc/theme/theme_state.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -21,12 +14,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // Default settings state
-  SettingsScreenState settings = SettingsScreenState(
-    isDarkMode: false,
-    useSystemTheme: true,
-  );
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,57 +23,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSettingsUI(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          SwitchListTile(
-            title: const Text('Use System Theme'),
-            value: settings.useSystemTheme,
-            onChanged: (bool value) {
-              setState(() {
-                settings = SettingsScreenState(
-                  isDarkMode: settings.isDarkMode,
-                  useSystemTheme: value,
-                );
-              });
-            },
+    return BlocBuilder<ThemeCubit, ThemeState>(
+      builder: (context, state) {
+        final themeCubit = context.read<ThemeCubit>();
+        final useSystemTheme = themeCubit.useSystemTheme;
+        final isDarkMode = themeCubit.isDarkMode;
+
+        return Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              SwitchListTile(
+                title: const Text('Use System Theme'),
+                value: useSystemTheme,
+                onChanged: (bool value) {
+                  themeCubit.setUseSystemTheme(value);
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Dark Mode'),
+                value: isDarkMode,
+                onChanged: useSystemTheme
+                    ? null // Disable this switch if using system theme
+                    : (bool value) {
+                        themeCubit.setDarkMode(value);
+                      },
+              ),
+              const SizedBox(height: 24),
+              // Advanced settings button
+              ListTile(
+                title: const Text('Advanced Settings'),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AdvancedSettingsScreen(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () => _cleanupDatabase(context),
+                child: const Text('Clean up Database'),
+              ),
+            ],
           ),
-          SwitchListTile(
-            title: const Text('Dark Mode'),
-            value: settings.isDarkMode,
-            onChanged: settings.useSystemTheme
-                ? null // Disable this switch if using system theme
-                : (bool value) {
-                    setState(() {
-                      settings = SettingsScreenState(
-                        isDarkMode: value,
-                        useSystemTheme: settings.useSystemTheme,
-                      );
-                    });
-                  },
-          ),
-          const SizedBox(height: 24),
-          // Advanced settings button
-          ListTile(
-            title: const Text('Advanced Settings'),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AdvancedSettingsScreen(),
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => _cleanupDatabase(context),
-            child: const Text('Clean up Database'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 
