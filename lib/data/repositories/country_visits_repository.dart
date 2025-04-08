@@ -15,9 +15,9 @@ class CountryVisitsRepository {
     final formattedToday = DateTime(today.year, today.month, today.day);
 
     // Check if there's an existing entry for this country
-    final existingVisit =
-        await (database.select(database.countryVisits)
-          ..where((t) => t.countryCode.equals(countryCode))).getSingleOrNull();
+    final existingVisit = await (database.select(database.countryVisits)
+          ..where((t) => t.countryCode.equals(countryCode)))
+        .getSingleOrNull();
 
     if (existingVisit != null) {
       log(
@@ -29,7 +29,8 @@ class CountryVisitsRepository {
           "📅 Updating days spent for $countryCode from ${existingVisit.daysSpent} to ${existingVisit.daysSpent + 1}",
         );
         await (database.update(database.countryVisits)
-          ..where((t) => t.countryCode.equals(countryCode))).write(
+              ..where((t) => t.countryCode.equals(countryCode)))
+            .write(
           CountryVisitsCompanion(
             entryDate: Value(formattedToday),
             daysSpent: Value(existingVisit.daysSpent + 1),
@@ -42,9 +43,7 @@ class CountryVisitsRepository {
     } else {
       log("✨ Creating new country visit entry for $countryCode");
       // If it's a new country, add a new entry
-      await database
-          .into(database.countryVisits)
-          .insert(
+      await database.into(database.countryVisits).insert(
             CountryVisitsCompanion.insert(
               countryCode: countryCode,
               entryDate: formattedToday,
@@ -63,17 +62,38 @@ class CountryVisitsRepository {
     return visits;
   }
 
-  // Delete a country visit by its country code
+  // Delete a country visit and all related data by its country code
   Future<void> deleteCountryVisit(String countryCode) async {
-    log("🗑️ Starting to delete country visit for: $countryCode");
+    log("🗑️ Starting to delete all data for country: $countryCode");
     try {
-      // Delete the country visit
-      await (database.delete(database.countryVisits)
-        ..where((visit) => visit.countryCode.equals(countryCode))).go();
+      // Start a transaction to ensure all deletions are atomic
+      await database.transaction(() async {
+        // First, get all location logs for this country
+        final locationLogs = await (database.select(database.locationLogs)
+              ..where((log) => log.countryCode.equals(countryCode)))
+            .get();
 
-      log("✅ Successfully deleted country visit for $countryCode");
+        // Delete all relations for these location logs
+        for (final log in locationLogs) {
+          await (database.delete(database.logCountryRelations)
+                ..where((relation) => relation.logId.equals(log.id)))
+              .go();
+        }
+
+        // Delete all location logs for this country
+        await (database.delete(database.locationLogs)
+              ..where((log) => log.countryCode.equals(countryCode)))
+            .go();
+
+        // Finally, delete the country visit
+        await (database.delete(database.countryVisits)
+              ..where((visit) => visit.countryCode.equals(countryCode)))
+            .go();
+      });
+
+      log("✅ Successfully deleted all data for country: $countryCode");
     } catch (e) {
-      log("❌ Error while deleting country visit: $e");
+      log("❌ Error while deleting country data: $e");
       rethrow; // Rethrow to handle in the UI
     }
   }

@@ -10,7 +10,6 @@ import 'package:trackie/presentation/bloc/country_visits/country_visits_state.da
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/core/di/injection_container.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
-import 'relations_screen.dart';
 
 class EntriesScreen extends StatefulWidget {
   const EntriesScreen({super.key});

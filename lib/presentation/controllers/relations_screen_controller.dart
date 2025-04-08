@@ -1,11 +1,8 @@
 // relations_screen_controller.dart
-import 'dart:developer';
-
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/providers/location_logs_provider.dart';
 import 'package:trackie/presentation/providers/relation_logs_provider.dart';
 
