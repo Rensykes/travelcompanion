@@ -138,41 +138,58 @@ class _EntriesScreenState extends State<EntriesScreen>
             final visits = state.visits;
 
             if (visits.isEmpty) {
-              return const Center(child: Text('No country visits recorded'));
+              return RefreshIndicator(
+                onRefresh: () async {
+                  refreshData();
+                },
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    SizedBox(height: 100),
+                    Center(child: Text('No country visits recorded')),
+                  ],
+                ),
+              );
             }
 
-            return ListView.builder(
-              itemCount: visits.length,
-              itemBuilder: (context, index) {
-                final visit = visits[index];
-                return Dismissible(
-                  key: Key(visit.countryCode),
-                  direction: DismissDirection.endToStart,
-                  confirmDismiss: (direction) =>
-                      _showDeleteConfirmation(context, visit),
-                  background: Container(
-                    color: Colors.red,
-                    alignment: Alignment.centerRight,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: ListTile(
-                    leading: CountryFlag.fromCountryCode(
-                      visit.countryCode,
-                      width: 40,
-                      height: 30,
-                      borderRadius: 8,
-                    ),
-                    title: Text(visit.countryCode),
-                    subtitle: Text('Days: ${visit.daysSpent}'),
-                    trailing: Text('Entry: ${_formatDate(visit.entryDate)}'),
-                    onTap: () {
-                      context.push(RouteConstants.buildRelationsRoute(
-                          visit.countryCode));
-                    },
-                  ),
-                );
+            return RefreshIndicator(
+              onRefresh: () async {
+                refreshData();
               },
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: visits.length,
+                itemBuilder: (context, index) {
+                  final visit = visits[index];
+                  return Dismissible(
+                    key: Key(visit.countryCode),
+                    direction: DismissDirection.endToStart,
+                    confirmDismiss: (direction) =>
+                        _showDeleteConfirmation(context, visit),
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    child: ListTile(
+                      leading: CountryFlag.fromCountryCode(
+                        visit.countryCode,
+                        width: 40,
+                        height: 30,
+                        borderRadius: 8,
+                      ),
+                      title: Text(visit.countryCode),
+                      subtitle: Text('Days: ${visit.daysSpent}'),
+                      trailing: Text('Entry: ${_formatDate(visit.entryDate)}'),
+                      onTap: () {
+                        context.push(RouteConstants.buildRelationsRoute(
+                            visit.countryCode));
+                      },
+                    ),
+                  );
+                },
+              ),
             );
           }
 

@@ -89,7 +89,18 @@ class _LogsScreenState extends State<LogsScreen>
                 : state.logs.where((log) => log.status != "error").toList();
 
             if (filteredLogs.isEmpty) {
-              return const Center(child: Text("No logs available"));
+              return RefreshIndicator(
+                onRefresh: () async {
+                  refreshData();
+                },
+                child: ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: const [
+                    SizedBox(height: 100),
+                    Center(child: Text("No logs available")),
+                  ],
+                ),
+              );
             }
 
             return _DismissibleLogsList(
@@ -149,6 +160,7 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
         widget.onRefresh();
       },
       child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
         itemCount: visibleLogs.length,
         itemBuilder: (context, index) {
           final log = visibleLogs[index];
