@@ -21,7 +21,8 @@ void callbackDispatcher() {
       backgroundDatabase = AppDatabase();
 
       // Create repository instances
-      final countryVisitsRepository = CountryVisitsRepository(backgroundDatabase);
+      final countryVisitsRepository =
+          CountryVisitsRepository(backgroundDatabase);
       final locationLogsRepository = LocationLogsRepository(backgroundDatabase);
 
       String? isoCode = await SimInfoService.getIsoCode();
@@ -34,7 +35,7 @@ void callbackDispatcher() {
         );
 
         log(
-          "Background task completed for country: $isoCode",
+          "${DateTime.now()} - Background task completed for country: $isoCode",
           name: 'Workmanager',
           time: DateTime.now(),
         );
@@ -42,7 +43,7 @@ void callbackDispatcher() {
         await locationLogsRepository.logEntry(status: "error");
 
         log(
-          "Background task failed: No country detected",
+          "${DateTime.now()} - Background task failed: No country detected",
           name: 'Workmanager',
           level: 900,
           time: DateTime.now(),
