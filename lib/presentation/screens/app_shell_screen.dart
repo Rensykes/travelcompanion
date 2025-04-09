@@ -69,13 +69,13 @@ class _AppShellScreenState extends State<AppShellScreen>
   void _onTabChange(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go('/');
+        context.go(RouteConstants.home);
         break;
       case 1:
-        context.go('/logs');
+        context.go(RouteConstants.logs);
         break;
       case 2:
-        context.go('/settings');
+        context.go(RouteConstants.settings);
         break;
     }
   }
