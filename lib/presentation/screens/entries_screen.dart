@@ -10,6 +10,7 @@ import 'package:trackie/presentation/bloc/country_visits/country_visits_state.da
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
+import 'package:trackie/core/constants/route_constants.dart';
 
 class EntriesScreen extends StatefulWidget {
   const EntriesScreen({super.key});
@@ -166,7 +167,8 @@ class _EntriesScreenState extends State<EntriesScreen>
                     subtitle: Text('Days: ${visit.daysSpent}'),
                     trailing: Text('Entry: ${_formatDate(visit.entryDate)}'),
                     onTap: () {
-                      context.push('/relations/${visit.countryCode}');
+                      context.push(RouteConstants.buildRelationsRoute(
+                          visit.countryCode));
                     },
                   ),
                 );

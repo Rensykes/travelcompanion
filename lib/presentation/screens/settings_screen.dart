@@ -5,6 +5,7 @@ import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_state.dart';
+import 'package:trackie/core/constants/route_constants.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -55,7 +56,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: const Text('Advanced Settings'),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () {
-                  context.push('/settings/advanced');
+                  context.push(RouteConstants.advancedSettingsFullPath);
                 },
               ),
               const SizedBox(height: 24),

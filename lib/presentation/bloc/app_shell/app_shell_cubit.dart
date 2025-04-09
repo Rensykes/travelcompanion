@@ -3,16 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/application/services/sim_info_service.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
-import 'package:trackie/presentation/bloc/home/home_state.dart';
+import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
 
-class HomeCubit extends Cubit<HomeState> {
+class AppShellCubit extends Cubit<AppShellState> {
   final LocationLogsRepository locationLogsRepository;
   final CountryVisitsRepository countryVisitsRepository;
 
-  HomeCubit({
+  AppShellCubit({
     required this.locationLogsRepository,
     required this.countryVisitsRepository,
-  }) : super(const HomeState());
+  }) : super(const AppShellState());
 
   Future<void> addCountry(
     Function(String, String, ContentType) showSnackBar,

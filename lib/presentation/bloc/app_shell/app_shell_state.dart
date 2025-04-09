@@ -1,16 +1,16 @@
 import 'package:equatable/equatable.dart';
 
-class HomeState extends Equatable {
+class AppShellState extends Equatable {
   final bool isFetchingLocation;
 
-  const HomeState({
+  const AppShellState({
     this.isFetchingLocation = false,
   });
 
-  HomeState copyWith({
+  AppShellState copyWith({
     bool? isFetchingLocation,
   }) {
-    return HomeState(
+    return AppShellState(
       isFetchingLocation: isFetchingLocation ?? this.isFetchingLocation,
     );
   }

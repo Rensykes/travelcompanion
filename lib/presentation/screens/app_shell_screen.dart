@@ -8,29 +8,31 @@ import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/widgets/custom_google_navbar.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
-import 'package:trackie/presentation/bloc/home/home_cubit.dart';
-import 'package:trackie/presentation/bloc/home/home_state.dart';
+import 'package:trackie/presentation/bloc/app_shell/app_shell_cubit.dart';
+import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
+import 'package:trackie/core/constants/route_constants.dart';
 
-class HomeScreen extends StatefulWidget {
+class AppShellScreen extends StatefulWidget {
   final Widget child;
 
-  const HomeScreen({
+  const AppShellScreen({
     super.key,
     required this.child,
   });
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<AppShellScreen> createState() => _AppShellScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
-  late final HomeCubit _homeCubit;
+class _AppShellScreenState extends State<AppShellScreen>
+    with WidgetsBindingObserver {
+  late final AppShellCubit _appShellCubit;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _homeCubit = HomeCubit(
+    _appShellCubit = AppShellCubit(
       locationLogsRepository: GetIt.instance.get<LocationLogsRepository>(),
       countryVisitsRepository: GetIt.instance.get<CountryVisitsRepository>(),
     );
@@ -39,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _homeCubit.close();
+    _appShellCubit.close();
     super.dispose();
   }
 
@@ -81,8 +83,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: _homeCubit,
-      child: BlocBuilder<HomeCubit, HomeState>(
+      value: _appShellCubit,
+      child: BlocBuilder<AppShellCubit, AppShellState>(
         builder: (context, homeState) {
           return Scaffold(
             appBar: AppBar(title: const Text('Trackie')),
@@ -98,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     onPressed: homeState.isFetchingLocation
                         ? null
                         : () async {
-                            await _homeCubit.addCountry(
+                            await _appShellCubit.addCountry(
                               (title, message, status) {
                                 SnackBarHelper.showSnackBar(
                                   context,

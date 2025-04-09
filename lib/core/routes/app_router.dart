@@ -1,28 +1,30 @@
 import 'package:go_router/go_router.dart';
+import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 import 'package:trackie/presentation/screens/entries_screen.dart';
-import 'package:trackie/presentation/screens/home_screen.dart';
+import 'package:trackie/presentation/screens/app_shell_screen.dart';
 import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/presentation/screens/relations_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
 
 final router = GoRouter(
-  initialLocation: '/',
+  initialLocation: RouteConstants.home,
   routes: [
     ShellRoute(
       builder: (context, state, child) {
-        return HomeScreen(child: child);
+        return AppShellScreen(child: child);
       },
       routes: [
         GoRoute(
-          path: '/',
+          path: RouteConstants.home,
           builder: (context, state) => const EntriesScreen(),
           routes: [
             GoRoute(
-              path: 'relations/:countryCode',
+              path: RouteConstants.relations,
               builder: (context, state) {
-                final countryCode = state.pathParameters['countryCode']!;
+                final countryCode =
+                    state.pathParameters[RouteConstants.countryCodeParam]!;
                 final countryVisit = CountryVisit(
                   countryCode: countryCode,
                   entryDate: DateTime.now(),
@@ -34,15 +36,15 @@ final router = GoRouter(
           ],
         ),
         GoRoute(
-          path: '/logs',
+          path: RouteConstants.logs,
           builder: (context, state) => const LogsScreen(),
         ),
         GoRoute(
-          path: '/settings',
+          path: RouteConstants.settings,
           builder: (context, state) => const SettingsScreen(),
           routes: [
             GoRoute(
-              path: 'advanced',
+              path: RouteConstants.advancedSettings,
               builder: (context, state) => const AdvancedSettingsScreen(),
             ),
           ],
