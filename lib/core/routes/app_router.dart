@@ -1,9 +1,14 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/data/datasource/database.dart';
+import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
-import 'package:trackie/presentation/screens/entries_screen.dart';
 import 'package:trackie/presentation/screens/app_shell_screen.dart';
+import 'package:trackie/presentation/screens/calendar_view_screen.dart';
+import 'package:trackie/presentation/screens/entries_screen.dart';
 import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/presentation/screens/relations_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
@@ -34,6 +39,15 @@ final router = GoRouter(
               },
             ),
           ],
+        ),
+        GoRoute(
+          path: RouteConstants.calendar,
+          builder: (context, state) => BlocProvider(
+            create: (context) => CalendarCubit(
+              locationLogsRepository: GetIt.instance.get<LocationLogsRepository>(),
+            ),
+            child: const CalendarViewScreen(),
+          ),
         ),
         GoRoute(
           path: RouteConstants.logs,

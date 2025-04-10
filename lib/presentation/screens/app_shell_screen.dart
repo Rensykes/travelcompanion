@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
+import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/widgets/custom_google_navbar.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
@@ -56,13 +57,15 @@ class _AppShellScreenState extends State<AppShellScreen>
   void refreshAllData() {
     context.read<LocationLogsCubit>().refresh();
     context.read<CountryVisitsCubit>().refresh();
+    context.read<CalendarCubit>().refresh();
   }
 
   int _getCurrentIndex(BuildContext context) {
     final location =
         GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
-    if (location.startsWith('/logs')) return 1;
-    if (location.startsWith('/settings')) return 2;
+    if (location.startsWith('/calendar')) return 1;
+    if (location.startsWith('/logs')) return 2;
+    if (location.startsWith('/settings')) return 3;
     return 0;
   }
 
@@ -72,9 +75,12 @@ class _AppShellScreenState extends State<AppShellScreen>
         context.go(RouteConstants.home);
         break;
       case 1:
-        context.go(RouteConstants.logs);
+        context.go(RouteConstants.calendar);
         break;
       case 2:
+        context.go(RouteConstants.logs);
+        break;
+      case 3:
         context.go(RouteConstants.settings);
         break;
     }
@@ -95,7 +101,7 @@ class _AppShellScreenState extends State<AppShellScreen>
               selectedIndex: _getCurrentIndex(context),
               onTabChange: (index) => _onTabChange(context, index),
             ),
-            floatingActionButton: _getCurrentIndex(context) != 2
+            floatingActionButton: _getCurrentIndex(context) != 3
                 ? FloatingActionButton(
                     onPressed: homeState.isFetchingLocation
                         ? null
@@ -110,7 +116,7 @@ class _AppShellScreenState extends State<AppShellScreen>
                                 );
                               },
                             );
-                            // Explicitly refresh both cubits from the context to ensure UI updates
+                            // Explicitly refresh all cubits from the context to ensure UI updates
                             if (context.mounted) {
                               refreshAllData();
                             }
