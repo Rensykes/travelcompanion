@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_state.dart';
+import 'package:trackie/data/models/calendar_day_data.dart';
 
 class CalendarViewScreen extends StatefulWidget {
   const CalendarViewScreen({super.key});
@@ -14,6 +15,7 @@ class CalendarViewScreen extends StatefulWidget {
 class _CalendarViewScreenState extends State<CalendarViewScreen> {
   late DateTime _focusedDay;
   late DateTime _selectedDay;
+  CalendarFormat _calendarFormat = CalendarFormat.month;
   
   @override
   void initState() {
@@ -34,13 +36,19 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           
-          return Column(
+          // Use a ListView instead of Column to prevent overflow
+          return ListView(
             children: [
               TableCalendar(
                 firstDay: DateTime.utc(2020, 1, 1),
                 lastDay: DateTime.utc(2030, 12, 31),
                 focusedDay: _focusedDay,
-                calendarFormat: CalendarFormat.month,
+                calendarFormat: _calendarFormat,
+                onFormatChanged: (format) {
+                  setState(() {
+                    _calendarFormat = format;
+                  });
+                },
                 selectedDayPredicate: (day) {
                   return isSameDay(_selectedDay, day);
                 },
@@ -62,7 +70,7 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
                     if (events.isEmpty) return null;
                     
                     final normalizedDate = DateTime(date.year, date.month, date.day);
-                    final dayData = state.dayData[normalizedDate];
+                    final dayData = state.dayData[normalizedDate] as CalendarDayData?;
                     
                     if (dayData == null) return null;
                     
@@ -80,10 +88,8 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
                   },
                 ),
               ),
-              const SizedBox(height: 16),
-              Expanded(
-                child: _buildDayDetails(state),
-              ),
+              const Divider(),
+              _buildDayDetails(state),
             ],
           );
         },
@@ -96,8 +102,11 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
     final dayData = state.dayData[normalizedSelectedDay];
     
     if (dayData == null) {
-      return const Center(
-        child: Text('No location data for this day'),
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Center(
+          child: Text('No location data for this day'),
+        ),
       );
     }
     
@@ -109,6 +118,7 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min, // Important to prevent expansion
             children: [
               Text(
                 'Location for ${_formatDate(normalizedSelectedDay)}',
@@ -120,20 +130,24 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
                 children: [
                   const Icon(Icons.flag, size: 24),
                   const SizedBox(width: 8),
-                  Text(
-                    'Country: ${dayData.countryCode}',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  Expanded(
+                    child: Text(
+                      'Country: ${dayData.countryCode}',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   const Icon(Icons.calendar_today, size: 24),
                   const SizedBox(width: 8),
-                  Text(
-                    'First seen on this day: ${_formatTime(dayData.firstSeenTime)}',
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  Expanded(
+                    child: Text(
+                      'First seen on this day: ${_formatTime(dayData.firstSeenTime)}',
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
                   ),
                 ],
               ),
@@ -144,8 +158,12 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
-                Expanded(
+                // Limit the height of the ListView to prevent overflow
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxHeight: 200),
                   child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
                     itemCount: dayData.logEntries.length,
                     itemBuilder: (context, index) {
                       final log = dayData.logEntries[index];
