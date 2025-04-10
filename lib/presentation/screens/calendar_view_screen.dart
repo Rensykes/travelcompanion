@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_state.dart';
-import 'package:trackie/data/models/calendar_day_data.dart';
 
 class CalendarViewScreen extends StatefulWidget {
   const CalendarViewScreen({super.key});
@@ -70,7 +69,7 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
                     if (events.isEmpty) return null;
                     
                     final normalizedDate = DateTime(date.year, date.month, date.day);
-                    final dayData = state.dayData[normalizedDate] as CalendarDayData?;
+                    final dayData = state.dayData[normalizedDate];
                     
                     if (dayData == null) return null;
                     
