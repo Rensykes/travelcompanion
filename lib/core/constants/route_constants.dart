@@ -16,6 +16,7 @@ class RouteConstants {
   static const String logsFullPath = '/logs';
   static const String settingsFullPath = '/settings';
   static const String advancedSettingsFullPath = '/settings/advanced';
+  static const String calendar = '/calendar';
 
   // Parameter names
   static const String countryCodeParam = 'countryCode';
