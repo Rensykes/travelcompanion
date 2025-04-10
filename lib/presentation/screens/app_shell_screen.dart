@@ -63,9 +63,9 @@ class _AppShellScreenState extends State<AppShellScreen>
   int _getCurrentIndex(BuildContext context) {
     final location =
         GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
-    if (location.startsWith('/calendar')) return 1;
-    if (location.startsWith('/logs')) return 2;
-    if (location.startsWith('/settings')) return 3;
+    if (location.startsWith(RouteConstants.calendar)) return 1;
+    if (location.startsWith(RouteConstants.logs)) return 2;
+    if (location.startsWith(RouteConstants.settings)) return 3;
     return 0;
   }
 
@@ -92,6 +92,9 @@ class _AppShellScreenState extends State<AppShellScreen>
       value: _appShellCubit,
       child: BlocBuilder<AppShellCubit, AppShellState>(
         builder: (context, homeState) {
+          final currentPath = GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
+          final showFab = _appShellCubit.shouldShowFloatingActionButton(currentPath);
+          
           return Scaffold(
             appBar: AppBar(title: const Text('Trackie')),
             body: SafeArea(
@@ -101,7 +104,7 @@ class _AppShellScreenState extends State<AppShellScreen>
               selectedIndex: _getCurrentIndex(context),
               onTabChange: (index) => _onTabChange(context, index),
             ),
-            floatingActionButton: _getCurrentIndex(context) != 3
+            floatingActionButton: showFab
                 ? FloatingActionButton(
                     onPressed: homeState.isFetchingLocation
                         ? null
