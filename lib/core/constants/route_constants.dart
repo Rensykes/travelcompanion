@@ -2,6 +2,7 @@ class RouteConstants {
   // Main routes
   static const String home = '/';
   static const String logs = '/logs';
+  static const String add = '/add';
   static const String settings = '/settings';
 
   // Nested routes
@@ -23,8 +24,8 @@ class RouteConstants {
   static const String advancedSettingsFullPath = '/settings/advanced';
   static const String calendar = '/calendar';
   static const String exportImportFullPath = '/settings/export-import';
-  static const String quickLogsAddFullPath = '/logs/quick-logs-add';
-  static const String manualAddFullPath = '/logs/manual-add';
+  static const String quickLogsAddFullPath = '/add/quick-logs-add';
+  static const String manualAddFullPath = '/add/manual-add';
 
   // Parameter names
   static const String countryCodeParam = 'countryCode';

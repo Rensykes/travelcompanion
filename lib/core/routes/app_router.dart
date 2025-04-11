@@ -54,8 +54,12 @@ final router = GoRouter(
           ),
         ),
         GoRoute(
-          path: RouteConstants.logs,
-          builder: (context, state) => const LogsScreen(),
+            path: RouteConstants.logs,
+            builder: (context, state) => const LogsScreen()),
+        GoRoute(
+          path: RouteConstants.add,
+          redirect: (context, state) =>
+              '${RouteConstants.add}/${RouteConstants.getRouteName(RouteConstants.manualAdd)}',
           routes: [
             GoRoute(
               path: RouteConstants.quickLogsAdd,

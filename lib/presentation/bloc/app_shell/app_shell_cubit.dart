@@ -52,9 +52,10 @@ class AppShellCubit extends Cubit<AppShellState> {
         currentPath.startsWith(RouteConstants.calendar);
     final bool isSettingsScreen =
         currentPath.startsWith(RouteConstants.settings);
+    final bool isAddScreen = currentPath.startsWith(RouteConstants.add);
 
     // Hide FAB on calendar and settings screens
-    return !isCalendarScreen && !isSettingsScreen;
+    return !isCalendarScreen && !isSettingsScreen && !isAddScreen;
   }
 
   void _handleLocationError(
