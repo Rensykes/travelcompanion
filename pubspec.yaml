@@ -68,6 +68,7 @@ dependencies:
   path_provider: ^2.1.1
   permission_handler: ^11.0.0
   file_picker: ^10.1.0
+  device_info_plus: ^11.3.3
   
   # Bloc
   flutter_bloc: ^8.1.3
