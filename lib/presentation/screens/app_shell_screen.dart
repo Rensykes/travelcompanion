@@ -94,7 +94,7 @@ class _AppShellScreenState extends State<AppShellScreen>
               _appShellCubit.shouldShowFloatingActionButton(currentPath);
 
           return Scaffold(
-            appBar: AppBar(title: const Text('Trackie')),
+            //appBar: AppBar(title: const Text('Trackie')),
             body: SafeArea(
               child: widget.child,
             ),

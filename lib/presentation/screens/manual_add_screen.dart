@@ -103,13 +103,6 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
 
                     const SizedBox(height: 24),
 
-                    // Notes Field
-                    NotesField(
-                      notesController: cubit.notesController,
-                    ),
-
-                    const SizedBox(height: 32),
-
                     // Submit Button
                     SubmitButton(
                       isLoading: isLoading,
