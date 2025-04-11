@@ -7,6 +7,7 @@ import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.da
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
+import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 
 /// Service locator instance
 final getIt = GetIt.instance;
@@ -46,6 +47,10 @@ class DependencyInjection {
       );
       getIt.registerFactory<RelationLogsCubit>(
         () => RelationLogsCubit(getIt<LocationLogsRepository>()),
+      );
+      getIt.registerFactory<CalendarCubit>(
+        () => CalendarCubit(
+            locationLogsRepository: getIt<LocationLogsRepository>()),
       );
     } catch (e) {
       throw Exception('Failed to initialize dependencies: $e');
