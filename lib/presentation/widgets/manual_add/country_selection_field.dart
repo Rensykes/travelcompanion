@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
-import 'package:trackie/presentation/widgets/manual_add/country_search_modal.dart';
 
 class CountrySelectionField extends StatelessWidget {
   final String? selectedCountryCode;

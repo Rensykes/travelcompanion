@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
-import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
 
 class CountrySearchModal extends StatelessWidget {
