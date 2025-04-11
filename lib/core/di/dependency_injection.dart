@@ -7,6 +7,7 @@ import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
+import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
@@ -37,18 +38,29 @@ class DependencyInjection {
       );
 
       // Blocs
-      getIt.registerFactory<LocationLogsCubit>(
+      getIt.registerLazySingleton<LocationLogsCubit>(
         () => LocationLogsCubit(getIt<LocationLogsRepository>()),
       );
-      getIt.registerFactory<CountryVisitsCubit>(
+      getIt.registerLazySingleton<CountryVisitsCubit>(
         () => CountryVisitsCubit(getIt<CountryVisitsRepository>()),
       );
-      getIt.registerFactory<RelationLogsCubit>(
+      getIt.registerLazySingleton<RelationLogsCubit>(
         () => RelationLogsCubit(getIt<LocationLogsRepository>()),
       );
-      getIt.registerFactory<CalendarCubit>(
+      getIt.registerLazySingleton<CalendarCubit>(
         () => CalendarCubit(
             locationLogsRepository: getIt<LocationLogsRepository>()),
+      );
+
+      // Register ManualAddCubit
+      getIt.registerFactory<ManualAddCubit>(
+        () => ManualAddCubit(
+          locationLogsRepository: getIt<LocationLogsRepository>(),
+          countryVisitsRepository: getIt<CountryVisitsRepository>(),
+          locationLogsCubit: getIt<LocationLogsCubit>(),
+          countryVisitsCubit: getIt<CountryVisitsCubit>(),
+          calendarCubit: getIt<CalendarCubit>(),
+        ),
       );
 
       // Export/Import Service

@@ -1,59 +1,193 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
-import 'package:country_flags/country_flags.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
-import 'package:trackie/data/repositories/country_visits_repository.dart';
-import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
-import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
-import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:get_it/get_it.dart';
+import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
+import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
+import 'package:trackie/presentation/widgets/manual_add/country_selection_field.dart';
+import 'package:trackie/presentation/widgets/manual_add/country_search_modal.dart';
+import 'package:trackie/presentation/widgets/manual_add/date_selection_field.dart';
+import 'package:trackie/presentation/widgets/manual_add/notes_field.dart';
+import 'package:trackie/presentation/widgets/manual_add/submit_button.dart';
 
-class ManualAddScreen extends StatefulWidget {
+class ManualAddScreen extends StatelessWidget {
   const ManualAddScreen({super.key});
 
   @override
-  State<ManualAddScreen> createState() => _ManualAddScreenState();
+  Widget build(BuildContext context) {
+    // Provide ManualAddCubit to this screen
+    return BlocProvider(
+      create: (_) => GetIt.instance.get<ManualAddCubit>(),
+      child: const _ManualAddScreenContent(),
+    );
+  }
 }
 
-class _ManualAddScreenState extends State<ManualAddScreen> {
+class _ManualAddScreenContent extends StatefulWidget {
+  const _ManualAddScreenContent();
+
+  @override
+  State<_ManualAddScreenContent> createState() =>
+      _ManualAddScreenContentState();
+}
+
+class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _countryCodeController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _notesController = TextEditingController();
-
-  DateTime _selectedDate = DateTime.now();
-  bool _isLoading = false;
 
   @override
-  void initState() {
-    super.initState();
-    _dateController.text = DateFormat('yyyy-MM-dd').format(_selectedDate);
+  Widget build(BuildContext context) {
+    return BlocConsumer<ManualAddCubit, ManualAddState>(
+      listenWhen: (previous, current) =>
+          current is SubmissionSuccess || current is SubmissionFailure,
+      listener: (context, state) {
+        if (state is SubmissionSuccess) {
+          SnackBarHelper.showSnackBar(
+            context,
+            'Location Added',
+            'Successfully added visit',
+            ContentType.success,
+          );
+          Navigator.of(context).pop();
+        } else if (state is SubmissionFailure) {
+          SnackBarHelper.showSnackBar(
+            context,
+            'Error',
+            'Failed to add location: ${state.error}',
+            ContentType.failure,
+          );
+        }
+      },
+      builder: (context, state) {
+        final cubit = context.read<ManualAddCubit>();
+        final isLoading = state is SubmissionInProgress;
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Manual Location Entry'),
+          ),
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Enter Country Information',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Country Selection Field
+                    if (state is CountriesLoaded)
+                      CountrySelectionField(
+                        selectedCountryCode: state.selectedCountryCode,
+                        countryList: state.countries,
+                        onTap: () =>
+                            _showCountrySearchModal(context, cubit, state),
+                      ),
+
+                    const SizedBox(height: 24),
+
+                    // Date Selection Field
+                    DateSelectionField(
+                      dateController: cubit.dateController,
+                      onTap: () => _showDateTimePicker(context, cubit),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Notes Field
+                    NotesField(
+                      notesController: cubit.notesController,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Submit Button
+                    SubmitButton(
+                      isLoading: isLoading,
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          cubit.submitForm();
+                        }
+                      },
+                    ),
+
+                    // Add extra padding at the bottom for better scrolling
+                    const SizedBox(height: 40),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
-  @override
-  void dispose() {
-    _countryCodeController.dispose();
-    _dateController.dispose();
-    _notesController.dispose();
-    super.dispose();
+  void _showCountrySearchModal(
+    BuildContext context,
+    ManualAddCubit cubit,
+    CountriesLoaded state,
+  ) {
+    cubit.setSearching(true);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        // Provide the existing cubit to the modal context
+        return BlocProvider.value(
+          value: cubit,
+          child: BlocBuilder<ManualAddCubit, ManualAddState>(
+            builder: (context, currentState) {
+              if (currentState is CountriesLoaded) {
+                return CountrySearchModal(
+                  filteredCountries: currentState.filteredCountries,
+                  searchController: cubit.searchController,
+                  onCountrySelected: (countryCode) {
+                    cubit.selectCountry(countryCode);
+                  },
+                  onSearchClear: () {
+                    cubit.searchController.clear();
+                    cubit.filterCountries(); // Call filtering explicitly
+                  },
+                  onSearchChanged: (query) {
+                    // Don't need setState anymore because we're using BlocBuilder
+                    cubit.filterCountries(); // Call filtering explicitly
+                  },
+                );
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
+        );
+      },
+    ).then((_) {
+      // Check if mounted before updating search state
+      if (mounted) {
+        cubit.setSearching(false);
+      }
+    });
   }
 
-  void refreshAllData() {
-    if (context.mounted) {
-      context.read<LocationLogsCubit>().refresh();
-      context.read<CountryVisitsCubit>().refresh();
-      context.read<CalendarCubit>().refresh();
-    }
-  }
-
-  Future<void> _showDateTimePicker() async {
+  Future<void> _showDateTimePicker(
+    BuildContext context,
+    ManualAddCubit cubit,
+  ) async {
     final dateTime = await showOmniDateTimePicker(
       context: context,
-      initialDate: _selectedDate,
+      initialDate: cubit.selectedDate,
       firstDate: DateTime(2010),
       lastDate: DateTime.now().add(const Duration(days: 365)),
       is24HourMode: true,
@@ -84,202 +218,8 @@ class _ManualAddScreenState extends State<ManualAddScreen> {
       },
     );
 
-    if (dateTime != null) {
-      setState(() {
-        _selectedDate = dateTime;
-        _dateController.text = DateFormat('yyyy-MM-dd').format(_selectedDate);
-      });
+    if (dateTime != null && mounted) {
+      cubit.updateSelectedDate(dateTime);
     }
-  }
-
-  Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
-
-      try {
-        final countryCode = _countryCodeController.text.toUpperCase();
-        final notes = _notesController.text;
-
-        // Save country visit with selected date
-        final countryVisitsRepository =
-            GetIt.instance.get<CountryVisitsRepository>();
-        await countryVisitsRepository.saveCountryVisitWithDate(
-          countryCode,
-          _selectedDate,
-        );
-
-        // Log the entry with notes if available
-        final locationLogsRepository =
-            GetIt.instance.get<LocationLogsRepository>();
-        await locationLogsRepository.logEntry(
-          status: 'manual_entry',
-          countryCode: countryCode,
-          notes: notes.isNotEmpty ? notes : 'Manual entry',
-        );
-
-        if (context.mounted) {
-          SnackBarHelper.showSnackBar(
-            context,
-            'Location Added',
-            'Successfully added visit to $countryCode',
-            ContentType.success,
-          );
-
-          // Refresh data and navigate back
-          refreshAllData();
-          Navigator.of(context).pop();
-        }
-      } catch (e) {
-        if (context.mounted) {
-          SnackBarHelper.showSnackBar(
-            context,
-            'Error',
-            'Failed to add location: ${e.toString()}',
-            ContentType.failure,
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Manual Location Entry'),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Enter Country Information',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Country Code Input
-                TextFormField(
-                  controller: _countryCodeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Country Code (ISO)',
-                    hintText: 'Enter 2-letter ISO code (e.g., US, DE)',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.flag),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a country code';
-                    }
-                    if (value.length != 2) {
-                      return 'Country code must be 2 letters';
-                    }
-                    return null;
-                  },
-                  textCapitalization: TextCapitalization.characters,
-                  maxLength: 2,
-                ),
-                const SizedBox(height: 8),
-
-                // Show country flag preview if valid code
-                if (_countryCodeController.text.length == 2)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Row(
-                      children: [
-                        const Text(
-                          'Preview: ',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(width: 8),
-                        CountryFlag.fromCountryCode(
-                          _countryCodeController.text,
-                          height: 30,
-                          width: 40,
-                          borderRadius: 4,
-                        ),
-                      ],
-                    ),
-                  ),
-                const SizedBox(height: 16),
-
-                // Date Input with Picker
-                TextFormField(
-                  controller: _dateController,
-                  decoration: InputDecoration(
-                    labelText: 'Visit Date',
-                    hintText: 'Select date of visit',
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.calendar_today),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_month),
-                      onPressed: _showDateTimePicker,
-                    ),
-                  ),
-                  readOnly: true,
-                  onTap: _showDateTimePicker,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a date';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 24),
-
-                // Notes Input
-                TextFormField(
-                  controller: _notesController,
-                  decoration: const InputDecoration(
-                    labelText: 'Notes (Optional)',
-                    hintText: 'Add any additional information',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.note),
-                  ),
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 32),
-
-                // Submit Button
-                ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _submitForm,
-                  icon: _isLoading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.save),
-                  label: const Text('Save Location'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                ),
-                // Add extra padding at the bottom for better scrolling
-                const SizedBox(height: 40),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

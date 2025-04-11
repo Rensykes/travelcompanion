@@ -46,10 +46,11 @@ class LocationLogsRepository {
     required String status,
     String? countryCode,
     String? notes,
+    DateTime? logDateTime,
   }) async {
     DateTime.now().toIso8601String();
     log(
-      "📝 Starting to log new location entry - Status: $status, Country: $countryCode, Notes: ${notes ?? 'None'}",
+      "📝 Starting to log new location entry - Status: $status, Country: $countryCode, Notes: ${notes ?? 'None'}, Date: ${logDateTime?.toIso8601String() ?? 'Current time'}",
       name: 'LocationLogsRepository',
       level: 0, // INFO
       time: DateTime.now(),
@@ -62,7 +63,7 @@ class LocationLogsRepository {
       final logLocation =
           await database.into(database.locationLogs).insertReturning(
                 LocationLogsCompanion.insert(
-                  logDateTime: DateTime.now(),
+                  logDateTime: logDateTime ?? DateTime.now(),
                   status: status,
                   countryCode: Value(countryCode),
                 ),
