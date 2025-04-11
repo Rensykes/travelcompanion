@@ -53,6 +53,7 @@ dependencies:
   geolocator: ^10.1.0  # GPS tracking
   geocoding: ^2.1.1  # Reverse geocoding
   country_detector: ^1.0.2 # Sim card and network info
+  country_codes: 3.3.0
 
   # Background Task
   workmanager:
@@ -79,7 +80,6 @@ dependencies:
 
   # Routing
   go_router: ^14.8.1
-  country_codes: 3.3.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
