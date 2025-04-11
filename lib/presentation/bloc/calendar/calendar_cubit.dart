@@ -41,20 +41,23 @@ class CalendarCubit extends Cubit<CalendarState> {
           // Add log to existing day
           dayData[normalizedDate]!.logEntries.add(log);
 
-          // Update first seen time if this log is earlier
-          if (log.logDateTime
-              .isBefore(dayData[normalizedDate]!.firstSeenTime)) {
-            dayData[normalizedDate] = CalendarDayData(
-              countryCode: log.countryCode!,
-              firstSeenTime: log.logDateTime,
-              logEntries: dayData[normalizedDate]!.logEntries,
-            );
+          // Add this country to the set if it doesn't exist
+          dayData[normalizedDate]!.countryCodes.add(log.countryCode!);
+
+          // Update first seen time for this country if this log is earlier
+          if (!dayData[normalizedDate]!
+                  .firstSeenTimes
+                  .containsKey(log.countryCode!) ||
+              log.logDateTime.isBefore(
+                  dayData[normalizedDate]!.firstSeenTimes[log.countryCode!]!)) {
+            dayData[normalizedDate]!.firstSeenTimes[log.countryCode!] =
+                log.logDateTime;
           }
         } else {
-          // Create new day data
+          // Create new day data with initial country
           dayData[normalizedDate] = CalendarDayData(
-            countryCode: log.countryCode!,
-            firstSeenTime: log.logDateTime,
+            countryCodes: {log.countryCode!},
+            firstSeenTimes: {log.countryCode!: log.logDateTime},
             logEntries: [log],
           );
         }

@@ -1,13 +1,13 @@
 import 'package:trackie/data/datasource/database.dart';
 
 class CalendarDayData {
-  final String countryCode;
-  final DateTime firstSeenTime;
+  final Set<String> countryCodes;
+  final Map<String, DateTime> firstSeenTimes;
   final List<LocationLog> logEntries;
 
   CalendarDayData({
-    required this.countryCode,
-    required this.firstSeenTime,
+    required this.countryCodes,
+    required this.firstSeenTimes,
     required this.logEntries,
   });
 }

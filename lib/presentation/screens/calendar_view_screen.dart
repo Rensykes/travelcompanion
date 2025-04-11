@@ -74,13 +74,19 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
 
                     if (dayData == null) return null;
 
+                    // Change marker based on number of countries
+                    final countriesCount = dayData.countryCodes.length;
+                    final isMultiCountry = countriesCount > 1;
+
                     return Positioned(
                       bottom: 1,
                       child: Container(
-                        height: 6,
-                        width: 6,
+                        height: isMultiCountry ? 8 : 6,
+                        width: isMultiCountry ? 8 : 6,
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor,
+                          color: isMultiCountry
+                              ? Theme.of(context).colorScheme.secondary
+                              : Theme.of(context).primaryColor,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -113,74 +119,88 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Card(
-        elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min, // Important to prevent expansion
-            children: [
-              Text(
-                'Location for ${_formatDate(normalizedSelectedDay)}',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const Divider(),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.flag, size: 24),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Country: ${dayData.countryCode}',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.calendar_today, size: 24),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'First seen on this day: ${_formatTime(dayData.firstSeenTime)}',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ),
-                ],
-              ),
-              if (dayData.logEntries.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(
-                  'Activity log:',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                // Limit the height of the ListView to prevent overflow
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxHeight: 200),
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    itemCount: dayData.logEntries.length,
-                    itemBuilder: (context, index) {
-                      final log = dayData.logEntries[index];
-                      return ListTile(
-                        leading: const Icon(Icons.history),
-                        title: Text('Status: ${log.status}'),
-                        subtitle: Text('Time: ${_formatTime(log.logDateTime)}'),
-                        dense: true,
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Locations for ${_formatDate(normalizedSelectedDay)}',
+            style: Theme.of(context).textTheme.titleLarge,
           ),
-        ),
+          const SizedBox(height: 16),
+          // Create a card for each country
+          ...dayData.countryCodes.map((countryCode) {
+            // Get log entries for this specific country
+            final countryLogs = dayData.logEntries
+                .where((log) => log.countryCode == countryCode)
+                .toList();
+
+            return Card(
+              elevation: 4,
+              margin: const EdgeInsets.only(bottom: 16.0),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.flag, size: 24),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Country: $countryCode',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.calendar_today, size: 24),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'First seen on this day: ${_formatTime(dayData.firstSeenTimes[countryCode]!)}',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (countryLogs.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        'Activity log:',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      // Show logs for this country only
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 150),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const ClampingScrollPhysics(),
+                          itemCount: countryLogs.length,
+                          itemBuilder: (context, index) {
+                            final log = countryLogs[index];
+                            return ListTile(
+                              leading: const Icon(Icons.history),
+                              title: Text('Status: ${log.status}'),
+                              subtitle:
+                                  Text('Time: ${_formatTime(log.logDateTime)}'),
+                              dense: true,
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ],
       ),
     );
   }
