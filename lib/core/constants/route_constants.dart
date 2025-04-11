@@ -9,6 +9,8 @@ class RouteConstants {
       'relations/:countryCode'; // Used with home as parent
   static const String advancedSettings =
       'advanced'; // Used with settings as parent
+  static const String exportImport =
+      'export-import'; // Used with settings as parent
 
   // Full path constants (for direct navigation)
   static const String homeFullPath = '/';
@@ -17,7 +19,7 @@ class RouteConstants {
   static const String settingsFullPath = '/settings';
   static const String advancedSettingsFullPath = '/settings/advanced';
   static const String calendar = '/calendar';
-  static const String exportImportFullPath = 'export-import';
+  static const String exportImportFullPath = '/settings/export-import';
 
   // Parameter names
   static const String countryCodeParam = 'countryCode';
