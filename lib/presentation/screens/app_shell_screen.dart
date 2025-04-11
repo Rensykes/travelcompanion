@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
-import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
-import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
-import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/widgets/custom_google_navbar.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_cubit.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
 import 'package:trackie/core/constants/route_constants.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class AppShellScreen extends StatefulWidget {
   final Widget child;
@@ -54,9 +52,7 @@ class _AppShellScreenState extends State<AppShellScreen>
   }
 
   void refreshAllData() {
-    context.read<LocationLogsCubit>().refresh();
-    context.read<CountryVisitsCubit>().refresh();
-    context.read<CalendarCubit>().refresh();
+    DataRefreshUtil.refreshAllData(context: context);
   }
 
   int _getCurrentIndex(BuildContext context) {

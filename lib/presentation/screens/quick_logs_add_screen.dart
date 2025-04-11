@@ -3,11 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_cubit.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
-import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
-import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
-import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/core/constants/route_constants.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class QuickLogsAddScreen extends StatefulWidget {
   const QuickLogsAddScreen({super.key});
@@ -18,9 +16,7 @@ class QuickLogsAddScreen extends StatefulWidget {
 
 class _QuickLogsAddScreenState extends State<QuickLogsAddScreen> {
   void refreshAllData() {
-    context.read<LocationLogsCubit>().refresh();
-    context.read<CountryVisitsCubit>().refresh();
-    context.read<CalendarCubit>().refresh();
+    DataRefreshUtil.refreshAllData(context: context);
   }
 
   Future<void> _showInternetConnectionAlert(BuildContext context) async {

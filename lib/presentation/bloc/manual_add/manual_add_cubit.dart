@@ -9,6 +9,7 @@ import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class ManualAddCubit extends Cubit<ManualAddState> {
   final LocationLogsRepository _locationLogsRepository;
@@ -185,16 +186,12 @@ class ManualAddCubit extends Cubit<ManualAddState> {
 
   // Refresh all data
   void _refreshAllData() {
-    log('🔄 ManualAddCubit: Refreshing LocationLogsCubit (instance: ${identityHashCode(_locationLogsCubit)})');
-    _locationLogsCubit.refresh();
-
-    log('🔄 ManualAddCubit: Refreshing CountryVisitsCubit (instance: ${identityHashCode(_countryVisitsCubit)})');
-    _countryVisitsCubit.refresh();
-
-    log('🔄 ManualAddCubit: Refreshing CalendarCubit (instance: ${identityHashCode(_calendarCubit)})');
-    _calendarCubit.refresh();
-
-    log('✅ ManualAddCubit: Refresh completed for all cubits');
+    DataRefreshUtil.refreshAllData(
+      locationLogsCubit: _locationLogsCubit,
+      countryVisitsCubit: _countryVisitsCubit,
+      calendarCubit: _calendarCubit,
+      enableLogging: true,
+    );
   }
 
   // Clean up resources
