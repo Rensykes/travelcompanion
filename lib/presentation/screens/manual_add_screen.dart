@@ -10,6 +10,8 @@ import 'package:trackie/presentation/widgets/manual_add/country_selection_field.
 import 'package:trackie/presentation/widgets/manual_add/country_search_modal.dart';
 import 'package:trackie/presentation/widgets/manual_add/date_selection_field.dart';
 import 'package:trackie/presentation/widgets/manual_add/submit_button.dart';
+import 'package:go_router/go_router.dart';
+import 'package:trackie/core/constants/route_constants.dart';
 
 class ManualAddScreen extends StatelessWidget {
   const ManualAddScreen({super.key});
@@ -48,7 +50,14 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
             'Successfully added visit',
             ContentType.success,
           );
-          Navigator.of(context).pop();
+
+          // Check if we can safely pop, or navigate to home if we can't
+          if (Navigator.canPop(context)) {
+            context.pop();
+          } else {
+            // Navigate to home if we can't pop
+            context.go(RouteConstants.homeFullPath);
+          }
         } else if (state is SubmissionFailure) {
           SnackBarHelper.showSnackBar(
             context,

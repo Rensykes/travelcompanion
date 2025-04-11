@@ -35,13 +35,17 @@ class _QuickLogsAddScreenState extends State<QuickLogsAddScreen> {
             TextButton(
               child: const Text('Cancel'),
               onPressed: () {
-                Navigator.of(context).pop();
+                if (Navigator.canPop(context)) {
+                  context.pop();
+                }
               },
             ),
             TextButton(
               child: const Text('Continue'),
               onPressed: () {
-                Navigator.of(context).pop();
+                if (Navigator.canPop(context)) {
+                  context.pop();
+                }
                 context.push(RouteConstants.manualAddFullPath);
               },
             ),
@@ -93,7 +97,12 @@ class _QuickLogsAddScreenState extends State<QuickLogsAddScreen> {
                               if (context.mounted) {
                                 refreshAllData();
                                 // Navigate back after successful operation
-                                Navigator.of(context).pop();
+                                if (Navigator.canPop(context)) {
+                                  context.pop();
+                                } else {
+                                  // Navigate to home if we can't pop
+                                  context.go(RouteConstants.homeFullPath);
+                                }
                               }
                             },
                       icon: state.isFetchingLocation

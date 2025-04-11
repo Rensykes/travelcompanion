@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
+import 'package:go_router/go_router.dart';
 
 class CountrySearchModal extends StatelessWidget {
   final List<CountryItem> filteredCountries;
@@ -85,7 +86,7 @@ class CountrySearchModal extends StatelessWidget {
           ),
           onTap: () {
             onCountrySelected(country.alpha2Code);
-            Navigator.pop(context);
+            context.pop();
           },
         );
       },
