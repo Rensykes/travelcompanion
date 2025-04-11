@@ -104,54 +104,40 @@ class CountryVisitsRepository {
 
     if (existingVisit != null) {
       log(
-        "📝 Found existing visit for $countryCode, checking for logs on this date",
+        "📝 Found existing visit for $countryCode, calculating days spent based on logs",
         name: 'CountryVisitsRepository',
         level: 0,
         time: DateTime.now(),
       );
 
-      // Check if there's already a log for this date
-      final existingLogOnDate = await (database.select(database.locationLogs)
-            ..where((log) => log.countryCode.equals(countryCode))
-            ..where((log) =>
-                log.logDateTime.year.equals(formattedDate.year) &
-                log.logDateTime.month.equals(formattedDate.month) &
-                log.logDateTime.day.equals(formattedDate.day)))
-          .getSingleOrNull();
+      // Get all location logs for this country
+      final logs = await (database.select(database.locationLogs)
+            ..where((log) => log.countryCode.equals(countryCode)))
+          .get();
 
-      int newDaysSpent;
-      if (existingLogOnDate != null) {
-        // If there's already a log for this date, don't increment days spent
-        log(
-          "🔄 Entry already exists for $countryCode on $formattedDate, not incrementing days",
-          name: 'CountryVisitsRepository',
-          level: 0,
-          time: DateTime.now(),
-        );
-        newDaysSpent = existingVisit.daysSpent;
-      } else {
-        // If there's no log for this date, increment days spent
-        log(
-          "📊 No entry for $countryCode on $formattedDate, incrementing days from ${existingVisit.daysSpent} to ${existingVisit.daysSpent + 1}",
-          name: 'CountryVisitsRepository',
-          level: 0,
-          time: DateTime.now(),
-        );
-        newDaysSpent = existingVisit.daysSpent + 1;
+      // Create a set of unique dates from all logs
+      final Set<DateTime> uniqueDates = {};
+      for (final log in logs) {
+        final logDate = DateTime(
+            log.logDateTime.year, log.logDateTime.month, log.logDateTime.day);
+        uniqueDates.add(logDate);
       }
 
-      // Update the existing entry with the new date
+      // Add the new date to the set (if it's not already included)
+      uniqueDates.add(formattedDate);
+
+      // Update the existing entry with the latest date and correct days count
       await (database.update(database.countryVisits)
             ..where((t) => t.countryCode.equals(countryCode)))
           .write(
         CountryVisitsCompanion(
           entryDate: Value(formattedDate),
-          daysSpent: Value(newDaysSpent),
+          daysSpent: Value(uniqueDates.length),
         ),
       );
 
       log(
-        "✅ Successfully updated country visit for $countryCode with new date",
+        "✅ Successfully updated country visit for $countryCode with ${uniqueDates.length} days spent",
         name: 'CountryVisitsRepository',
         level: 1, // 1 for SUCCESS
         time: DateTime.now(),
