@@ -38,7 +38,8 @@ dependencies:
   google_nav_bar: ^5.0.7
   badges: ^3.1.2
   omni_datetime_picker: ^2.0.4
-
+  circular_menu: ^4.0.0
+  
   # UI - Icons
   cupertino_icons: ^1.0.2
   country_flags: ^2.0.1
