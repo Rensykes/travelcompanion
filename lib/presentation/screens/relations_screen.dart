@@ -13,7 +13,7 @@ import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.da
 
 class RelationsScreen extends StatefulWidget {
   final CountryVisit countryVisit;
-  
+
   // TODO: Only need countryCode
   const RelationsScreen({super.key, required this.countryVisit});
 

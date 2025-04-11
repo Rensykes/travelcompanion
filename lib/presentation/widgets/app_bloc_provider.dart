@@ -5,6 +5,7 @@ import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.da
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
+import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 
 /// Root widget that provides all the necessary repositories and blocs
 /// Root widget that provides all the necessary blocs
@@ -24,6 +25,7 @@ class AppBlocProvider extends StatelessWidget {
         BlocProvider(create: (_) => getIt<CountryVisitsCubit>()),
         BlocProvider(create: (_) => getIt<RelationLogsCubit>()),
         BlocProvider(create: (_) => getIt<ThemeCubit>()),
+        BlocProvider(create: (_) => getIt<CalendarCubit>()),
       ],
       child: child,
     );

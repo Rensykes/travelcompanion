@@ -48,16 +48,17 @@ class AppShellCubit extends Cubit<AppShellState> {
 
   bool shouldShowFloatingActionButton(String currentPath) {
     // Check screen paths by name
-    final bool isCalendarScreen = currentPath.startsWith(RouteConstants.calendar);
-    final bool isSettingsScreen = currentPath.startsWith(RouteConstants.settings);
-    
+    final bool isCalendarScreen =
+        currentPath.startsWith(RouteConstants.calendar);
+    final bool isSettingsScreen =
+        currentPath.startsWith(RouteConstants.settings);
+
     // Hide FAB on calendar and settings screens
     return !isCalendarScreen && !isSettingsScreen;
   }
 
   void _handleLocationError(
-    Function(String, String, ContentType) showSnackBar
-  ) {
+      Function(String, String, ContentType) showSnackBar) {
     showSnackBar(
       'Error',
       'Could not retrieve location. Please try again later.',

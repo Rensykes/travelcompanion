@@ -51,6 +51,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       },
               ),
               const SizedBox(height: 24),
+              // Data Management Section
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Data Management',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ),
+              // Export/Import button
+              ListTile(
+                leading: const Icon(Icons.import_export),
+                title: const Text('Export & Import Data'),
+                trailing: const Icon(Icons.arrow_forward_ios),
+                onTap: () {
+                  context.push(RouteConstants.exportImportFullPath);
+                },
+              ),
+              // Database cleanup button
+              ListTile(
+                leading: const Icon(Icons.cleaning_services),
+                title: const Text('Clean up Database'),
+                onTap: () => _cleanupDatabase(context),
+              ),
+              const SizedBox(height: 24),
               // Advanced settings button
               ListTile(
                 title: const Text('Advanced Settings'),
@@ -58,11 +89,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   context.push(RouteConstants.advancedSettingsFullPath);
                 },
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => _cleanupDatabase(context),
-                child: const Text('Clean up Database'),
               ),
             ],
           ),

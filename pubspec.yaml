@@ -46,10 +46,7 @@ dependencies:
   # DB
   drift: ^2.15.0
   drift_flutter: ^0.2.4
-  path_provider: ^2.1.2
   sqlite3_flutter_libs: ^0.5.20
-  hive: ^2.2.3
-  hive_flutter: ^1.1.0
 
   # Localization
   geolocator: ^10.1.0  # GPS tracking
@@ -68,11 +65,11 @@ dependencies:
   path: ^1.8.3
   shared_preferences: ^2.5.3
   equatable: ^2.0.5
-
-  # Riverpod
-  flutter_riverpod: ^2.4.9
-  riverpod_annotation: ^2.3.3
-
+  path_provider: ^2.1.1
+  permission_handler: ^11.0.0
+  file_picker: ^10.1.0
+  device_info_plus: ^11.3.3
+  
   # Bloc
   flutter_bloc: ^8.1.3
 

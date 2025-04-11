@@ -10,10 +10,9 @@ class LogEntryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading:
-          log.status == "success"
-              ? const Icon(Icons.check_circle, color: Colors.green)
-              : const Icon(Icons.error, color: Colors.red),
+      leading: log.status == "success"
+          ? const Icon(Icons.check_circle, color: Colors.green)
+          : const Icon(Icons.error, color: Colors.red),
       title: Text(
         log.status == "success"
             ? "Country: ${log.countryCode ?? 'Unknown'}"
