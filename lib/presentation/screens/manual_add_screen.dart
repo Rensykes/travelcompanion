@@ -9,7 +9,6 @@ import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
 import 'package:trackie/presentation/widgets/manual_add/country_selection_field.dart';
 import 'package:trackie/presentation/widgets/manual_add/country_search_modal.dart';
 import 'package:trackie/presentation/widgets/manual_add/date_selection_field.dart';
-import 'package:trackie/presentation/widgets/manual_add/notes_field.dart';
 import 'package:trackie/presentation/widgets/manual_add/submit_button.dart';
 
 class ManualAddScreen extends StatelessWidget {
