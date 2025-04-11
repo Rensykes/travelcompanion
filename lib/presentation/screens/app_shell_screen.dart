@@ -108,27 +108,10 @@ class _AppShellScreenState extends State<AppShellScreen>
             ),
             floatingActionButton: showFab
                 ? FloatingActionButton(
-                    onPressed: homeState.isFetchingLocation
-                        ? null
-                        : () async {
-                            await _appShellCubit.addCountry(
-                              (title, message, status) {
-                                SnackBarHelper.showSnackBar(
-                                  context,
-                                  title,
-                                  message,
-                                  status,
-                                );
-                              },
-                            );
-                            // Explicitly refresh all cubits from the context to ensure UI updates
-                            if (context.mounted) {
-                              refreshAllData();
-                            }
-                          },
-                    child: homeState.isFetchingLocation
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Icon(Icons.add_location),
+                    onPressed: () {
+                      context.push(RouteConstants.quickLogsAddFullPath);
+                    },
+                    child: const Icon(Icons.add_location),
                   )
                 : null,
           );

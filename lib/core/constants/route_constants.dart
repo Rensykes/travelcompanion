@@ -11,6 +11,9 @@ class RouteConstants {
       'advanced'; // Used with settings as parent
   static const String exportImport =
       'export-import'; // Used with settings as parent
+  static const String quickLogsAdd =
+      'quick-logs-add'; // Used with logs as parent
+  static const String manualAdd = 'manual-add'; // Used with logs as parent
 
   // Full path constants (for direct navigation)
   static const String homeFullPath = '/';
@@ -20,6 +23,8 @@ class RouteConstants {
   static const String advancedSettingsFullPath = '/settings/advanced';
   static const String calendar = '/calendar';
   static const String exportImportFullPath = '/settings/export-import';
+  static const String quickLogsAddFullPath = '/logs/quick-logs-add';
+  static const String manualAddFullPath = '/logs/manual-add';
 
   // Parameter names
   static const String countryCodeParam = 'countryCode';
