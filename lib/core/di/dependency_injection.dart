@@ -35,6 +35,8 @@ class DependencyInjection {
         () => DataExportImportService(
           database: getIt<AppDatabase>(),
           locationLogsRepository: getIt<LocationLogsRepository>(),
+          countryVisitsRepository: getIt<CountryVisitsRepository>(),
+          relationLogsCubit: getIt<RelationLogsCubit>(),
         ),
       );
 

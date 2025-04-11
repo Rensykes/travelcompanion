@@ -7,15 +7,21 @@ import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/data/repositories/country_visits_repository.dart';
+import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 class DataExportImportService {
   final AppDatabase database;
   final LocationLogsRepository locationLogsRepository;
+  final CountryVisitsRepository countryVisitsRepository;
+  final RelationLogsCubit relationLogsCubit;
 
   DataExportImportService({
     required this.database,
     required this.locationLogsRepository,
+    required this.countryVisitsRepository,
+    required this.relationLogsCubit,
   });
 
   Future<bool> _hasStoragePermission() async {
@@ -153,9 +159,14 @@ class DataExportImportService {
       log("🔄 Rebuilding country visits for ${countryCodes.length} countries",
           name: 'DataExportImportService');
 
+      // Recalculate days spent for each country
       for (final countryCode in countryCodes) {
         await locationLogsRepository.recalculateDaysSpent(countryCode);
       }
+
+      // Recalculate relation logs
+      log("🔄 Rebuilding relation logs", name: 'DataExportImportService');
+      await relationLogsCubit.refresh();
 
       return locationLogs.length;
     });

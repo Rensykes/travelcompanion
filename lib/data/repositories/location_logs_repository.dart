@@ -18,16 +18,16 @@ class LocationLogsRepository {
       level: 0, // INFO
       time: DateTime.now(),
     );
-    final relations =
-        await (database.select(database.logCountryRelations)
-          ..where((r) => r.countryCode.equals(countryCode))).join([  
-          leftOuterJoin(
-            database.locationLogs,
-            database.locationLogs.id.equalsExp(
-              database.logCountryRelations.logId,
-            ),
-          ),
-        ]).get();
+    final relations = await (database.select(database.logCountryRelations)
+          ..where((r) => r.countryCode.equals(countryCode)))
+        .join([
+      leftOuterJoin(
+        database.locationLogs,
+        database.locationLogs.id.equalsExp(
+          database.logCountryRelations.logId,
+        ),
+      ),
+    ]).get();
 
     // Extract the LocationLog entries from the joined result
     final logs =
@@ -51,15 +51,14 @@ class LocationLogsRepository {
       time: DateTime.now(),
     );
     try {
-      final logLocation = await database
-          .into(database.locationLogs)
-          .insertReturning(
-            LocationLogsCompanion.insert(
-              logDateTime: DateTime.now(),
-              status: status,
-              countryCode: Value(countryCode),
-            ),
-          );
+      final logLocation =
+          await database.into(database.locationLogs).insertReturning(
+                LocationLogsCompanion.insert(
+                  logDateTime: DateTime.now(),
+                  status: status,
+                  countryCode: Value(countryCode),
+                ),
+              );
       final logId = logLocation.id; // Extract ID from the returned log
 
       if (countryCode != null) {
@@ -69,9 +68,7 @@ class LocationLogsRepository {
           level: 0, // INFO
           time: DateTime.now(),
         );
-        await database
-            .into(database.logCountryRelations)
-            .insert(
+        await database.into(database.logCountryRelations).insert(
               LogCountryRelationsCompanion.insert(
                 logId: logId,
                 countryCode: countryCode,
@@ -112,11 +109,12 @@ class LocationLogsRepository {
       level: 0, // INFO
       time: DateTime.now(),
     );
-    final logs =
-        await (database.select(database.locationLogs)..orderBy([  
-          (t) =>
-              OrderingTerm(expression: t.logDateTime, mode: OrderingMode.desc),
-        ])).get();
+    final logs = await (database.select(database.locationLogs)
+          ..orderBy([
+            (t) => OrderingTerm(
+                expression: t.logDateTime, mode: OrderingMode.desc),
+          ]))
+        .get();
     log(
       "📊 Retrieved ${logs.length} location logs",
       name: 'LocationLogsRepository',
@@ -137,9 +135,9 @@ class LocationLogsRepository {
     );
     try {
       // First get the log to be deleted to know its country code
-      final logToDelete =
-          await (database.select(database.locationLogs)
-            ..where((log) => log.id.equals(id))).getSingleOrNull();
+      final logToDelete = await (database.select(database.locationLogs)
+            ..where((log) => log.id.equals(id)))
+          .getSingleOrNull();
 
       if (logToDelete == null) {
         log(
@@ -161,7 +159,8 @@ class LocationLogsRepository {
 
       // Delete related entries in logCountryRelations
       await (database.delete(database.logCountryRelations)
-        ..where((relation) => relation.logId.equals(id))).go();
+            ..where((relation) => relation.logId.equals(id)))
+          .go();
       log(
         "🔗 Deleted related entries for log ID: $id",
         name: 'LocationLogsRepository',
@@ -171,7 +170,8 @@ class LocationLogsRepository {
 
       // Delete the actual log entry
       await (database.delete(database.locationLogs)
-        ..where((log) => log.id.equals(id))).go();
+            ..where((log) => log.id.equals(id)))
+          .go();
       log(
         "✅ Successfully deleted log entry with ID: $id",
         name: 'LocationLogsRepository',
@@ -222,7 +222,8 @@ class LocationLogsRepository {
         );
         // If no logs left, delete the country visit record
         await (database.delete(database.countryVisits)
-          ..where((visit) => visit.countryCode.equals(countryCode))).go();
+              ..where((visit) => visit.countryCode.equals(countryCode)))
+            .go();
         log(
           "🗑️ Removed country visit record for $countryCode",
           name: 'LocationLogsRepository',
@@ -252,14 +253,37 @@ class LocationLogsRepository {
         time: DateTime.now(),
       );
 
-      // Update the country visit with the new values
-      await (database.update(database.countryVisits)
-        ..where((visit) => visit.countryCode.equals(countryCode))).write(
-        CountryVisitsCompanion(
-          entryDate: Value(entryDate),
-          daysSpent: Value(uniqueDates.length),
-        ),
-      );
+      // Check if country visit exists
+      final existingVisit = await (database.select(database.countryVisits)
+            ..where((visit) => visit.countryCode.equals(countryCode)))
+          .getSingleOrNull();
+
+      if (existingVisit == null) {
+        // Create new country visit
+        log(
+          "✨ Creating new country visit for $countryCode",
+          name: 'LocationLogsRepository',
+          level: 0, // INFO
+          time: DateTime.now(),
+        );
+        await database.into(database.countryVisits).insert(
+              CountryVisitsCompanion.insert(
+                countryCode: countryCode,
+                entryDate: entryDate,
+                daysSpent: uniqueDates.length,
+              ),
+            );
+      } else {
+        // Update existing country visit
+        await (database.update(database.countryVisits)
+              ..where((visit) => visit.countryCode.equals(countryCode)))
+            .write(
+          CountryVisitsCompanion(
+            entryDate: Value(entryDate),
+            daysSpent: Value(uniqueDates.length),
+          ),
+        );
+      }
 
       log(
         "✅ Successfully updated days spent for $countryCode: ${uniqueDates.length} days",

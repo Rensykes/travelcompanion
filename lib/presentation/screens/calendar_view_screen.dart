@@ -15,13 +15,13 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
   late DateTime _focusedDay;
   late DateTime _selectedDay;
   CalendarFormat _calendarFormat = CalendarFormat.month;
-  
+
   @override
   void initState() {
     super.initState();
     _focusedDay = DateTime.now();
     _selectedDay = DateTime.now();
-    
+
     // Load calendar data when screen initializes
     context.read<CalendarCubit>().loadCalendarData();
   }
@@ -34,7 +34,7 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
           if (state.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           // Use a ListView instead of Column to prevent overflow
           return ListView(
             children: [
@@ -60,19 +60,20 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
                 },
                 eventLoader: (day) {
                   final normalizedDay = DateTime(day.year, day.month, day.day);
-                  return state.dayData.containsKey(normalizedDay) 
-                    ? [state.dayData[normalizedDay]] 
-                    : [];
+                  return state.dayData.containsKey(normalizedDay)
+                      ? [state.dayData[normalizedDay]]
+                      : [];
                 },
                 calendarBuilders: CalendarBuilders(
                   markerBuilder: (context, date, events) {
                     if (events.isEmpty) return null;
-                    
-                    final normalizedDate = DateTime(date.year, date.month, date.day);
+
+                    final normalizedDate =
+                        DateTime(date.year, date.month, date.day);
                     final dayData = state.dayData[normalizedDate];
-                    
+
                     if (dayData == null) return null;
-                    
+
                     return Positioned(
                       bottom: 1,
                       child: Container(
@@ -97,9 +98,10 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
   }
 
   Widget _buildDayDetails(CalendarState state) {
-    final normalizedSelectedDay = DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
+    final normalizedSelectedDay =
+        DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day);
     final dayData = state.dayData[normalizedSelectedDay];
-    
+
     if (dayData == null) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
@@ -108,7 +110,7 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
         ),
       );
     }
-    
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
@@ -182,11 +184,11 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
       ),
     );
   }
-  
+
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
-  
+
   String _formatTime(DateTime time) {
     return '${time.hour}:${time.minute.toString().padLeft(2, '0')}';
   }

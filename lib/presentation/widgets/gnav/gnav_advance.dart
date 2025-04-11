@@ -92,26 +92,24 @@ class _TabPageState extends State<TabPage> {
                     iconSize: 24,
                     padding: padding,
                     icon: Icons.help_center_outlined,
-                    leading:
-                        selectedIndex == 1 || badge == 0
-                            ? null
-                            : badges.Badge(
-                              position: badges.BadgePosition.topEnd(
-                                top: -12,
-                                end: -12,
-                              ),
-                              badgeContent: Text(
-                                badge.toString(),
-                                style: TextStyle(color: Colors.red.shade900),
-                              ),
-                              child: Icon(
-                                Icons.heart_broken,
-                                color:
-                                    selectedIndex == 1
-                                        ? Colors.pink
-                                        : Colors.black,
-                              ),
+                    leading: selectedIndex == 1 || badge == 0
+                        ? null
+                        : badges.Badge(
+                            position: badges.BadgePosition.topEnd(
+                              top: -12,
+                              end: -12,
                             ),
+                            badgeContent: Text(
+                              badge.toString(),
+                              style: TextStyle(color: Colors.red.shade900),
+                            ),
+                            child: Icon(
+                              Icons.heart_broken,
+                              color: selectedIndex == 1
+                                  ? Colors.pink
+                                  : Colors.black,
+                            ),
+                          ),
                   ),
                   GButton(
                     gap: gap,

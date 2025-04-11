@@ -20,29 +20,30 @@ class CalendarCubit extends Cubit<CalendarState> {
         level: 0, // INFO
         time: DateTime.now(),
       );
-      
+
       // Get all location logs
       final allLogs = await locationLogsRepository.getAllLogs();
-      
+
       // Group logs by day
       final Map<DateTime, CalendarDayData> dayData = {};
-      
+
       for (final log in allLogs) {
         if (log.countryCode == null) continue;
-        
+
         // Normalize date to just year, month, day
         final normalizedDate = DateTime(
           log.logDateTime.year,
           log.logDateTime.month,
           log.logDateTime.day,
         );
-        
+
         if (dayData.containsKey(normalizedDate)) {
           // Add log to existing day
           dayData[normalizedDate]!.logEntries.add(log);
-          
+
           // Update first seen time if this log is earlier
-          if (log.logDateTime.isBefore(dayData[normalizedDate]!.firstSeenTime)) {
+          if (log.logDateTime
+              .isBefore(dayData[normalizedDate]!.firstSeenTime)) {
             dayData[normalizedDate] = CalendarDayData(
               countryCode: log.countryCode!,
               firstSeenTime: log.logDateTime,
@@ -58,14 +59,14 @@ class CalendarCubit extends Cubit<CalendarState> {
           );
         }
       }
-      
+
       log(
         "📊 Loaded data for ${dayData.length} days",
         name: 'CalendarCubit',
         level: 0, // INFO
         time: DateTime.now(),
       );
-      
+
       emit(state.copyWith(
         dayData: dayData,
         isLoading: false,

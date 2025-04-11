@@ -87,7 +87,6 @@ class CountryVisitsRepository {
 
   // Get all country visits
   Future<List<CountryVisit>> getAllVisits() async {
-
     log(
       "📋 Fetching all country visits",
       name: 'CountryVisitsRepository',
@@ -107,14 +106,13 @@ class CountryVisitsRepository {
 
   // Delete a country visit and all related data by its country code
   Future<void> deleteCountryVisit(String countryCode) async {
-
     log(
       "🗑️ Starting to delete all data for country: $countryCode",
       name: 'CountryVisitsRepository',
       level: 0,
       time: DateTime.now(),
     );
-    
+
     try {
       // Start a transaction to ensure all deletions are atomic
       await database.transaction(() async {

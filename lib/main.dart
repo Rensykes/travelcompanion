@@ -8,7 +8,6 @@ import 'package:trackie/presentation/bloc/theme/theme_state.dart';
 import 'package:trackie/core/routes/app_router.dart';
 import 'package:trackie/presentation/widgets/app_bloc_provider.dart';
 
-
 void main() async {
   try {
     await AppInitialization.init();
@@ -16,11 +15,11 @@ void main() async {
   } catch (e) {
     // Handle initialization errors
     log(
-  'App initialization failed',
-  name: 'Main',
-  error: e,
-  level: 1000, // Optional: indicates a severe error
-);
+      'App initialization failed',
+      name: 'Main',
+      error: e,
+      level: 1000, // Optional: indicates a severe error
+    );
 
     // You might want to show an error screen or retry logic here
   }

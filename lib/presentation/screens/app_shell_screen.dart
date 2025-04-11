@@ -92,9 +92,11 @@ class _AppShellScreenState extends State<AppShellScreen>
       value: _appShellCubit,
       child: BlocBuilder<AppShellCubit, AppShellState>(
         builder: (context, homeState) {
-          final currentPath = GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
-          final showFab = _appShellCubit.shouldShowFloatingActionButton(currentPath);
-          
+          final currentPath =
+              GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
+          final showFab =
+              _appShellCubit.shouldShowFloatingActionButton(currentPath);
+
           return Scaffold(
             appBar: AppBar(title: const Text('Trackie')),
             body: SafeArea(
