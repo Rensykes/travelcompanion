@@ -10,42 +10,32 @@ import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:trackie/application/services/permission_service.dart';
+import 'package:trackie/application/services/file_service.dart';
 
 class DataExportImportService {
   final AppDatabase database;
   final LocationLogsRepository locationLogsRepository;
   final CountryVisitsRepository countryVisitsRepository;
   final RelationLogsCubit relationLogsCubit;
+  final PermissionService _permissionService;
+  final FileService _fileService;
 
   DataExportImportService({
     required this.database,
     required this.locationLogsRepository,
     required this.countryVisitsRepository,
     required this.relationLogsCubit,
-  });
-
-  Future<bool> _hasStoragePermission() async {
-    if (!Platform.isAndroid) return true;
-
-    final androidInfo = await DeviceInfoPlugin().androidInfo;
-    final sdkVersion = androidInfo.version.sdkInt;
-
-    if (sdkVersion < 33) {
-      final storage = await Permission.storage.request();
-      log("Storage permission status: ${storage.name}",
-          name: 'DataExportImportService');
-      return storage.isGranted;
-    }
-
-    // Android 13+ does not need storage permission when using SAF
-    return true;
-  }
+    required PermissionService permissionService,
+    required FileService fileService,
+  })  : _permissionService = permissionService,
+        _fileService = fileService;
 
   /// Export location logs to a JSON file
   Future<String> exportData() async {
     log("📤 Starting data export process", name: 'DataExportImportService');
 
-    if (!await _hasStoragePermission()) {
+    if (!await _permissionService.requestStoragePermission()) {
       log("❌ Storage permissions denied for export",
           name: 'DataExportImportService', level: 3);
       throw Exception('Storage permissions denied');
@@ -66,7 +56,7 @@ class DataExportImportService {
 
     final jsonData = jsonEncode({'locationLogs': logsJson});
 
-    String? outputDir = await FilePicker.platform.getDirectoryPath(
+    final outputDir = await _fileService.pickDirectory(
       dialogTitle: 'Select where to save your exported data',
     );
 
@@ -82,8 +72,7 @@ class DataExportImportService {
         .replaceAll('.', '-');
     final filePath = '$outputDir/trackie_export_$timestamp.json';
 
-    final file = File(filePath);
-    await file.writeAsString(jsonData);
+    await _fileService.writeToFile(filePath, jsonData);
 
     log("✅ Data successfully exported to: $filePath",
         name: 'DataExportImportService', level: 1);
@@ -94,26 +83,24 @@ class DataExportImportService {
   Future<int> importData() async {
     log("📥 Starting data import process", name: 'DataExportImportService');
 
-    if (!await _hasStoragePermission()) {
+    if (!await _permissionService.requestStoragePermission()) {
       log("❌ Storage permissions denied for import",
           name: 'DataExportImportService', level: 3);
       throw Exception('Storage permissions denied');
     }
 
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['json'],
+    final filePath = await _fileService.pickFile(
       dialogTitle: 'Select exported data file to import',
+      allowedExtensions: ['json'],
     );
 
-    if (result == null || result.files.single.path == null) {
+    if (filePath == null) {
       log("⚠️ Import cancelled by user",
           name: 'DataExportImportService', level: 2);
       throw Exception('Import cancelled');
     }
 
-    final file = File(result.files.single.path!);
-    final jsonString = await file.readAsString();
+    final jsonString = await _fileService.readFromFile(filePath);
     final Map<String, dynamic> jsonData = jsonDecode(jsonString);
 
     if (!jsonData.containsKey('locationLogs')) {

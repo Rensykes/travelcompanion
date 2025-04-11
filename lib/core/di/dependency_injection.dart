@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:trackie/application/services/export_import_service.dart';
+import 'package:trackie/application/services/permission_service.dart';
+import 'package:trackie/application/services/file_service.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
@@ -22,22 +24,16 @@ class DependencyInjection {
       // Themes
       getIt.registerSingleton<ThemeCubit>(ThemeCubit());
 
+      // Services
+      getIt.registerSingleton<PermissionService>(PermissionService());
+      getIt.registerSingleton<FileService>(FileService());
+
       // Repositories
       getIt.registerFactory<LocationLogsRepository>(
         () => LocationLogsRepository(getIt<AppDatabase>()),
       );
       getIt.registerFactory<CountryVisitsRepository>(
         () => CountryVisitsRepository(getIt<AppDatabase>()),
-      );
-
-      // Services
-      getIt.registerFactory<DataExportImportService>(
-        () => DataExportImportService(
-          database: getIt<AppDatabase>(),
-          locationLogsRepository: getIt<LocationLogsRepository>(),
-          countryVisitsRepository: getIt<CountryVisitsRepository>(),
-          relationLogsCubit: getIt<RelationLogsCubit>(),
-        ),
       );
 
       // Blocs
@@ -53,6 +49,18 @@ class DependencyInjection {
       getIt.registerFactory<CalendarCubit>(
         () => CalendarCubit(
             locationLogsRepository: getIt<LocationLogsRepository>()),
+      );
+
+      // Export/Import Service
+      getIt.registerFactory<DataExportImportService>(
+        () => DataExportImportService(
+          database: getIt<AppDatabase>(),
+          locationLogsRepository: getIt<LocationLogsRepository>(),
+          countryVisitsRepository: getIt<CountryVisitsRepository>(),
+          relationLogsCubit: getIt<RelationLogsCubit>(),
+          permissionService: getIt<PermissionService>(),
+          fileService: getIt<FileService>(),
+        ),
       );
     } catch (e) {
       throw Exception('Failed to initialize dependencies: $e');
