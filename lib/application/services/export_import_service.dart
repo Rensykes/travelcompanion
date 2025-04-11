@@ -1,15 +1,11 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:developer';
 
 import 'package:drift/drift.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:trackie/application/services/permission_service.dart';
 import 'package:trackie/application/services/file_service.dart';
 
