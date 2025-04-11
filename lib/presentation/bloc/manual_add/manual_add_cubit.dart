@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -56,9 +58,9 @@ class ManualAddCubit extends Cubit<ManualAddState> {
         filteredCountries: List.from(countryList),
       ));
 
-      debugPrint('Loaded ${countryList.length} countries');
+      log('Loaded ${countryList.length} countries');
     } catch (e) {
-      debugPrint('Error loading countries: $e');
+      log('Error loading countries: $e');
 
       // Fallback with a few example countries if there's an error
       final fallbackList = [
@@ -94,8 +96,7 @@ class ManualAddCubit extends Cubit<ManualAddState> {
 
       // Only emit if the filtered list has actually changed
       if (!_areListsEqual(filtered, currentState.filteredCountries)) {
-        debugPrint(
-            'Filtering countries with query: "$query", found ${filtered.length} results');
+        log('Filtering countries with query: "$query", found ${filtered.length} results');
         emit(currentState.copyWith(
           filteredCountries: filtered,
         ));
@@ -184,19 +185,16 @@ class ManualAddCubit extends Cubit<ManualAddState> {
 
   // Refresh all data
   void _refreshAllData() {
-    debugPrint(
-        '🔄 ManualAddCubit: Refreshing LocationLogsCubit (instance: ${identityHashCode(_locationLogsCubit)})');
+    log('🔄 ManualAddCubit: Refreshing LocationLogsCubit (instance: ${identityHashCode(_locationLogsCubit)})');
     _locationLogsCubit.refresh();
 
-    debugPrint(
-        '🔄 ManualAddCubit: Refreshing CountryVisitsCubit (instance: ${identityHashCode(_countryVisitsCubit)})');
+    log('🔄 ManualAddCubit: Refreshing CountryVisitsCubit (instance: ${identityHashCode(_countryVisitsCubit)})');
     _countryVisitsCubit.refresh();
 
-    debugPrint(
-        '🔄 ManualAddCubit: Refreshing CalendarCubit (instance: ${identityHashCode(_calendarCubit)})');
+    log('🔄 ManualAddCubit: Refreshing CalendarCubit (instance: ${identityHashCode(_calendarCubit)})');
     _calendarCubit.refresh();
 
-    debugPrint('✅ ManualAddCubit: Refresh completed for all cubits');
+    log('✅ ManualAddCubit: Refresh completed for all cubits');
   }
 
   // Clean up resources

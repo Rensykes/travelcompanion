@@ -1,5 +1,6 @@
 // lib/core/config/app_config.dart
-import 'package:flutter/foundation.dart';
+import 'dart:developer';
+
 import 'package:flutter/services.dart';
 
 enum Environment { dev, staging, prod }
@@ -45,10 +46,10 @@ class AppConfig {
         _environment = Environment.prod;
       }
 
-      debugPrint('AppConfig initialized: ${_environment.name}');
-      debugPrint('API URL: $_apiBaseUrl');
+      log('AppConfig initialized: ${_environment.name}');
+      log('API URL: $_apiBaseUrl');
     } catch (e) {
-      debugPrint('Failed to load config: $e');
+      log('Failed to load config: $e');
       // Default values as fallback
       _environment = Environment.dev;
       _apiBaseUrl = 'https://dev-api.example.com/';
