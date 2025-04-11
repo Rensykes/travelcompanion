@@ -193,7 +193,7 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
             });
           },
           child: ListTile(
-            leading: log.status == "success"
+            leading: log.status == "success" || log.status == "manual_entry"
                 ? const Icon(Icons.check_circle, color: Colors.green)
                 : const Icon(Icons.error, color: Colors.red),
             title: Text("Log #${log.id}"),
