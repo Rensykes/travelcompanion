@@ -51,13 +51,8 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
             ContentType.success,
           );
 
-          // Check if we can safely pop, or navigate to home if we can't
-          if (Navigator.canPop(context)) {
-            context.pop();
-          } else {
-            // Navigate to home if we can't pop
-            context.go(RouteConstants.homeFullPath);
-          }
+          // Always navigate to home after successful submission
+          context.go(RouteConstants.homeFullPath);
         } else if (state is SubmissionFailure) {
           SnackBarHelper.showSnackBar(
             context,

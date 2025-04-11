@@ -104,11 +104,41 @@ class CountryVisitsRepository {
 
     if (existingVisit != null) {
       log(
-        "📝 Found existing visit for $countryCode, updating with new date",
+        "📝 Found existing visit for $countryCode, checking for logs on this date",
         name: 'CountryVisitsRepository',
         level: 0,
         time: DateTime.now(),
       );
+
+      // Check if there's already a log for this date
+      final existingLogOnDate = await (database.select(database.locationLogs)
+            ..where((log) => log.countryCode.equals(countryCode))
+            ..where((log) =>
+                log.logDateTime.year.equals(formattedDate.year) &
+                log.logDateTime.month.equals(formattedDate.month) &
+                log.logDateTime.day.equals(formattedDate.day)))
+          .getSingleOrNull();
+
+      int newDaysSpent;
+      if (existingLogOnDate != null) {
+        // If there's already a log for this date, don't increment days spent
+        log(
+          "🔄 Entry already exists for $countryCode on $formattedDate, not incrementing days",
+          name: 'CountryVisitsRepository',
+          level: 0,
+          time: DateTime.now(),
+        );
+        newDaysSpent = existingVisit.daysSpent;
+      } else {
+        // If there's no log for this date, increment days spent
+        log(
+          "📊 No entry for $countryCode on $formattedDate, incrementing days from ${existingVisit.daysSpent} to ${existingVisit.daysSpent + 1}",
+          name: 'CountryVisitsRepository',
+          level: 0,
+          time: DateTime.now(),
+        );
+        newDaysSpent = existingVisit.daysSpent + 1;
+      }
 
       // Update the existing entry with the new date
       await (database.update(database.countryVisits)
@@ -116,8 +146,7 @@ class CountryVisitsRepository {
           .write(
         CountryVisitsCompanion(
           entryDate: Value(formattedDate),
-          // Keep the days spent value
-          daysSpent: Value(existingVisit.daysSpent + 1),
+          daysSpent: Value(newDaysSpent),
         ),
       );
 

@@ -65,6 +65,6 @@ class CountryAddMenu extends StatelessWidget {
   }
 
   void _handleManualOption(BuildContext context) {
-    context.go(RouteConstants.manualAddFullPath);
+    context.push(RouteConstants.manualAddFullPath);
   }
 }

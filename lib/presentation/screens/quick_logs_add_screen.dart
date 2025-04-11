@@ -96,13 +96,8 @@ class _QuickLogsAddScreenState extends State<QuickLogsAddScreen> {
 
                               if (context.mounted) {
                                 refreshAllData();
-                                // Navigate back after successful operation
-                                if (Navigator.canPop(context)) {
-                                  context.pop();
-                                } else {
-                                  // Navigate to home if we can't pop
-                                  context.go(RouteConstants.homeFullPath);
-                                }
+                                // Navigate back to home after successful operation
+                                context.go(RouteConstants.homeFullPath);
                               }
                             },
                       icon: state.isFetchingLocation
