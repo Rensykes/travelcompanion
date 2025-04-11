@@ -9,6 +9,7 @@ import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 import 'package:trackie/presentation/screens/app_shell_screen.dart';
 import 'package:trackie/presentation/screens/calendar_view_screen.dart';
 import 'package:trackie/presentation/screens/entries_screen.dart';
+import 'package:trackie/presentation/screens/export_import_screen.dart';
 import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/presentation/screens/relations_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
@@ -60,6 +61,10 @@ final router = GoRouter(
             GoRoute(
               path: RouteConstants.advancedSettings,
               builder: (context, state) => const AdvancedSettingsScreen(),
+            ),
+            GoRoute(
+              path: RouteConstants.exportImportFullPath,
+              builder: (context, state) => const ExportImportScreen(),
             ),
           ],
         ),
