@@ -85,6 +85,74 @@ class CountryVisitsRepository {
     }
   }
 
+  // Save country visit with a specific date
+  Future<void> saveCountryVisitWithDate(
+      String countryCode, DateTime date) async {
+    log(
+      '🌍 Saving country visit for: $countryCode with specific date: $date',
+      name: 'CountryVisitsRepository',
+      level: 0, // 0 for INFO
+      time: DateTime.now(),
+    );
+
+    final formattedDate = DateTime(date.year, date.month, date.day);
+
+    // Check if there's an existing entry for this country
+    final existingVisit = await (database.select(database.countryVisits)
+          ..where((t) => t.countryCode.equals(countryCode)))
+        .getSingleOrNull();
+
+    if (existingVisit != null) {
+      log(
+        "📝 Found existing visit for $countryCode, updating with new date",
+        name: 'CountryVisitsRepository',
+        level: 0,
+        time: DateTime.now(),
+      );
+
+      // Update the existing entry with the new date
+      await (database.update(database.countryVisits)
+            ..where((t) => t.countryCode.equals(countryCode)))
+          .write(
+        CountryVisitsCompanion(
+          entryDate: Value(formattedDate),
+          // Keep the days spent value
+          daysSpent: Value(existingVisit.daysSpent + 1),
+        ),
+      );
+
+      log(
+        "✅ Successfully updated country visit for $countryCode with new date",
+        name: 'CountryVisitsRepository',
+        level: 1, // 1 for SUCCESS
+        time: DateTime.now(),
+      );
+    } else {
+      log(
+        "✨ Creating new country visit entry for $countryCode with specified date",
+        name: 'CountryVisitsRepository',
+        level: 0,
+        time: DateTime.now(),
+      );
+
+      // If it's a new country, add a new entry with the specified date
+      await database.into(database.countryVisits).insert(
+            CountryVisitsCompanion.insert(
+              countryCode: countryCode,
+              entryDate: formattedDate,
+              daysSpent: 1,
+            ),
+          );
+
+      log(
+        "✅ Successfully created new country visit for $countryCode with date $formattedDate",
+        name: 'CountryVisitsRepository',
+        level: 1,
+        time: DateTime.now(),
+      );
+    }
+  }
+
   // Get all country visits
   Future<List<CountryVisit>> getAllVisits() async {
     log(

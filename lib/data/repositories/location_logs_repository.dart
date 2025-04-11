@@ -42,15 +42,23 @@ class LocationLogsRepository {
   }
 
   /// Logs a new entry in the location_logs table
-  Future<void> logEntry({required String status, String? countryCode}) async {
+  Future<void> logEntry({
+    required String status,
+    String? countryCode,
+    String? notes,
+  }) async {
     DateTime.now().toIso8601String();
     log(
-      "📝 Starting to log new location entry - Status: $status, Country: $countryCode",
+      "📝 Starting to log new location entry - Status: $status, Country: $countryCode, Notes: ${notes ?? 'None'}",
       name: 'LocationLogsRepository',
       level: 0, // INFO
       time: DateTime.now(),
     );
     try {
+      // Update the LocationLogsCompanion to include notes
+      // Since the LocationLogs table doesn't have a notes column, we can't store it directly
+      // We could consider adding it in a future schema update
+
       final logLocation =
           await database.into(database.locationLogs).insertReturning(
                 LocationLogsCompanion.insert(

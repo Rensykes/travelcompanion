@@ -65,76 +65,78 @@ class _QuickLogsAddScreenState extends State<QuickLogsAddScreen> {
         value: context.read<AppShellCubit>(),
         child: BlocBuilder<AppShellCubit, AppShellState>(
           builder: (context, state) {
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 24),
-                  _buildSection(
-                    'Carrier Detection',
-                    'Automatically detect your location based on carrier information',
-                    Icons.network_cell,
-                    Colors.blue,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: state.isFetchingLocation
-                        ? null
-                        : () async {
-                            await context.read<AppShellCubit>().addCountry(
-                              (title, message, status) {
-                                SnackBarHelper.showSnackBar(
-                                  context,
-                                  title,
-                                  message,
-                                  status,
-                                );
-                              },
-                            );
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 24),
+                    _buildSection(
+                      'Carrier Detection',
+                      'Automatically detect your location based on carrier information',
+                      Icons.network_cell,
+                      Colors.blue,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: state.isFetchingLocation
+                          ? null
+                          : () async {
+                              await context.read<AppShellCubit>().addCountry(
+                                (title, message, status) {
+                                  SnackBarHelper.showSnackBar(
+                                    context,
+                                    title,
+                                    message,
+                                    status,
+                                  );
+                                },
+                              );
 
-                            if (context.mounted) {
-                              refreshAllData();
-                              // Navigate back after successful operation
-                              Navigator.of(context).pop();
-                            }
-                          },
-                    icon: state.isFetchingLocation
-                        ? const SizedBox(
-                            width: 24,
-                            height: 24,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.add_location),
-                    label: const Text('Add Current Location'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                              if (context.mounted) {
+                                refreshAllData();
+                                // Navigate back after successful operation
+                                Navigator.of(context).pop();
+                              }
+                            },
+                      icon: state.isFetchingLocation
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Icon(Icons.add_location),
+                      label: const Text('Add Current Location'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                  _buildSection(
-                    'Manual Entry',
-                    'Manually enter your location and travel details',
-                    Icons.edit_location_alt,
-                    Colors.green,
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      _showInternetConnectionAlert(context);
-                    },
-                    icon: const Icon(Icons.add_circle),
-                    label: const Text('Add Manually'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
+                    const SizedBox(height: 48),
+                    _buildSection(
+                      'Manual Entry',
+                      'Manually enter your location and travel details',
+                      Icons.edit_location_alt,
+                      Colors.green,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        _showInternetConnectionAlert(context);
+                      },
+                      icon: const Icon(Icons.add_circle),
+                      label: const Text('Add Manually'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
           },
