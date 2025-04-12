@@ -1,31 +1,42 @@
 import 'dart:developer';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/data/repositories/log_country_relations_repository.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 
 class CountryDataService {
-  final LocationLogsRepository locationLogsRepository;
+  final LogCountryRelationsRepository logCountryRelationsRepository;
   final CountryVisitsRepository countryVisitsRepository;
 
   CountryDataService({
-    required this.locationLogsRepository,
+    required this.logCountryRelationsRepository,
     required this.countryVisitsRepository,
   });
 
-  /// Delete a country and all its related logs
+  /// Delete a country and all its related data
   Future<void> deleteCountryData(String countryCode) async {
     try {
-      final logs = await locationLogsRepository.getRelationsForCountryVisit(
-        countryCode,
+      log(
+        '🗑️ Starting to delete country data for: $countryCode',
+        name: 'CountryDataService',
+        level: 0,
+        time: DateTime.now(),
       );
 
-      for (var logEntry in logs) {
-        await locationLogsRepository.deleteLog(logEntry.id);
-      }
+      // Step 1: Delete all log-country relations for this country
+      await logCountryRelationsRepository
+          .deleteRelationsByCountryCode(countryCode);
 
+      log(
+        '🔗 Deleted log-country relations for: $countryCode',
+        name: 'CountryDataService',
+        level: 0,
+        time: DateTime.now(),
+      );
+
+      // Step 2: Delete the country visit record
       await countryVisitsRepository.deleteCountryVisit(countryCode);
 
       log(
-        '🗑️ Deleted country data: $countryCode with ${logs.length} related log(s)',
+        '✅ Successfully deleted country data for: $countryCode',
         name: 'CountryDataService',
         level: 0,
         time: DateTime.now(),

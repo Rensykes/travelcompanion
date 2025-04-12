@@ -1,14 +1,14 @@
 import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_state.dart';
 import 'package:trackie/data/models/calendar_day_data.dart';
 
 class CalendarCubit extends Cubit<CalendarState> {
-  final LocationLogsRepository locationLogsRepository;
+  final LocationService locationService;
 
   CalendarCubit({
-    required this.locationLogsRepository,
+    required this.locationService,
   }) : super(const CalendarState());
 
   Future<void> loadCalendarData() async {
@@ -21,8 +21,8 @@ class CalendarCubit extends Cubit<CalendarState> {
         time: DateTime.now(),
       );
 
-      // Get all location logs
-      final allLogs = await locationLogsRepository.getAllLogs();
+      // Get all location logs using the location service
+      final allLogs = await locationService.locationLogsRepository.getAllLogs();
 
       // Group logs by day
       final Map<DateTime, CalendarDayData> dayData = {};

@@ -45,11 +45,8 @@ final router = GoRouter(
         ),
         GoRoute(
           path: RouteConstants.calendar,
-          builder: (context, state) => BlocProvider(
-            create: (context) => CalendarCubit(
-              locationLogsRepository:
-                  GetIt.instance.get<LocationLogsRepository>(),
-            ),
+          builder: (context, state) => BlocProvider.value(
+            value: GetIt.instance.get<CalendarCubit>(),
             child: const CalendarViewScreen(),
           ),
         ),

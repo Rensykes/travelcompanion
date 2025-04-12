@@ -24,8 +24,13 @@ class AppShellCubit extends Cubit<AppShellState> {
       final isoCode = await SimInfoService.getIsoCode();
 
       if (isoCode != null) {
-        await countryVisitsRepository.saveCountryVisit(isoCode);
-        await locationLogsRepository.logEntry(
+        await countryVisitsRepository.createCountryVisit(
+          countryCode: isoCode,
+          entryDate: DateTime.now(),
+          daysSpent: 0,
+        );
+        await locationLogsRepository.createLocationLog(
+          logDateTime: DateTime.now(),
           status: 'success',
           countryCode: isoCode,
         );

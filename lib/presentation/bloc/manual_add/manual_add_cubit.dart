@@ -3,8 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:trackie/data/repositories/country_visits_repository.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
@@ -12,8 +11,7 @@ import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class ManualAddCubit extends Cubit<ManualAddState> {
-  final LocationLogsRepository _locationLogsRepository;
-  final CountryVisitsRepository _countryVisitsRepository;
+  final LocationService _locationService;
   final LocationLogsCubit _locationLogsCubit;
   final CountryVisitsCubit _countryVisitsCubit;
   final CalendarCubit _calendarCubit;
@@ -24,13 +22,11 @@ class ManualAddCubit extends Cubit<ManualAddState> {
   final TextEditingController notesController = TextEditingController();
 
   ManualAddCubit({
-    required LocationLogsRepository locationLogsRepository,
-    required CountryVisitsRepository countryVisitsRepository,
+    required LocationService locationService,
     required LocationLogsCubit locationLogsCubit,
     required CountryVisitsCubit countryVisitsCubit,
     required CalendarCubit calendarCubit,
-  })  : _locationLogsRepository = locationLogsRepository,
-        _countryVisitsRepository = countryVisitsRepository,
+  })  : _locationService = locationService,
         _locationLogsCubit = locationLogsCubit,
         _countryVisitsCubit = countryVisitsCubit,
         _calendarCubit = calendarCubit,
@@ -158,20 +154,11 @@ class ManualAddCubit extends Cubit<ManualAddState> {
 
       try {
         final countryCode = currentState.selectedCountryCode!;
-        final notes = notesController.text;
 
-        // Save country visit with selected date
-        await _countryVisitsRepository.saveCountryVisitWithDate(
+        // Use the LocationService to save the country visit with date
+        await _locationService.saveCountryVisitWithDate(
           countryCode,
           selectedDate,
-        );
-
-        // Log the entry with notes if available
-        await _locationLogsRepository.logEntry(
-          status: 'manual_entry',
-          countryCode: countryCode,
-          notes: notes.isNotEmpty ? notes : 'Manual entry',
-          logDateTime: selectedDate,
         );
 
         // Refresh data

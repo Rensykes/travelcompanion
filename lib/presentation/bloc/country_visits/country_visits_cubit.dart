@@ -12,7 +12,7 @@ class CountryVisitsCubit extends Cubit<CountryVisitsState> {
   Future<void> loadVisits() async {
     emit(CountryVisitsLoading());
     try {
-      final visits = await _repository.getAllVisits();
+      final visits = await _repository.getAllCountryVisits();
       emit(CountryVisitsLoaded(visits));
     } catch (e) {
       emit(CountryVisitsError(e.toString()));

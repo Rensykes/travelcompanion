@@ -5,6 +5,8 @@ import 'package:drift/drift.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
+import 'package:trackie/data/repositories/log_country_relations_repository.dart';
+import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/application/services/permission_service.dart';
 import 'package:trackie/application/services/file_service.dart';
@@ -13,6 +15,8 @@ class DataExportImportService {
   final AppDatabase database;
   final LocationLogsRepository locationLogsRepository;
   final CountryVisitsRepository countryVisitsRepository;
+  final LogCountryRelationsRepository logCountryRelationsRepository;
+  final LocationService locationService;
   final RelationLogsCubit relationLogsCubit;
   final PermissionService _permissionService;
   final FileService _fileService;
@@ -21,6 +25,8 @@ class DataExportImportService {
     required this.database,
     required this.locationLogsRepository,
     required this.countryVisitsRepository,
+    required this.logCountryRelationsRepository,
+    required this.locationService,
     required this.relationLogsCubit,
     required PermissionService permissionService,
     required FileService fileService,
@@ -115,25 +121,21 @@ class DataExportImportService {
       final Set<String> countryCodes = {};
 
       for (final logData in locationLogs) {
-        final locationLog = LocationLogsCompanion.insert(
+        // Create location log
+        final insertedLog = await locationLogsRepository.createLocationLog(
           logDateTime: DateTime.parse(logData['logDateTime']),
           status: logData['status'],
-          countryCode: Value(logData['countryCode']),
+          countryCode: logData['countryCode'],
         );
-
-        final insertedLog = await database
-            .into(database.locationLogs)
-            .insertReturning(locationLog);
 
         if (logData['countryCode'] != null) {
           final countryCode = logData['countryCode'] as String;
 
-          await database.into(database.logCountryRelations).insert(
-                LogCountryRelationsCompanion.insert(
-                  logId: insertedLog.id,
-                  countryCode: countryCode,
-                ),
-              );
+          // Create relation
+          await logCountryRelationsRepository.createRelation(
+            logId: insertedLog.id,
+            countryCode: countryCode,
+          );
 
           countryCodes.add(countryCode);
         }
@@ -144,7 +146,7 @@ class DataExportImportService {
 
       // Recalculate days spent for each country
       for (final countryCode in countryCodes) {
-        await locationLogsRepository.recalculateDaysSpent(countryCode);
+        await locationService.recalculateDaysSpent(countryCode);
       }
 
       // Recalculate relation logs
