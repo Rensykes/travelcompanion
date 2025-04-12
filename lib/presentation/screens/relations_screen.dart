@@ -1,9 +1,9 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/core/utils/db_util.dart';
 import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_state.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
@@ -155,8 +155,14 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               developer.log(
                 "🗑️ Confirming dismissal of log with ID: ${log.id}",
               );
-              final repository = getIt<LocationLogsRepository>();
-              await repository.deleteLog(log.id);
+              final repository = getIt<LocationService>();
+              if (log.countryCode != null) {
+                await repository.deleteLocationLogByIdAndCountryCode(
+                    log.id, log.countryCode!);
+              } else {
+                throw Exception(
+                    "Country code cannot be null for log ID: ${log.id}");
+              }
 
               if (context.mounted) {
                 SnackBarHelper.showSnackBar(

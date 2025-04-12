@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:get_it/get_it.dart';
+import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/presentation/widgets/custom_google_navbar.dart';
 import 'package:trackie/presentation/widgets/country_add_menu.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
@@ -32,8 +33,7 @@ class _AppShellScreenState extends State<AppShellScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _appShellCubit = AppShellCubit(
-      locationLogsRepository: GetIt.instance.get<LocationLogsRepository>(),
-      countryVisitsRepository: GetIt.instance.get<CountryVisitsRepository>(),
+      locationService: GetIt.instance.get<LocationService>(),
     );
   }
 

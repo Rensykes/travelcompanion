@@ -1,20 +1,15 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/application/services/sim_info_service.dart';
 import 'package:trackie/core/utils/db_util.dart';
-import 'package:trackie/data/repositories/country_visits_repository.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 
 class AppShellCubit extends Cubit<AppShellState> {
-  final LocationLogsRepository locationLogsRepository;
-  final CountryVisitsRepository countryVisitsRepository;
+  final LocationService locationService;
 
-  AppShellCubit({
-    required this.locationLogsRepository,
-    required this.countryVisitsRepository,
-  }) : super(const AppShellState());
+  AppShellCubit({required this.locationService}) : super(const AppShellState());
 
   Future<void> addCountry(
     Function(String, String, ContentType) showSnackBar,
@@ -25,16 +20,8 @@ class AppShellCubit extends Cubit<AppShellState> {
       final isoCode = await SimInfoService.getIsoCode();
 
       if (isoCode != null) {
-        await countryVisitsRepository.createCountryVisit(
-          countryCode: isoCode,
-          entryDate: DateTime.now(),
-          daysSpent: 0,
-        );
-        await locationLogsRepository.createLocationLog(
-          logDateTime: DateTime.now(),
-          status: DBUtils.manualEntry,
-          countryCode: isoCode,
-        );
+        locationService.addEntry(
+            countryCode: isoCode, logSource: DBUtils.manualEntry);
 
         // Let the UI layer handle the refresh
         showSnackBar(

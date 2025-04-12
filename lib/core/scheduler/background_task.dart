@@ -6,7 +6,6 @@ import 'package:workmanager/workmanager.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
-import 'package:trackie/data/repositories/log_country_relations_repository.dart';
 import 'package:trackie/application/services/location_service.dart';
 
 const fetchLocationInBackgroundTask = "fetchLocationInBackgroundTask";

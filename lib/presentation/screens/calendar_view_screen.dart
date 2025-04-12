@@ -186,7 +186,7 @@ class _CalendarViewScreenState extends State<CalendarViewScreen> {
                             final log = countryLogs[index];
                             return ListTile(
                               leading: const Icon(Icons.history),
-                              title: Text('Status: ${log.status}'),
+                              title: Text('Source: ${log.status}'),
                               subtitle:
                                   Text('Time: ${_formatTime(log.logDateTime)}'),
                               dense: true,
