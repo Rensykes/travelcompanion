@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:drift/drift.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
@@ -82,6 +81,7 @@ class DataExportImportService {
   }
 
   /// Import location logs from a JSON file and rebuild country visits
+  /// Import location logs from a JSON file and rebuild country visits
   Future<int> importData() async {
     log("📥 Starting data import process", name: 'DataExportImportService');
 
@@ -117,43 +117,19 @@ class DataExportImportService {
     log("📋 Found ${locationLogs.length} logs to import",
         name: 'DataExportImportService');
 
-    final importedCount = await database.transaction(() async {
-      final Set<String> countryCodes = {};
+    int importedCount = 0;
 
+    await database.transaction(() async {
       for (final logData in locationLogs) {
         // Create location log
-        final insertedLog = await locationLogsRepository.createLocationLog(
+        await locationService.addEntry(
           logDateTime: DateTime.parse(logData['logDateTime']),
-          status: logData['status'],
+          logSource: logData['status'],
           countryCode: logData['countryCode'],
         );
-
-        if (logData['countryCode'] != null) {
-          final countryCode = logData['countryCode'] as String;
-
-          // Create relation
-          await logCountryRelationsRepository.createRelation(
-            logId: insertedLog.id,
-            countryCode: countryCode,
-          );
-
-          countryCodes.add(countryCode);
-        }
+        importedCount++;
       }
-
-      log("🔄 Rebuilding country visits for ${countryCodes.length} countries",
-          name: 'DataExportImportService');
-
-      // Recalculate days spent for each country
-      for (final countryCode in countryCodes) {
-        await locationService.calculateDaysSpent(countryCode);
-      }
-
-      // Recalculate relation logs
-      log("🔄 Rebuilding relation logs", name: 'DataExportImportService');
-      await relationLogsCubit.refresh();
-
-      return locationLogs.length;
+      return importedCount;
     });
 
     log("✅ Import completed successfully with $importedCount logs imported",

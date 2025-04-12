@@ -3,7 +3,6 @@ import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 import 'package:trackie/presentation/screens/app_shell_screen.dart';

@@ -9,7 +9,6 @@ import 'package:trackie/presentation/bloc/location_logs/location_logs_state.dart
 import 'package:trackie/presentation/widgets/logs_screen/log_entry_tile.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/data/datasource/database.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 
 class LogsScreen extends StatefulWidget {
