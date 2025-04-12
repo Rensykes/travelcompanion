@@ -82,6 +82,7 @@ The database structure remains unchanged:
 - `getAllLogs`: Get all location logs
 - `deleteLog`: Delete a log by ID
 - `updateLocationLog`: Update a location log
+- `deleteLogsByCountryCode`: Delete all logs for a specific country code
 
 ### LogCountryRelationsRepository
 - `createRelation`: Create a new relation between log and country

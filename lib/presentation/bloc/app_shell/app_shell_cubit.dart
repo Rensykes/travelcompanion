@@ -1,6 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/application/services/sim_info_service.dart';
+import 'package:trackie/core/utils/db_util.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
@@ -31,7 +32,7 @@ class AppShellCubit extends Cubit<AppShellState> {
         );
         await locationLogsRepository.createLocationLog(
           logDateTime: DateTime.now(),
-          status: 'success',
+          status: DBUtils.manualEntry,
           countryCode: isoCode,
         );
 

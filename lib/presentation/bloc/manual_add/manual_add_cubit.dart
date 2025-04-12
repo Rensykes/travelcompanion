@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:trackie/application/services/location_service.dart';
+import 'package:trackie/core/utils/db_util.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
@@ -156,10 +157,10 @@ class ManualAddCubit extends Cubit<ManualAddState> {
         final countryCode = currentState.selectedCountryCode!;
 
         // Use the LocationService to save the country visit with date
-        await _locationService.saveCountryVisitWithDate(
-          countryCode,
-          selectedDate,
-        );
+        await _locationService.addEntry(
+            countryCode: countryCode,
+            logDateTime: selectedDate,
+            logSource: DBUtils.manualEntry);
 
         // Refresh data
         _refreshAllData();

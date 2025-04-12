@@ -1,6 +1,7 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trackie/core/utils/db_util.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
@@ -193,7 +194,7 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
             });
           },
           child: ListTile(
-            leading: log.status == "success" || log.status == "manual_entry"
+            leading: DBUtils.isValidStatus(log.status)
                 ? const Icon(Icons.check_circle, color: Colors.green)
                 : const Icon(Icons.error, color: Colors.red),
             title: Text("Log #${log.id}"),

@@ -229,4 +229,37 @@ class LocationLogsRepository {
       rethrow;
     }
   }
+
+  /// Delete all logs for a specific country code
+  Future<void> deleteLogsByCountryCode(String countryCode) async {
+    log(
+      "🗑️ Deleting all location logs for country: $countryCode",
+      name: 'LocationLogsRepository',
+      level: 0,
+      time: DateTime.now(),
+    );
+
+    try {
+      // Delete all logs for this country code
+      await (database.delete(database.locationLogs)
+            ..where((log) => log.countryCode.equals(countryCode)))
+          .go();
+
+      log(
+        "✅ Successfully deleted all location logs for country: $countryCode",
+        name: 'LocationLogsRepository',
+        level: 1,
+        time: DateTime.now(),
+      );
+    } catch (e) {
+      log(
+        "❌ Error while deleting location logs: $e",
+        name: 'LocationLogsRepository',
+        level: 3,
+        time: DateTime.now(),
+        error: e,
+      );
+      rethrow;
+    }
+  }
 }

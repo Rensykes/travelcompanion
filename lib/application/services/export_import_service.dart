@@ -146,7 +146,7 @@ class DataExportImportService {
 
       // Recalculate days spent for each country
       for (final countryCode in countryCodes) {
-        await locationService.recalculateDaysSpent(countryCode);
+        await locationService.calculateDaysSpent(countryCode);
       }
 
       // Recalculate relation logs

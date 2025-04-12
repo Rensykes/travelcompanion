@@ -48,7 +48,6 @@ class DependencyInjection {
         () => LocationService(
           locationLogsRepository: getIt<LocationLogsRepository>(),
           countryVisitsRepository: getIt<CountryVisitsRepository>(),
-          logCountryRelationsRepository: getIt<LogCountryRelationsRepository>(),
         ),
       );
 
