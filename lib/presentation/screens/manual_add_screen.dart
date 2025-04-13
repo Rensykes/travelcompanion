@@ -4,6 +4,7 @@ import 'package:omni_datetime_picker/omni_datetime_picker.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:get_it/get_it.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
 import 'package:trackie/presentation/widgets/manual_add/country_selection_field.dart';
@@ -43,7 +44,12 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
       listenWhen: (previous, current) =>
           current is SubmissionSuccess || current is SubmissionFailure,
       listener: (context, state) {
+        if (!mounted) return;
+
         if (state is SubmissionSuccess) {
+          // Refresh all data using context
+          DataRefreshUtil.refreshAllData(context: context);
+
           SnackBarHelper.showSnackBar(
             context,
             'Location Added',
@@ -52,7 +58,7 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
           );
 
           // Always navigate to home after successful submission
-          context.go(RouteConstants.homeFullPath);
+          context.go(RouteConstants.dashboardFullPath);
         } else if (state is SubmissionFailure) {
           SnackBarHelper.showSnackBar(
             context,

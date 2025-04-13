@@ -5,32 +5,37 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/core/utils/db_util.dart';
-import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
-import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
-import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
 
+/// A cubit that manages the state for the manual country entry screen.
+///
+/// This cubit handles country selection, date picking, and form submission
+/// for manually adding travel logs. It uses the LocationService to persist
+/// the data, and defers data refreshing to the UI context.
 class ManualAddCubit extends Cubit<ManualAddState> {
+  /// Service for location-related data operations
   final LocationService _locationService;
-  final LocationLogsCubit _locationLogsCubit;
-  final CountryVisitsCubit _countryVisitsCubit;
-  final CalendarCubit _calendarCubit;
 
+  /// The currently selected date for the log entry
   DateTime selectedDate = DateTime.now();
+
+  /// Controller for the country search field
   final TextEditingController searchController = TextEditingController();
+
+  /// Controller for the date selection field
   final TextEditingController dateController = TextEditingController();
+
+  /// Controller for any additional notes
   final TextEditingController notesController = TextEditingController();
 
+  /// Creates a ManualAddCubit instance.
+  ///
+  /// Requires a [locationService] for persisting the location data.
+  /// Initializes with a default date of now and sets up listeners.
   ManualAddCubit({
     required LocationService locationService,
-    required LocationLogsCubit locationLogsCubit,
-    required CountryVisitsCubit countryVisitsCubit,
-    required CalendarCubit calendarCubit,
   })  : _locationService = locationService,
-        _locationLogsCubit = locationLogsCubit,
-        _countryVisitsCubit = countryVisitsCubit,
-        _calendarCubit = calendarCubit,
         super(ManualAddInitial()) {
     // Initialize date controller
     dateController.text = DateFormat('yyyy-MM-dd').format(selectedDate);
@@ -42,7 +47,11 @@ class ManualAddCubit extends Cubit<ManualAddState> {
     _loadCountries();
   }
 
-  // Load all countries
+  /// Loads the list of available countries.
+  ///
+  /// Fetches the complete list of countries, sorts them alphabetically,
+  /// and emits a [CountriesLoaded] state. Falls back to a smaller list
+  /// if there's an error loading the full country list.
   Future<void> _loadCountries() async {
     emit(ManualAddLoading());
     try {
@@ -76,7 +85,10 @@ class ManualAddCubit extends Cubit<ManualAddState> {
     }
   }
 
-  // Filter countries based on search query
+  /// Filters the country list based on the search query.
+  ///
+  /// Uses the text in [searchController] to filter countries by name or code.
+  /// Only emits a new state if the filtered list has actually changed.
   void filterCountries() {
     if (state is CountriesLoaded) {
       final currentState = state as CountriesLoaded;
@@ -102,7 +114,10 @@ class ManualAddCubit extends Cubit<ManualAddState> {
     }
   }
 
-  // Helper method to check if two lists have the same items
+  /// Checks if two lists of CountryItem have the same items.
+  ///
+  /// Compares by alpha2Code rather than by object identity.
+  /// Returns true if the lists contain the same countries in the same order.
   bool _areListsEqual(List<CountryItem> list1, List<CountryItem> list2) {
     if (list1.length != list2.length) return false;
 
@@ -113,7 +128,10 @@ class ManualAddCubit extends Cubit<ManualAddState> {
     return true;
   }
 
-  // Set the search mode
+  /// Sets whether the user is currently searching for a country.
+  ///
+  /// Updates the isSearching flag in the state. If [isSearching] is true,
+  /// clears the search field and refreshes the filtered country list.
   void setSearching(bool isSearching) {
     if (state is CountriesLoaded) {
       final currentState = state as CountriesLoaded;
@@ -125,7 +143,10 @@ class ManualAddCubit extends Cubit<ManualAddState> {
     }
   }
 
-  // Select a country
+  /// Selects a country by its country code.
+  ///
+  /// Updates the state with the selected country code and sets isSearching to false
+  /// to close the search UI if it's open.
   void selectCountry(String countryCode) {
     if (state is CountriesLoaded) {
       final currentState = state as CountriesLoaded;
@@ -136,13 +157,21 @@ class ManualAddCubit extends Cubit<ManualAddState> {
     }
   }
 
-  // Update selected date
+  /// Updates the selected date and the date controller text.
+  ///
+  /// Sets [selectedDate] to the given [date] and updates the dateController
+  /// with the formatted date string.
   void updateSelectedDate(DateTime date) {
     selectedDate = date;
     dateController.text = DateFormat('yyyy-MM-dd').format(selectedDate);
   }
 
-  // Submit the form
+  /// Submits the form data to add a new location entry.
+  ///
+  /// Creates a new location entry with the selected country and date.
+  /// Emits a [SubmissionSuccess] state on success, or a [SubmissionFailure]
+  /// state with the error message on failure. The UI is responsible for
+  /// refreshing the data on success.
   Future<void> submitForm() async {
     if (state is CountriesLoaded) {
       final currentState = state as CountriesLoaded;
@@ -162,7 +191,7 @@ class ManualAddCubit extends Cubit<ManualAddState> {
             logDateTime: selectedDate,
             logSource: DBUtils.manualEntry);
 
-        // Refresh data
+        // Request data refresh
         _refreshAllData();
 
         emit(SubmissionSuccess());
@@ -172,17 +201,21 @@ class ManualAddCubit extends Cubit<ManualAddState> {
     }
   }
 
-  // Refresh all data
+  /// Requests a refresh of all data in the app.
+  ///
+  /// This method doesn't directly refresh any data, but signals that a refresh
+  /// is needed. The actual refresh is performed by the UI layer which has the
+  /// appropriate BuildContext to access all cubits.
   void _refreshAllData() {
+    // The screen will handle refreshing with context
     DataRefreshUtil.refreshAllData(
-      locationLogsCubit: _locationLogsCubit,
-      countryVisitsCubit: _countryVisitsCubit,
-      calendarCubit: _calendarCubit,
       enableLogging: true,
     );
   }
 
-  // Clean up resources
+  /// Cleans up resources when the cubit is closed.
+  ///
+  /// Removes listeners and disposes controllers to prevent memory leaks.
   @override
   Future<void> close() {
     searchController.removeListener(filterCountries);
@@ -192,7 +225,9 @@ class ManualAddCubit extends Cubit<ManualAddState> {
     return super.close();
   }
 
-  // Get countries list
+  /// Returns the complete list of countries with their names and ISO codes.
+  ///
+  /// This is a comprehensive list of countries for the user to select from.
   List<CountryItem> _getCountriesList() {
     return <CountryItem>[
       CountryItem(name: "Afghanistan", alpha2Code: "AF"),

@@ -10,16 +10,52 @@ import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart
 import 'package:trackie/application/services/permission_service.dart';
 import 'package:trackie/application/services/file_service.dart';
 
+/// Service for handling data export and import operations.
+///
+/// This service provides functionality to:
+/// - Export all location logs to a JSON file
+/// - Import location logs from a previously exported JSON file
+/// - Rebuild country visits based on imported logs
+///
+/// It coordinates between multiple repositories and services to ensure
+/// data consistency during export and import operations, and handles
+/// permissions, file access, and data transformation.
 class DataExportImportService {
+  /// Direct access to the application database
   final AppDatabase database;
+
+  /// Repository for location log operations
   final LocationLogsRepository locationLogsRepository;
+
+  /// Repository for country visit operations
   final CountryVisitsRepository countryVisitsRepository;
+
+  /// Repository for log-country relation operations
   final LogCountryRelationsRepository logCountryRelationsRepository;
+
+  /// Service for high-level location operations
   final LocationService locationService;
+
+  /// Cubit for managing relation logs state
   final RelationLogsCubit relationLogsCubit;
+
+  /// Service for handling permissions
   final PermissionService _permissionService;
+
+  /// Service for file operations
   final FileService _fileService;
 
+  /// Creates a DataExportImportService with all required dependencies.
+  ///
+  /// Parameters:
+  /// - [database]: The application's database instance
+  /// - [locationLogsRepository]: Repository for location logs
+  /// - [countryVisitsRepository]: Repository for country visits
+  /// - [logCountryRelationsRepository]: Repository for relations
+  /// - [locationService]: Service for location operations
+  /// - [relationLogsCubit]: Cubit for relation logs state
+  /// - [permissionService]: Service for permission handling
+  /// - [fileService]: Service for file operations
   DataExportImportService({
     required this.database,
     required this.locationLogsRepository,
@@ -32,7 +68,21 @@ class DataExportImportService {
   })  : _permissionService = permissionService,
         _fileService = fileService;
 
-  /// Export location logs to a JSON file
+  /// Exports all location logs to a JSON file.
+  ///
+  /// This method:
+  /// 1. Requests storage permissions
+  /// 2. Retrieves all location logs
+  /// 3. Transforms logs to JSON format
+  /// 4. Lets the user pick a directory to save the file
+  /// 5. Writes the JSON data to a timestamped file
+  ///
+  /// Returns:
+  /// The path to the exported file
+  ///
+  /// Throws:
+  /// - Exception if storage permissions are denied
+  /// - Exception if the user cancels the export
   Future<String> exportData() async {
     log("📤 Starting data export process", name: 'DataExportImportService');
 
@@ -80,8 +130,23 @@ class DataExportImportService {
     return filePath;
   }
 
-  /// Import location logs from a JSON file and rebuild country visits
-  /// Import location logs from a JSON file and rebuild country visits
+  /// Imports location logs from a JSON file and rebuilds country visits.
+  ///
+  /// This method:
+  /// 1. Requests storage permissions
+  /// 2. Lets the user select a JSON file to import
+  /// 3. Reads and parses the file contents
+  /// 4. Validates the file format
+  /// 5. Uses a database transaction to ensure consistency
+  /// 6. Adds each log entry and rebuilds country visits
+  ///
+  /// Returns:
+  /// The number of log entries successfully imported
+  ///
+  /// Throws:
+  /// - Exception if storage permissions are denied
+  /// - Exception if the user cancels the import
+  /// - Exception if the file has an invalid format
   Future<int> importData() async {
     log("📥 Starting data import process", name: 'DataExportImportService');
 

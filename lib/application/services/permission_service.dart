@@ -3,8 +3,26 @@ import 'dart:developer';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
+/// Service for handling permission requests throughout the application.
+///
+/// This service abstracts the complexity of requesting and checking permissions
+/// across different Android versions. It handles:
+/// - Storage permission requests (for Android 12 and below)
+/// - Media library permission requests (for Android 13+)
+/// - Platform-specific permission strategy selection
+///
+/// It handles the Android permission model changes in SDK 33 (Android 13)
+/// where specific permissions replaced the broader storage permission.
 class PermissionService {
-  /// Check and request storage permissions
+  /// Requests storage permissions appropriate for the device's Android version.
+  ///
+  /// For Android 12 (SDK 32) and below, requests the general storage permission.
+  /// For Android 13 (SDK 33) and above, returns true immediately since Storage Access
+  /// Framework (SAF) is used instead of direct file access permissions.
+  ///
+  /// Returns:
+  /// - true if permission is granted or not needed
+  /// - false if permission is denied
   Future<bool> requestStoragePermission() async {
     if (!Platform.isAndroid) return true;
 
@@ -26,7 +44,15 @@ class PermissionService {
     return true;
   }
 
-  /// Check and request media library permissions
+  /// Requests media library permissions for accessing files.
+  ///
+  /// For Android 13 (SDK 33) and above, requests specific media library permission.
+  /// For Android 12 (SDK 32) and below, delegates to [requestStoragePermission] since
+  /// the general storage permission is used instead.
+  ///
+  /// Returns:
+  /// - true if permission is granted
+  /// - false if permission is denied
   Future<bool> requestMediaLibraryPermission() async {
     if (!Platform.isAndroid) return true;
 

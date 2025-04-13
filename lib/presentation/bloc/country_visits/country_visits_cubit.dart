@@ -6,15 +6,32 @@ import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/application/services/sim_info_service.dart';
 import 'package:trackie/core/utils/db_util.dart';
 
+/// Manages country visit data and operations throughout the application.
+///
+/// This cubit handles loading, refreshing, adding, and deleting country visits.
+/// It works with both the CountryVisitsRepository for data access and the
+/// LocationService for higher-level operations that may affect multiple repositories.
 class CountryVisitsCubit extends Cubit<CountryVisitsState> {
   final CountryVisitsRepository _repository;
   final LocationService _locationService;
 
+  /// Creates a CountryVisitsCubit with the required dependencies.
+  ///
+  /// Immediately loads the country visits upon creation.
+  ///
+  /// Parameters:
+  /// - [_repository]: Repository for accessing country visit data
+  /// - [_locationService]: Service for performing location-related operations
   CountryVisitsCubit(this._repository, this._locationService)
       : super(const CountryVisitsInitial()) {
     loadVisits();
   }
 
+  /// Loads all country visits from the repository.
+  ///
+  /// Preserves the current [isFetchingLocation] state while changing to
+  /// loading state. Emits a [CountryVisitsLoaded] state on success or
+  /// [CountryVisitsError] state on failure.
   Future<void> loadVisits() async {
     // Preserve isFetchingLocation state when changing to loading state
     final wasLoading = state.isFetchingLocation;
@@ -28,10 +45,20 @@ class CountryVisitsCubit extends Cubit<CountryVisitsState> {
     }
   }
 
+  /// Refreshes the country visits data.
+  ///
+  /// This is a convenience method that delegates to [loadVisits].
   Future<void> refresh() async {
     await loadVisits();
   }
 
+  /// Deletes a country visit and all associated location logs.
+  ///
+  /// Uses the [LocationService] to delete the country visit with the given
+  /// [countryCode] and all associated location logs. Refreshes the visits list
+  /// after successful deletion.
+  ///
+  /// Returns true if deletion was successful, false otherwise.
   Future<bool> deleteCountryVisit(String countryCode) async {
     try {
       await _locationService.deleteCountryVisit(countryCode);
@@ -45,7 +72,15 @@ class CountryVisitsCubit extends Cubit<CountryVisitsState> {
     }
   }
 
-  /// Add a country visit with the specified country code and log source
+  /// Adds a new country visit with the specified country code and log source.
+  ///
+  /// Parameters:
+  /// - [countryCode]: ISO code of the country to add
+  /// - [logSource]: Source of the log entry (e.g., manual entry, automatic)
+  /// - [showSnackBar]: Optional callback to display a snackbar notification
+  ///
+  /// Returns true if the country was added successfully, false otherwise.
+  /// If provided, calls [showSnackBar] with success or error information.
   Future<bool> addCountry(
     String countryCode,
     String logSource, {
@@ -82,7 +117,16 @@ class CountryVisitsCubit extends Cubit<CountryVisitsState> {
     }
   }
 
-  /// Detect and add the current country based on SIM/carrier information
+  /// Detects the current country based on SIM/carrier information and adds it.
+  ///
+  /// Uses [SimInfoService] to detect the current country ISO code, then adds
+  /// that country to the user's visits. Updates the UI to show the fetching state
+  /// during the operation.
+  ///
+  /// Parameters:
+  /// - [showSnackBar]: Callback to display result messages to the user
+  ///
+  /// Returns true if the country was successfully detected and added, false otherwise.
   Future<bool> detectAndAddCurrentCountry(
     Function(String, String, ContentType) showSnackBar,
   ) async {
@@ -118,7 +162,13 @@ class CountryVisitsCubit extends Cubit<CountryVisitsState> {
     }
   }
 
-  /// Helper method to update isFetchingLocation state while preserving other state data
+  /// Updates the isFetchingLocation flag while preserving other state data.
+  ///
+  /// This helper method ensures the current state type and data are maintained
+  /// while changing only the isFetchingLocation flag.
+  ///
+  /// Parameters:
+  /// - [isFetching]: New value for the isFetchingLocation flag
   void _updateFetchingState(bool isFetching) {
     if (state is CountryVisitsLoaded) {
       final currentState = state as CountryVisitsLoaded;
@@ -135,6 +185,10 @@ class CountryVisitsCubit extends Cubit<CountryVisitsState> {
     }
   }
 
+  /// Displays a standardized error message when location retrieval fails.
+  ///
+  /// Parameters:
+  /// - [showSnackBar]: Callback to display the error message
   void _handleLocationError(
       Function(String, String, ContentType) showSnackBar) {
     showSnackBar(
