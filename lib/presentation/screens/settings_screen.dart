@@ -53,33 +53,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         },
                 ),
                 const SizedBox(height: 24),
-                // Features Section
-                const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Features',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ),
-                ),
-                // Travel History
-                ListTile(
-                  leading: const Icon(Icons.travel_explore),
-                  title: const Text('Travel History Timeline'),
-                  subtitle: const Text('View your historical country visits'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    context.push(RouteConstants.travelHistoryFullPath);
-                  },
-                ),
-                const SizedBox(height: 24),
                 // Data Management Section
                 const Padding(
                   padding:
