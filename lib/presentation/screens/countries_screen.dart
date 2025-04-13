@@ -4,22 +4,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:country_flags/country_flags.dart';
-import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
-import 'package:trackie/core/di/dependency_injection.dart';
-import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/core/constants/route_constants.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 
-class EntriesScreen extends StatefulWidget {
-  const EntriesScreen({super.key});
+class CountriesScreen extends StatefulWidget {
+  const CountriesScreen({super.key});
 
   @override
-  State<EntriesScreen> createState() => _EntriesScreenState();
+  State<CountriesScreen> createState() => _CountriesScreenState();
 }
 
-class _EntriesScreenState extends State<EntriesScreen>
+class _CountriesScreenState extends State<CountriesScreen>
     with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   @override
   bool get wantKeepAlive => true;
@@ -54,7 +52,7 @@ class _EntriesScreenState extends State<EntriesScreen>
   }
 
   void refreshData() {
-    context.read<CountryVisitsCubit>().refresh();
+    DataRefreshUtil.refreshAllData(context: context);
   }
 
   // Show confirmation dialog before deleting
@@ -88,29 +86,31 @@ class _EntriesScreenState extends State<EntriesScreen>
 
     if (result == true) {
       try {
-        // Delete country data
-        final repository = getIt<CountryVisitsRepository>();
-        await repository.deleteCountryVisit(visit.countryCode);
+        // Use the cubit to delete country data
+        final success = await context
+            .read<CountryVisitsCubit>()
+            .deleteCountryVisit(visit.countryCode);
 
-        if (context.mounted) {
+        if (context.mounted && success) {
           SnackBarHelper.showSnackBar(
             context,
             "Deleted",
             'Deleted all data for ${visit.countryCode} 👌',
             ContentType.success,
           );
+
+          // Refresh all data after deletion
+          DataRefreshUtil.refreshAllData(context: context);
+          return true;
+        } else if (context.mounted) {
+          // Error message is already handled by the cubit
+          return false;
         }
-        // Refresh both cubits after deletion
-        if (context.mounted) {
-          context.read<CountryVisitsCubit>().refresh();
-          context.read<LocationLogsCubit>().refresh();
-        }
-        return true;
       } catch (e) {
         if (context.mounted) {
           SnackBarHelper.showSnackBar(
             context,
-            "Deleted",
+            "Error",
             'Error deleting data: $e ❌',
             ContentType.failure,
           );
@@ -127,7 +127,7 @@ class _EntriesScreenState extends State<EntriesScreen>
     super.build(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Country Visits')),
+      appBar: AppBar(title: const Text('Countries Visited')),
       body: BlocBuilder<CountryVisitsCubit, CountryVisitsState>(
         builder: (context, state) {
           if (state is CountryVisitsLoading) {

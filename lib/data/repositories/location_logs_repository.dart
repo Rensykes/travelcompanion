@@ -7,92 +7,107 @@ class LocationLogsRepository {
 
   LocationLogsRepository(this.database);
 
-  /// Fetch all log relations for a given country code
-  Future<List<LocationLog>> getRelationsForCountryVisit(
-    String countryCode,
-  ) async {
-    DateTime.now().toIso8601String();
+  /// Create a new location log entry
+  Future<LocationLog> createLocationLog({
+    required DateTime logDateTime,
+    required String status,
+    String? countryCode,
+  }) async {
     log(
-      "🔍 Fetching location logs for country: $countryCode",
+      "📝 Creating new location log - Status: $status, Country: $countryCode, Date: ${logDateTime.toIso8601String()}",
       name: 'LocationLogsRepository',
-      level: 0, // INFO
+      level: 0,
       time: DateTime.now(),
     );
-    final relations = await (database.select(database.logCountryRelations)
-          ..where((r) => r.countryCode.equals(countryCode)))
-        .join([
-      leftOuterJoin(
-        database.locationLogs,
-        database.locationLogs.id.equalsExp(
-          database.logCountryRelations.logId,
-        ),
-      ),
-    ]).get();
 
-    // Extract the LocationLog entries from the joined result
-    final logs =
-        relations.map((row) => row.readTable(database.locationLogs)).toList();
-    log(
-      "📊 Retrieved ${logs.length} location logs for $countryCode",
-      name: 'LocationLogsRepository',
-      level: 0, // INFO
-      time: DateTime.now(),
-    );
-    return logs;
-  }
-
-  /// Logs a new entry in the location_logs table
-  Future<void> logEntry({required String status, String? countryCode}) async {
-    DateTime.now().toIso8601String();
-    log(
-      "📝 Starting to log new location entry - Status: $status, Country: $countryCode",
-      name: 'LocationLogsRepository',
-      level: 0, // INFO
-      time: DateTime.now(),
-    );
     try {
       final logLocation =
           await database.into(database.locationLogs).insertReturning(
                 LocationLogsCompanion.insert(
-                  logDateTime: DateTime.now(),
+                  logDateTime: logDateTime,
                   status: status,
                   countryCode: Value(countryCode),
                 ),
               );
-      final logId = logLocation.id; // Extract ID from the returned log
 
-      if (countryCode != null) {
-        log(
-          "🔗 Creating relation between log $logId and country $countryCode",
-          name: 'LocationLogsRepository',
-          level: 0, // INFO
-          time: DateTime.now(),
-        );
-        await database.into(database.logCountryRelations).insert(
-              LogCountryRelationsCompanion.insert(
-                logId: logId,
-                countryCode: countryCode,
-              ),
-            );
-        log(
-          "✅ Successfully logged location entry - ID: $logId, Status: $status, Country: $countryCode",
-          name: 'LocationLogsRepository',
-          level: 1, // SUCCESS
-          time: DateTime.now(),
-        );
-      } else {
-        log(
-          "✅ Successfully logged location entry - ID: $logId, Status: $status",
-          name: 'LocationLogsRepository',
-          level: 1, // SUCCESS
-          time: DateTime.now(),
-        );
-      }
+      log(
+        "✅ Successfully created location log - ID: ${logLocation.id}, Status: $status, Country: $countryCode",
+        name: 'LocationLogsRepository',
+        level: 1,
+        time: DateTime.now(),
+      );
+
+      return logLocation;
     } catch (e) {
       log(
-        "❌ Error while logging location entry: $e",
+        "❌ Error while creating location log: $e",
         name: 'LocationLogsRepository',
-        level: 3, // ERROR
+        level: 3,
+        time: DateTime.now(),
+        error: e,
+      );
+      rethrow;
+    }
+  }
+
+  /// Get a location log by ID
+  Future<LocationLog?> getLogById(int id) async {
+    log(
+      "🔍 Fetching location log with ID: $id",
+      name: 'LocationLogsRepository',
+      level: 0,
+      time: DateTime.now(),
+    );
+
+    try {
+      final log = await (database.select(database.locationLogs)
+            ..where((log) => log.id.equals(id)))
+          .getSingleOrNull();
+
+      return log;
+    } catch (e) {
+      log(
+        "❌ Error while fetching location log: $e",
+        name: 'LocationLogsRepository',
+        level: 3,
+        time: DateTime.now(),
+        error: e,
+      );
+      rethrow;
+    }
+  }
+
+  /// Get logs by country code
+  Future<List<LocationLog>> getLogsByCountryCode(String countryCode) async {
+    log(
+      "🔍 Fetching location logs for country: $countryCode",
+      name: 'LocationLogsRepository',
+      level: 0,
+      time: DateTime.now(),
+    );
+
+    try {
+      final logs = await (database.select(database.locationLogs)
+            ..where((log) => log.countryCode.equals(countryCode))
+            ..orderBy([
+              (t) => OrderingTerm(
+                  expression: t.logDateTime, mode: OrderingMode.desc),
+            ]))
+          .get();
+
+      log(
+        "📊 Retrieved ${logs.length} location logs for $countryCode",
+        name: 'LocationLogsRepository',
+        level: 0,
+        time: DateTime.now(),
+      );
+
+      return logs;
+    } catch (e) {
+      log(
+        "❌ Error while fetching location logs: $e",
+        name: 'LocationLogsRepository',
+        level: 3,
         time: DateTime.now(),
         error: e,
       );
@@ -102,98 +117,34 @@ class LocationLogsRepository {
 
   /// Get all logs
   Future<List<LocationLog>> getAllLogs() async {
-    DateTime.now().toIso8601String();
     log(
       "📋 Fetching all location logs",
       name: 'LocationLogsRepository',
-      level: 0, // INFO
+      level: 0,
       time: DateTime.now(),
     );
-    final logs = await (database.select(database.locationLogs)
-          ..orderBy([
-            (t) => OrderingTerm(
-                expression: t.logDateTime, mode: OrderingMode.desc),
-          ]))
-        .get();
-    log(
-      "📊 Retrieved ${logs.length} location logs",
-      name: 'LocationLogsRepository',
-      level: 0, // INFO
-      time: DateTime.now(),
-    );
-    return logs;
-  }
 
-  /// Delete a log entry by its ID and remove related entries
-  Future<void> deleteLog(int id) async {
-    DateTime.now().toIso8601String();
-    log(
-      "🗑️ Starting to delete log entry with ID: $id",
-      name: 'LocationLogsRepository',
-      level: 0, // INFO
-      time: DateTime.now(),
-    );
     try {
-      // First get the log to be deleted to know its country code
-      final logToDelete = await (database.select(database.locationLogs)
-            ..where((log) => log.id.equals(id)))
-          .getSingleOrNull();
+      final logs = await (database.select(database.locationLogs)
+            ..orderBy([
+              (t) => OrderingTerm(
+                  expression: t.logDateTime, mode: OrderingMode.desc),
+            ]))
+          .get();
 
-      if (logToDelete == null) {
-        log(
-          "⚠️ Log not found for deletion: ID - $id",
-          name: 'LocationLogsRepository',
-          level: 2, // WARN
-          time: DateTime.now(),
-        );
-        return;
-      }
-
-      String? affectedCountryCode = logToDelete.countryCode;
       log(
-        "📝 Found log to delete - ID: $id, Country: $affectedCountryCode",
+        "📊 Retrieved ${logs.length} location logs",
         name: 'LocationLogsRepository',
-        level: 0, // INFO
+        level: 0,
         time: DateTime.now(),
       );
 
-      // Delete related entries in logCountryRelations
-      await (database.delete(database.logCountryRelations)
-            ..where((relation) => relation.logId.equals(id)))
-          .go();
-      log(
-        "🔗 Deleted related entries for log ID: $id",
-        name: 'LocationLogsRepository',
-        level: 1, // SUCCESS
-        time: DateTime.now(),
-      );
-
-      // Delete the actual log entry
-      await (database.delete(database.locationLogs)
-            ..where((log) => log.id.equals(id)))
-          .go();
-      log(
-        "✅ Successfully deleted log entry with ID: $id",
-        name: 'LocationLogsRepository',
-        level: 1, // SUCCESS
-        time: DateTime.now(),
-      );
-
-      // Recalculate daysSpent for the affected country if there was one
-      if (affectedCountryCode != null) {
-        log(
-          "🔄 Recalculating days spent for country: $affectedCountryCode",
-          name: 'LocationLogsRepository',
-          level: 0, // INFO
-          time: DateTime.now(),
-        );
-        await recalculateDaysSpent(affectedCountryCode);
-      }
+      return logs;
     } catch (e) {
       log(
-        "❌ Error while deleting log: $e",
+        "❌ Error while fetching all location logs: $e",
         name: 'LocationLogsRepository',
-        level: 3, // ERROR
+        level: 3,
         time: DateTime.now(),
         error: e,
       );
@@ -201,101 +152,110 @@ class LocationLogsRepository {
     }
   }
 
-  /// Recalculate the daysSpent value for a country based on LocationLogs
-  Future<void> recalculateDaysSpent(String countryCode) async {
+  /// Delete a log entry by its ID
+  Future<void> deleteLog(int id) async {
     log(
-      "🔄 Starting to recalculate days spent for country: $countryCode",
+      "🗑️ Deleting log entry with ID: $id",
       name: 'LocationLogsRepository',
-      level: 0, // INFO
+      level: 0,
       time: DateTime.now(),
     );
+
     try {
-      // Get all logs for this country
-      final logs = await getRelationsForCountryVisit(countryCode);
-
-      if (logs.isEmpty) {
-        log(
-          "⚠️ No logs found for $countryCode, removing country visit record",
-          name: 'LocationLogsRepository',
-          level: 2, // WARN
-          time: DateTime.now(),
-        );
-        // If no logs left, delete the country visit record
-        await (database.delete(database.countryVisits)
-              ..where((visit) => visit.countryCode.equals(countryCode)))
-            .go();
-        log(
-          "🗑️ Removed country visit record for $countryCode",
-          name: 'LocationLogsRepository',
-          level: 1, // SUCCESS
-          time: DateTime.now(),
-        );
-        return;
-      }
-
-      // Get unique dates from the logs
-      final Set<DateTime> uniqueDates = {};
-      for (var log in logs) {
-        final logDate = DateTime(
-          log.logDateTime.year,
-          log.logDateTime.month,
-          log.logDateTime.day,
-        );
-        uniqueDates.add(logDate);
-      }
-
-      // Get the earliest date (entry date)
-      final entryDate = uniqueDates.reduce((a, b) => a.isBefore(b) ? a : b);
-      log(
-        "📅 Calculated entry date: $entryDate, Total unique days: ${uniqueDates.length}",
-        name: 'LocationLogsRepository',
-        level: 0, // INFO
-        time: DateTime.now(),
-      );
-
-      // Check if country visit exists
-      final existingVisit = await (database.select(database.countryVisits)
-            ..where((visit) => visit.countryCode.equals(countryCode)))
-          .getSingleOrNull();
-
-      if (existingVisit == null) {
-        // Create new country visit
-        log(
-          "✨ Creating new country visit for $countryCode",
-          name: 'LocationLogsRepository',
-          level: 0, // INFO
-          time: DateTime.now(),
-        );
-        await database.into(database.countryVisits).insert(
-              CountryVisitsCompanion.insert(
-                countryCode: countryCode,
-                entryDate: entryDate,
-                daysSpent: uniqueDates.length,
-              ),
-            );
-      } else {
-        // Update existing country visit
-        await (database.update(database.countryVisits)
-              ..where((visit) => visit.countryCode.equals(countryCode)))
-            .write(
-          CountryVisitsCompanion(
-            entryDate: Value(entryDate),
-            daysSpent: Value(uniqueDates.length),
-          ),
-        );
-      }
+      // Delete the log entry
+      await (database.delete(database.locationLogs)
+            ..where((log) => log.id.equals(id)))
+          .go();
 
       log(
-        "✅ Successfully updated days spent for $countryCode: ${uniqueDates.length} days",
+        "✅ Successfully deleted log entry with ID: $id",
         name: 'LocationLogsRepository',
-        level: 1, // SUCCESS
+        level: 1,
         time: DateTime.now(),
       );
     } catch (e) {
       log(
-        "❌ Error while recalculating days spent: $e",
+        "❌ Error while deleting log: $e",
         name: 'LocationLogsRepository',
-        level: 3, // ERROR
+        level: 3,
+        time: DateTime.now(),
+        error: e,
+      );
+      rethrow;
+    }
+  }
+
+  /// Update a location log
+  Future<void> updateLocationLog({
+    required int id,
+    DateTime? logDateTime,
+    String? status,
+    String? countryCode,
+  }) async {
+    log(
+      "📝 Updating location log with ID: $id",
+      name: 'LocationLogsRepository',
+      level: 0,
+      time: DateTime.now(),
+    );
+
+    try {
+      final companionBuilder = LocationLogsCompanion(
+        logDateTime:
+            logDateTime != null ? Value(logDateTime) : const Value.absent(),
+        status: status != null ? Value(status) : const Value.absent(),
+        countryCode:
+            countryCode != null ? Value(countryCode) : const Value.absent(),
+      );
+
+      await (database.update(database.locationLogs)
+            ..where((log) => log.id.equals(id)))
+          .write(companionBuilder);
+
+      log(
+        "✅ Successfully updated location log with ID: $id",
+        name: 'LocationLogsRepository',
+        level: 1,
+        time: DateTime.now(),
+      );
+    } catch (e) {
+      log(
+        "❌ Error while updating location log: $e",
+        name: 'LocationLogsRepository',
+        level: 3,
+        time: DateTime.now(),
+        error: e,
+      );
+      rethrow;
+    }
+  }
+
+  /// Delete all logs for a specific country code
+  Future<void> deleteLogsByCountryCode(String countryCode) async {
+    log(
+      "🗑️ Deleting all location logs for country: $countryCode",
+      name: 'LocationLogsRepository',
+      level: 0,
+      time: DateTime.now(),
+    );
+
+    try {
+      // Delete all logs for this country code
+      await (database.delete(database.locationLogs)
+            ..where((log) => log.countryCode.equals(countryCode)))
+          .go();
+
+      log(
+        "✅ Successfully deleted all location logs for country: $countryCode",
+        name: 'LocationLogsRepository',
+        level: 1,
+        time: DateTime.now(),
+      );
+    } catch (e) {
+      log(
+        "❌ Error while deleting location logs: $e",
+        name: 'LocationLogsRepository',
+        level: 3,
         time: DateTime.now(),
         error: e,
       );

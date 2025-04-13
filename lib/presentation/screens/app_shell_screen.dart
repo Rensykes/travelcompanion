@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:get_it/get_it.dart';
-import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
-import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
-import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
-import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/widgets/custom_google_navbar.dart';
-import 'package:trackie/data/repositories/country_visits_repository.dart';
-import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/presentation/widgets/country_add_menu.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_cubit.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
 import 'package:trackie/core/constants/route_constants.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class AppShellScreen extends StatefulWidget {
   final Widget child;
@@ -33,10 +28,7 @@ class _AppShellScreenState extends State<AppShellScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _appShellCubit = AppShellCubit(
-      locationLogsRepository: GetIt.instance.get<LocationLogsRepository>(),
-      countryVisitsRepository: GetIt.instance.get<CountryVisitsRepository>(),
-    );
+    _appShellCubit = AppShellCubit();
   }
 
   @override
@@ -55,32 +47,38 @@ class _AppShellScreenState extends State<AppShellScreen>
   }
 
   void refreshAllData() {
-    context.read<LocationLogsCubit>().refresh();
-    context.read<CountryVisitsCubit>().refresh();
-    context.read<CalendarCubit>().refresh();
+    DataRefreshUtil.refreshAllData(context: context);
   }
 
   int _getCurrentIndex(BuildContext context) {
     final location =
         GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
-    if (location.startsWith(RouteConstants.calendar)) return 1;
-    if (location.startsWith(RouteConstants.logs)) return 2;
-    if (location.startsWith(RouteConstants.settings)) return 3;
-    return 0;
+    if (location.startsWith(RouteConstants.travelHistory)) return 1;
+    if (location.startsWith(RouteConstants.calendar)) return 2;
+    if (location.startsWith(RouteConstants.countries)) return 3;
+    if (location.startsWith(RouteConstants.logs)) return 4;
+    if (location.startsWith(RouteConstants.settings)) return 5;
+    return 0; // Default to dashboard
   }
 
   void _onTabChange(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go(RouteConstants.home);
+        context.go(RouteConstants.dashboard);
         break;
       case 1:
-        context.go(RouteConstants.calendar);
+        context.go(RouteConstants.travelHistory);
         break;
       case 2:
-        context.go(RouteConstants.logs);
+        context.go(RouteConstants.calendar);
         break;
       case 3:
+        context.go(RouteConstants.countries);
+        break;
+      case 4:
+        context.go(RouteConstants.logs);
+        break;
+      case 5:
         context.go(RouteConstants.settings);
         break;
     }
@@ -98,7 +96,7 @@ class _AppShellScreenState extends State<AppShellScreen>
               _appShellCubit.shouldShowFloatingActionButton(currentPath);
 
           return Scaffold(
-            appBar: AppBar(title: const Text('Trackie')),
+            //appBar: AppBar(title: const Text('Trackie')),
             body: SafeArea(
               child: widget.child,
             ),
@@ -106,31 +104,7 @@ class _AppShellScreenState extends State<AppShellScreen>
               selectedIndex: _getCurrentIndex(context),
               onTabChange: (index) => _onTabChange(context, index),
             ),
-            floatingActionButton: showFab
-                ? FloatingActionButton(
-                    onPressed: homeState.isFetchingLocation
-                        ? null
-                        : () async {
-                            await _appShellCubit.addCountry(
-                              (title, message, status) {
-                                SnackBarHelper.showSnackBar(
-                                  context,
-                                  title,
-                                  message,
-                                  status,
-                                );
-                              },
-                            );
-                            // Explicitly refresh all cubits from the context to ensure UI updates
-                            if (context.mounted) {
-                              refreshAllData();
-                            }
-                          },
-                    child: homeState.isFetchingLocation
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Icon(Icons.add_location),
-                  )
-                : null,
+            floatingActionButton: showFab ? const CountryAddMenu() : null,
           );
         },
       ),

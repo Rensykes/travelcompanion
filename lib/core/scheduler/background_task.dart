@@ -1,10 +1,12 @@
 import 'dart:developer';
 import 'dart:ui';
 import 'package:trackie/application/services/sim_info_service.dart';
+import 'package:trackie/core/utils/db_util.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
+import 'package:trackie/application/services/location_service.dart';
 
 const fetchLocationInBackgroundTask = "fetchLocationInBackgroundTask";
 
@@ -25,14 +27,20 @@ void callbackDispatcher() {
           CountryVisitsRepository(backgroundDatabase);
       final locationLogsRepository = LocationLogsRepository(backgroundDatabase);
 
+      // Create service using repositories
+      final locationService = LocationService(
+        locationLogsRepository: locationLogsRepository,
+        countryVisitsRepository: countryVisitsRepository,
+      );
+
       String? isoCode = await SimInfoService.getIsoCode();
 
       if (isoCode != null) {
-        await countryVisitsRepository.saveCountryVisit(isoCode);
-        await locationLogsRepository.logEntry(
-          status: "success",
-          countryCode: isoCode,
-        );
+        // Use the service to log the entry, which will handle all the complex logic
+        await locationService.addEntry(
+            logSource: DBUtils.scheduledEntry,
+            countryCode: isoCode,
+            logDateTime: DateTime.now());
 
         log(
           "${DateTime.now()} - Background task completed for country: $isoCode",
@@ -40,8 +48,6 @@ void callbackDispatcher() {
           time: DateTime.now(),
         );
       } else {
-        await locationLogsRepository.logEntry(status: "error");
-
         log(
           "${DateTime.now()} - Background task failed: No country detected",
           name: 'Workmanager',

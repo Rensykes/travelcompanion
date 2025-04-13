@@ -1,5 +1,6 @@
 // Extract UI components for better organization
 import 'package:flutter/material.dart';
+import 'package:trackie/core/utils/db_util.dart';
 import 'package:trackie/data/datasource/database.dart';
 
 class LogEntryTile extends StatelessWidget {
@@ -10,11 +11,11 @@ class LogEntryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: log.status == "success"
+      leading: DBUtils.isValidStatus(log.status)
           ? const Icon(Icons.check_circle, color: Colors.green)
           : const Icon(Icons.error, color: Colors.red),
       title: Text(
-        log.status == "success"
+        DBUtils.isValidStatus(log.status)
             ? "Country: ${log.countryCode ?? 'Unknown'}"
             : "Failed to fetch country",
       ),

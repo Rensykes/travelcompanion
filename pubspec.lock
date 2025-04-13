@@ -190,6 +190,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.1.0"
+  circular_menu:
+    dependency: "direct main"
+    description:
+      name: circular_menu
+      sha256: "2969127a4fcad1a1366e667925b4492f6dda94702b426ee2c15ab1a3f1fb060e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.0"
   cli_util:
     dependency: transitive
     description:
@@ -230,6 +238,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.2"
+  country_codes:
+    dependency: "direct main"
+    description:
+      name: country_codes
+      sha256: "80e441b8a4bec1e7a24d58955fe769e7c6199ffd025f4509d4172d8d0195dfc4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.0"
   country_detector:
     dependency: "direct main"
     description:
@@ -818,6 +834,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  omni_datetime_picker:
+    dependency: "direct main"
+    description:
+      name: omni_datetime_picker
+      sha256: db3d92e23513a34655adf7706f258c1b6049984aed0b78f8f274a6222c71360e
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.4"
   package_config:
     dependency: transitive
     description:
@@ -1263,6 +1287,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.4"
+  timeline_tile:
+    dependency: "direct main"
+    description:
+      name: timeline_tile
+      sha256: "85ec2023c67137397c2812e3e848b2fb20b410b67cd9aff304bb5480c376fc0c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   timing:
     dependency: transitive
     description:
