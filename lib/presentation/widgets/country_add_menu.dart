@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 import 'package:trackie/core/constants/route_constants.dart';
-import 'package:trackie/presentation/bloc/app_shell/app_shell_cubit.dart';
+import 'package:trackie/core/utils/db_util.dart';
+import 'package:trackie/application/services/sim_info_service.dart';
+import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 
 class CountryAddMenu extends StatelessWidget {
@@ -51,17 +53,20 @@ class CountryAddMenu extends StatelessWidget {
     );
   }
 
-  void _handleCarrierOption(BuildContext context) {
-    final appShellCubit = context.read<AppShellCubit>();
+  Future<void> _handleCarrierOption(BuildContext context) async {
+    final countryVisitsCubit = context.read<CountryVisitsCubit>();
 
-    appShellCubit.addCountry((title, message, contentType) {
-      SnackBarHelper.showSnackBar(
-        context,
-        title,
-        message,
-        ContentType.success,
-      );
-    });
+    // Use the method to detect and add the current country
+    await countryVisitsCubit.detectAndAddCurrentCountry(
+      (title, message, status) {
+        SnackBarHelper.showSnackBar(
+          context,
+          title,
+          message,
+          status,
+        );
+      },
+    );
   }
 
   void _handleManualOption(BuildContext context) {

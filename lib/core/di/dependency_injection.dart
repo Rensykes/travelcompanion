@@ -63,7 +63,10 @@ class DependencyInjection {
         () => LocationLogsCubit(getIt<LocationLogsRepository>()),
       );
       getIt.registerLazySingleton<CountryVisitsCubit>(
-        () => CountryVisitsCubit(getIt<CountryVisitsRepository>()),
+        () => CountryVisitsCubit(
+          getIt<CountryVisitsRepository>(),
+          getIt<LocationService>(),
+        ),
       );
       getIt.registerLazySingleton<RelationLogsCubit>(
         () => RelationLogsCubit(getIt<LocationLogsRepository>()),

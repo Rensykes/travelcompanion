@@ -9,6 +9,7 @@ import 'package:trackie/presentation/bloc/app_shell/app_shell_cubit.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
+import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 
 class AppShellScreen extends StatefulWidget {
   final Widget child;
@@ -30,9 +31,7 @@ class _AppShellScreenState extends State<AppShellScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _appShellCubit = AppShellCubit(
-      locationService: GetIt.instance.get<LocationService>(),
-    );
+    _appShellCubit = AppShellCubit();
   }
 
   @override
