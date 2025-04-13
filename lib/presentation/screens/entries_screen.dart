@@ -11,6 +11,7 @@ import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/core/constants/route_constants.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class EntriesScreen extends StatefulWidget {
   const EntriesScreen({super.key});
@@ -54,7 +55,7 @@ class _EntriesScreenState extends State<EntriesScreen>
   }
 
   void refreshData() {
-    context.read<CountryVisitsCubit>().refresh();
+    DataRefreshUtil.refreshAllData(context: context);
   }
 
   // Show confirmation dialog before deleting
@@ -101,8 +102,8 @@ class _EntriesScreenState extends State<EntriesScreen>
             ContentType.success,
           );
 
-          // Also refresh the location logs cubit
-          context.read<LocationLogsCubit>().refresh();
+          // Refresh all data after deletion
+          DataRefreshUtil.refreshAllData(context: context);
           return true;
         } else if (context.mounted) {
           // Error message is already handled by the cubit

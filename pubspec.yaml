@@ -81,6 +81,7 @@ dependencies:
 
   # Routing
   go_router: ^14.8.1
+  timeline_tile: ^2.0.0
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

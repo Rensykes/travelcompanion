@@ -32,65 +32,96 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         return Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              SwitchListTile(
-                title: const Text('Use System Theme'),
-                value: useSystemTheme,
-                onChanged: (bool value) {
-                  themeCubit.setUseSystemTheme(value);
-                },
-              ),
-              SwitchListTile(
-                title: const Text('Dark Mode'),
-                value: isDarkMode,
-                onChanged: useSystemTheme
-                    ? null // Disable this switch if using system theme
-                    : (bool value) {
-                        themeCubit.setDarkMode(value);
-                      },
-              ),
-              const SizedBox(height: 24),
-              // Data Management Section
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Data Management',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SwitchListTile(
+                  title: const Text('Use System Theme'),
+                  value: useSystemTheme,
+                  onChanged: (bool value) {
+                    themeCubit.setUseSystemTheme(value);
+                  },
+                ),
+                SwitchListTile(
+                  title: const Text('Dark Mode'),
+                  value: isDarkMode,
+                  onChanged: useSystemTheme
+                      ? null // Disable this switch if using system theme
+                      : (bool value) {
+                          themeCubit.setDarkMode(value);
+                        },
+                ),
+                const SizedBox(height: 24),
+                // Features Section
+                const Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Features',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Export/Import button
-              ListTile(
-                leading: const Icon(Icons.import_export),
-                title: const Text('Export & Import Data'),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  context.push(RouteConstants.exportImportFullPath);
-                },
-              ),
-              // Database cleanup button
-              ListTile(
-                leading: const Icon(Icons.cleaning_services),
-                title: const Text('Clean up Database'),
-                onTap: () => _cleanupDatabase(context),
-              ),
-              const SizedBox(height: 24),
-              // Advanced settings button
-              ListTile(
-                title: const Text('Advanced Settings'),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () {
-                  context.push(RouteConstants.advancedSettingsFullPath);
-                },
-              ),
-            ],
+                // Travel History
+                ListTile(
+                  leading: const Icon(Icons.travel_explore),
+                  title: const Text('Travel History Timeline'),
+                  subtitle: const Text('View your historical country visits'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    context.push(RouteConstants.travelHistoryFullPath);
+                  },
+                ),
+                const SizedBox(height: 24),
+                // Data Management Section
+                const Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Data Management',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+                // Export/Import button
+                ListTile(
+                  leading: const Icon(Icons.import_export),
+                  title: const Text('Export & Import Data'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    context.push(RouteConstants.exportImportFullPath);
+                  },
+                ),
+                // Database cleanup button
+                ListTile(
+                  leading: const Icon(Icons.cleaning_services),
+                  title: const Text('Clean up Database'),
+                  onTap: () => _cleanupDatabase(context),
+                ),
+                const SizedBox(height: 24),
+                // Advanced settings button
+                ListTile(
+                  title: const Text('Advanced Settings'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    context.push(RouteConstants.advancedSettingsFullPath);
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },

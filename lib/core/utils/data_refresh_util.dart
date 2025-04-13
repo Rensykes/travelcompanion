@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
+import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.dart';
 
 /// Utility class for refreshing data across multiple cubits
 class DataRefreshUtil {
@@ -19,6 +20,7 @@ class DataRefreshUtil {
     LocationLogsCubit? locationLogsCubit,
     CountryVisitsCubit? countryVisitsCubit,
     CalendarCubit? calendarCubit,
+    TravelHistoryCubit? travelHistoryCubit,
     bool enableLogging = false,
   }) {
     // Get cubits either from context or from parameters
@@ -26,6 +28,8 @@ class DataRefreshUtil {
     final countryVisits =
         countryVisitsCubit ?? context?.read<CountryVisitsCubit>();
     final calendar = calendarCubit ?? context?.read<CalendarCubit>();
+    final travelHistory =
+        travelHistoryCubit ?? context?.read<TravelHistoryCubit>();
 
     // Refresh location logs
     if (locLogs != null) {
@@ -49,6 +53,14 @@ class DataRefreshUtil {
         log('🔄 Refreshing CalendarCubit (instance: ${identityHashCode(calendar)})');
       }
       calendar.refresh();
+    }
+
+    // Refresh travel history
+    if (travelHistory != null) {
+      if (enableLogging) {
+        log('🔄 Refreshing CalendarCubit (instance: ${identityHashCode(travelHistory)})');
+      }
+      travelHistory.refresh();
     }
 
     if (enableLogging) {

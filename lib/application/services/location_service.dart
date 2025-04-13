@@ -1,4 +1,6 @@
 import 'dart:developer';
+import 'package:trackie/data/datasource/database.dart';
+import 'package:trackie/data/models/one_time_visit.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 
@@ -196,5 +198,101 @@ class LocationService {
     );
 
     return daysSpent;
+  }
+
+  /// Generate a list of OneTimeVisit objects representing the historical country visits
+  Future<List<OneTimeVisit>> getOneTimeVisits() async {
+    log(
+      "🧭 Generating historical country visits timeline",
+      name: 'LocationService',
+      level: 0,
+      time: DateTime.now(),
+    );
+
+    try {
+      // Get all logs ordered by date (oldest first)
+      final allLogs = await locationLogsRepository.getAllLogs();
+
+      // Sort logs from oldest to newest
+      allLogs.sort((a, b) => a.logDateTime.compareTo(b.logDateTime));
+
+      // Filter out logs with no country code
+      final validLogs =
+          allLogs.where((log) => log.countryCode != null).toList();
+
+      if (validLogs.isEmpty) {
+        log(
+          "ℹ️ No location logs with country codes found",
+          name: 'LocationService',
+          level: 0,
+          time: DateTime.now(),
+        );
+        return [];
+      }
+
+      final visits = <OneTimeVisit>[];
+      String? currentCountry;
+      DateTime? entryDate;
+      List<LocationLog> currentLogs = [];
+
+      for (int i = 0; i < validLogs.length; i++) {
+        final log = validLogs[i];
+        final logCountry = log.countryCode!;
+
+        // First log or new country detected
+        if (currentCountry == null || currentCountry != logCountry) {
+          // If we were tracking a country before, add it to visits with an exit date
+          if (currentCountry != null) {
+            // Get the previous log's date as the exit date
+            final exitDate = log.logDateTime;
+
+            visits.add(OneTimeVisit(
+              countryCode: currentCountry,
+              entryDate: entryDate!,
+              exitDate: exitDate,
+              locationLogs: List.from(currentLogs),
+            ));
+
+            // Reset for new country
+            currentLogs = [];
+          }
+
+          // Start tracking new country
+          currentCountry = logCountry;
+          entryDate = log.logDateTime;
+        }
+
+        // Add log to current visit
+        currentLogs.add(log);
+
+        // If this is the last log, add the final visit without an exit date
+        if (i == validLogs.length - 1) {
+          visits.add(OneTimeVisit(
+            countryCode: currentCountry,
+            entryDate: entryDate!,
+            exitDate: null, // Still in this country
+            locationLogs: List.from(currentLogs),
+          ));
+        }
+      }
+
+      log(
+        "📊 Generated ${visits.length} historical country visits",
+        name: 'LocationService',
+        level: 0,
+        time: DateTime.now(),
+      );
+
+      return visits;
+    } catch (e) {
+      log(
+        "❌ Error generating historical visits: $e",
+        name: 'LocationService',
+        level: 3,
+        time: DateTime.now(),
+        error: e,
+      );
+      rethrow;
+    }
   }
 }

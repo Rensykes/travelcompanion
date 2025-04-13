@@ -4,6 +4,7 @@ class RouteConstants {
   static const String logs = '/logs';
   static const String add = '/add';
   static const String settings = '/settings';
+  static const String travelHistory = '/travel-history';
 
   // Nested routes
   static const String relations =
@@ -23,6 +24,7 @@ class RouteConstants {
   static const String settingsFullPath = '/settings';
   static const String advancedSettingsFullPath = '/settings/advanced';
   static const String calendar = '/calendar';
+  static const String travelHistoryFullPath = '/travel-history';
   static const String exportImportFullPath = '/settings/export-import';
   static const String quickLogsAddFullPath = '/add/quick-logs-add';
   static const String manualAddFullPath = '/add/manual-add';

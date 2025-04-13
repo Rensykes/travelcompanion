@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/core/utils/db_util.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_state.dart';
@@ -55,7 +56,7 @@ class _LogsScreenState extends State<LogsScreen>
   }
 
   void refreshData() {
-    context.read<LocationLogsCubit>().refresh();
+    DataRefreshUtil.refreshAllData(context: context);
   }
 
   @override
@@ -87,7 +88,9 @@ class _LogsScreenState extends State<LogsScreen>
             // Apply filter based on user preference
             final filteredLogs = _showErrorLogs
                 ? List.of(state.logs)
-                : state.logs.where((log) => log.status != DBUtils.failedEntry).toList();
+                : state.logs
+                    .where((log) => log.status != DBUtils.failedEntry)
+                    .toList();
 
             if (filteredLogs.isEmpty) {
               return RefreshIndicator(

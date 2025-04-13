@@ -11,6 +11,7 @@ import 'package:trackie/core/di/dependency_injection.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class RelationsScreen extends StatefulWidget {
   final CountryVisit countryVisit;
@@ -47,14 +48,6 @@ class _RelationsScreenState extends State<RelationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Logs for ${widget.countryVisit.countryCode}'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              _relationLogsCubit.refresh();
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<RelationLogsCubit, RelationLogsState>(
         bloc: _relationLogsCubit,
@@ -69,8 +62,7 @@ class _RelationsScreenState extends State<RelationsScreen> {
             if (logs.isEmpty) {
               // If no logs are present, refresh both cubits and navigate back
               Future.microtask(() {
-                context.read<LocationLogsCubit>().refresh();
-                context.read<CountryVisitsCubit>().refresh();
+                DataRefreshUtil.refreshAllData(context: context);
                 Navigator.of(context).pop();
               });
               return const Center(
@@ -81,9 +73,7 @@ class _RelationsScreenState extends State<RelationsScreen> {
               logs: logs,
               countryCode: widget.countryVisit.countryCode,
               onDeleted: () {
-                _relationLogsCubit.refresh();
-                context.read<LocationLogsCubit>().refresh();
-                context.read<CountryVisitsCubit>().refresh();
+                DataRefreshUtil.refreshAllData(context: context);
               },
             );
           }

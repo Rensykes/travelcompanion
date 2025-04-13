@@ -6,6 +6,7 @@ import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
+import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.dart';
 
 /// Root widget that provides all the necessary blocs
 class AppBlocProvider extends StatelessWidget {
@@ -29,6 +30,8 @@ class AppBlocProvider extends StatelessWidget {
             value: getIt<RelationLogsCubit>()),
         BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
         BlocProvider<CalendarCubit>.value(value: getIt<CalendarCubit>()),
+        BlocProvider<TravelHistoryCubit>.value(
+            value: getIt<TravelHistoryCubit>()),
         // Don't provide ManualAddCubit here as we want a new instance for each ManualAddScreen
       ],
       child: child,

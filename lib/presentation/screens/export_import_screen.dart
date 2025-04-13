@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:line_icons/line_icons.dart';
 import 'package:trackie/application/services/export_import_service.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 
@@ -147,8 +148,7 @@ class _ExportImportScreenState extends State<ExportImportScreen> {
       // Refresh the UI after successful import
       if (context.mounted) {
         // Refresh data in the app
-        context.read<LocationLogsCubit>().refresh();
-        context.read<CountryVisitsCubit>().refresh();
+        DataRefreshUtil.refreshAllData(context: context);
       }
 
       setState(() {
