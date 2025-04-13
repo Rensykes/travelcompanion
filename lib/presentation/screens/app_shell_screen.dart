@@ -53,24 +53,32 @@ class _AppShellScreenState extends State<AppShellScreen>
   int _getCurrentIndex(BuildContext context) {
     final location =
         GoRouter.of(context).routerDelegate.currentConfiguration.uri.path;
-    if (location.startsWith(RouteConstants.calendar)) return 1;
-    if (location.startsWith(RouteConstants.logs)) return 2;
-    if (location.startsWith(RouteConstants.settings)) return 3;
-    return 0;
+    if (location.startsWith(RouteConstants.travelHistory)) return 1;
+    if (location.startsWith(RouteConstants.calendar)) return 2;
+    if (location.startsWith(RouteConstants.countries)) return 3;
+    if (location.startsWith(RouteConstants.logs)) return 4;
+    if (location.startsWith(RouteConstants.settings)) return 5;
+    return 0; // Default to dashboard
   }
 
   void _onTabChange(BuildContext context, int index) {
     switch (index) {
       case 0:
-        context.go(RouteConstants.home);
+        context.go(RouteConstants.dashboard);
         break;
       case 1:
-        context.go(RouteConstants.calendar);
+        context.go(RouteConstants.travelHistory);
         break;
       case 2:
-        context.go(RouteConstants.logs);
+        context.go(RouteConstants.calendar);
         break;
       case 3:
+        context.go(RouteConstants.countries);
+        break;
+      case 4:
+        context.go(RouteConstants.logs);
+        break;
+      case 5:
         context.go(RouteConstants.settings);
         break;
     }

@@ -8,7 +8,8 @@ import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.da
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 import 'package:trackie/presentation/screens/app_shell_screen.dart';
 import 'package:trackie/presentation/screens/calendar_view_screen.dart';
-import 'package:trackie/presentation/screens/entries_screen.dart';
+import 'package:trackie/presentation/screens/countries_screen.dart';
+import 'package:trackie/presentation/screens/dashboard_screen.dart';
 import 'package:trackie/presentation/screens/export_import_screen.dart';
 import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/presentation/screens/manual_add_screen.dart';
@@ -18,7 +19,7 @@ import 'package:trackie/presentation/screens/settings_screen.dart';
 import 'package:trackie/presentation/screens/travel_history_screen.dart';
 
 final router = GoRouter(
-  initialLocation: RouteConstants.home,
+  initialLocation: RouteConstants.dashboard,
   routes: [
     ShellRoute(
       builder: (context, state, child) {
@@ -26,8 +27,12 @@ final router = GoRouter(
       },
       routes: [
         GoRoute(
-          path: RouteConstants.home,
-          builder: (context, state) => const EntriesScreen(),
+          path: RouteConstants.dashboard,
+          builder: (context, state) => const DashboardScreen(),
+        ),
+        GoRoute(
+          path: RouteConstants.countries,
+          builder: (context, state) => const CountriesScreen(),
           routes: [
             GoRoute(
               path: RouteConstants.relations,
@@ -45,6 +50,13 @@ final router = GoRouter(
           ],
         ),
         GoRoute(
+          path: RouteConstants.travelHistory,
+          builder: (context, state) => BlocProvider.value(
+            value: GetIt.instance.get<TravelHistoryCubit>(),
+            child: const TravelHistoryScreen(),
+          ),
+        ),
+        GoRoute(
           path: RouteConstants.calendar,
           builder: (context, state) => BlocProvider.value(
             value: GetIt.instance.get<CalendarCubit>(),
@@ -54,13 +66,6 @@ final router = GoRouter(
         GoRoute(
             path: RouteConstants.logs,
             builder: (context, state) => const LogsScreen()),
-        GoRoute(
-          path: RouteConstants.travelHistory,
-          builder: (context, state) => BlocProvider.value(
-            value: GetIt.instance.get<TravelHistoryCubit>(),
-            child: const TravelHistoryScreen(),
-          ),
-        ),
         GoRoute(
           path: RouteConstants.add,
           redirect: (context, state) =>

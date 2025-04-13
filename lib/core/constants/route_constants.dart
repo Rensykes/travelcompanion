@@ -1,14 +1,16 @@
 class RouteConstants {
   // Main routes
   static const String home = '/';
+  static const String dashboard = '/dashboard';
   static const String logs = '/logs';
   static const String add = '/add';
   static const String settings = '/settings';
   static const String travelHistory = '/travel-history';
+  static const String countries = '/countries'; // Renamed from home
 
   // Nested routes
   static const String relations =
-      'relations/:countryCode'; // Used with home as parent
+      'relations/:countryCode'; // Used with countries as parent
   static const String advancedSettings =
       'advanced'; // Used with settings as parent
   static const String exportImport =
@@ -19,7 +21,9 @@ class RouteConstants {
 
   // Full path constants (for direct navigation)
   static const String homeFullPath = '/';
-  static const String relationsFullPath = '/relations/:countryCode';
+  static const String dashboardFullPath = '/dashboard';
+  static const String countriesFullPath = '/countries';
+  static const String relationsFullPath = '/countries/relations/:countryCode';
   static const String logsFullPath = '/logs';
   static const String settingsFullPath = '/settings';
   static const String advancedSettingsFullPath = '/settings/advanced';
@@ -39,6 +43,6 @@ class RouteConstants {
 
   // Helper to build relations route with actual country code
   static String buildRelationsRoute(String countryCode) {
-    return '/relations/$countryCode';
+    return '/countries/relations/$countryCode';
   }
 }

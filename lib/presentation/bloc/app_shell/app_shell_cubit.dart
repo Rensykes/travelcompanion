@@ -7,13 +7,18 @@ class AppShellCubit extends Cubit<AppShellState> {
 
   bool shouldShowFloatingActionButton(String currentPath) {
     // Check screen paths by name
-    final bool isCalendarScreen =
-        currentPath.startsWith(RouteConstants.calendar);
     final bool isSettingsScreen =
         currentPath.startsWith(RouteConstants.settings);
     final bool isAddScreen = currentPath.startsWith(RouteConstants.add);
+    final bool isTravelHistoryScreen =
+        currentPath.startsWith(RouteConstants.travelHistory);
 
-    // Hide FAB on calendar and settings screens
-    return !isCalendarScreen && !isSettingsScreen && !isAddScreen;
+    // Show FAB only on Dashboard and Countries screens
+    final bool isDashboardScreen =
+        currentPath.startsWith(RouteConstants.dashboard);
+    final bool isCountriesScreen =
+        currentPath.startsWith(RouteConstants.countries);
+
+    return isDashboardScreen || isCountriesScreen;
   }
 }
