@@ -2,11 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:circular_menu/circular_menu.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
-
 import 'package:trackie/core/constants/route_constants.dart';
-import 'package:trackie/core/utils/db_util.dart';
-import 'package:trackie/application/services/sim_info_service.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 

@@ -9,8 +9,6 @@ import 'package:trackie/presentation/bloc/relation_logs/relation_logs_state.dart
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'dart:developer' as developer;
-import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
-import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class RelationsScreen extends StatefulWidget {

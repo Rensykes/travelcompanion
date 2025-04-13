@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:trackie/presentation/bloc/app_shell/app_shell_cubit.dart';
-import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
 import 'package:trackie/presentation/helpers/snackbar_helper.dart';
