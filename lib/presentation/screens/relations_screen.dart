@@ -9,6 +9,7 @@ import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_state.dart';
 import 'package:trackie/presentation/bloc/notification/notification_bloc.dart';
 import 'package:trackie/presentation/bloc/notification/notification_event.dart';
+import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/core/utils/data_refresh_util.dart';
@@ -23,9 +24,12 @@ class RelationsScreen extends StatefulWidget {
   State<RelationsScreen> createState() => _RelationsScreenState();
 }
 
-class _RelationsScreenState extends State<RelationsScreen> {
+class _RelationsScreenState extends State<RelationsScreen>
+    with SingleTickerProviderStateMixin {
   late final RelationLogsCubit _relationLogsCubit;
-  bool _hasNavigatedBack = false;
+  bool _isFirstLoad = true;
+  bool _hasHandledEmptyState = false;
+  bool _showManualBackOption = false;
 
   @override
   void initState() {
@@ -39,19 +43,24 @@ class _RelationsScreenState extends State<RelationsScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  void _navigateToCountriesScreen() {
+    try {
+      context.go(RouteConstants.countriesFullPath);
+    } catch (e) {
+      developer.log("Error navigating to countries: $e");
+      // Fall back to direct navigation
+      Navigator.of(context).pop();
+    }
   }
 
-  void _goBackIfNoLogs() {
-    if (!_hasNavigatedBack) {
-      _hasNavigatedBack = true;
+  void _handleEmptyLogs() {
+    if (!_hasHandledEmptyState) {
+      _hasHandledEmptyState = true;
 
       // First refresh the data
       DataRefreshUtil.refreshAllData(context: context);
 
-      // Show notification using the NotificationBloc
+      // Show notification
       context.read<NotificationBloc>().add(
             ShowNotification(
               title: "No Logs",
@@ -60,10 +69,17 @@ class _RelationsScreenState extends State<RelationsScreen> {
             ),
           );
 
-      // Navigate back safely using GoRouter
-      if (context.mounted) {
-        context.pop();
-      }
+      // Show manual back option after a delay if navigation fails
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          setState(() {
+            _showManualBackOption = true;
+          });
+        }
+      });
+
+      // Try to navigate directly to countries screen
+      _navigateToCountriesScreen();
     }
   }
 
@@ -72,23 +88,53 @@ class _RelationsScreenState extends State<RelationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Logs for ${widget.countryVisit.countryCode}'),
+        leading: BackButton(
+          onPressed: _navigateToCountriesScreen,
+        ),
       ),
-      body: BlocBuilder<RelationLogsCubit, RelationLogsState>(
+      body: BlocConsumer<RelationLogsCubit, RelationLogsState>(
         bloc: _relationLogsCubit,
+        listenWhen: (previous, current) {
+          // Only handle empty logs on first load or when explicitly set
+          if (current is RelationLogsLoaded && current.logs.isEmpty) {
+            return _isFirstLoad || previous is! RelationLogsLoaded;
+          }
+          return false;
+        },
+        listener: (context, state) {
+          if (state is RelationLogsLoaded && state.logs.isEmpty) {
+            _isFirstLoad = false;
+            _handleEmptyLogs();
+          }
+        },
         builder: (context, state) {
-          if (state is RelationLogsLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is RelationLogsError) {
-            return Center(child: Text('Error: ${state.message}'));
-          } else if (state is RelationLogsLoaded) {
+          // Handle the loaded state first to prevent flickering
+          if (state is RelationLogsLoaded) {
+            _isFirstLoad = false;
             final logs = state.logs;
 
             if (logs.isEmpty) {
-              // If no logs are present, refresh data and navigate back safely
+              // Handle empty logs here too for redundancy
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                _goBackIfNoLogs();
+                _handleEmptyLogs();
               });
-              return const Center(child: CircularProgressIndicator());
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const CircularProgressIndicator(),
+                    const SizedBox(height: 16),
+                    const Text("No logs found for this country"),
+                    if (_showManualBackOption) ...[
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _navigateToCountriesScreen,
+                        child: const Text("Return to Countries"),
+                      ),
+                    ],
+                  ],
+                ),
+              );
             }
 
             return _DismissibleLogsList(
@@ -96,11 +142,31 @@ class _RelationsScreenState extends State<RelationsScreen> {
               countryCode: widget.countryVisit.countryCode,
               onDeleted: () {
                 DataRefreshUtil.refreshAllData(context: context);
+                // Reload logs after deletion to check if we need to navigate back
+                _relationLogsCubit
+                    .loadLogsForCountry(widget.countryVisit.countryCode);
               },
+              onAllLogsDeleted: () {
+                _handleEmptyLogs();
+              },
+            );
+          } else if (state is RelationLogsError) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Error: ${state.message}'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _navigateToCountriesScreen,
+                    child: const Text("Return to Countries"),
+                  ),
+                ],
+              ),
             );
           }
 
-          // Initial state
+          // Loading or initial state
           return const Center(child: CircularProgressIndicator());
         },
       ),
@@ -112,11 +178,13 @@ class _DismissibleLogsList extends StatefulWidget {
   final List<LocationLog> logs;
   final String countryCode;
   final VoidCallback onDeleted;
+  final VoidCallback onAllLogsDeleted;
 
   const _DismissibleLogsList({
     required this.logs,
     required this.countryCode,
     required this.onDeleted,
+    required this.onAllLogsDeleted,
   });
 
   @override
@@ -152,6 +220,8 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
     if (visibleLogs.isEmpty && logs.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onDeleted();
+        // Also notify that all logs are gone
+        widget.onAllLogsDeleted();
       });
     }
 
@@ -215,12 +285,18 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               dismissedLogIds.add(log.id);
             });
 
-            // Notify parent to refresh the data
-            Future.delayed(const Duration(milliseconds: 300), () {
-              if (mounted) {
-                widget.onDeleted();
-              }
-            });
+            // Check if this was the last log
+            if (dismissedLogIds.length >= logs.length) {
+              // This was the last log, handle navigation
+              widget.onAllLogsDeleted();
+            } else {
+              // Notify parent to refresh the data
+              Future.delayed(const Duration(milliseconds: 300), () {
+                if (mounted) {
+                  widget.onDeleted();
+                }
+              });
+            }
           },
           child: ListTile(
             leading: DBUtils.isValidStatus(log.status)
