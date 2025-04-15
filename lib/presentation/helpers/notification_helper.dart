@@ -21,13 +21,22 @@ class NotificationHelper {
     String message,
     ContentType type, {
     bool useFlushbar = true,
+    Duration? duration,
+    bool isDismissible = true,
   }) {
     // If we're already dismissing a notification, delay showing the new one
     if (_isDismissing) {
       // Schedule the notification to show after dismissal is complete
       Future.delayed(const Duration(milliseconds: 300), () {
-        showNotification(context, title, message, type,
-            useFlushbar: useFlushbar);
+        showNotification(
+          context,
+          title,
+          message,
+          type,
+          useFlushbar: useFlushbar,
+          duration: duration,
+          isDismissible: isDismissible,
+        );
       });
       return;
     }
@@ -58,10 +67,14 @@ class NotificationHelper {
     if (useFlushbar) {
       // Use Future.microtask to ensure we're not in the middle of a build cycle
       Future.microtask(() {
-        _showFlushbar(title, message, type);
+        if (effectiveContext != null) {
+          _showFlushbar(effectiveContext, title, message, type,
+              duration: duration, isDismissible: isDismissible);
+        }
       });
     } else {
-      _showSnackbar(effectiveContext, title, message, type);
+      _showSnackbar(effectiveContext, title, message, type,
+          isDismissible: isDismissible);
     }
   }
 
@@ -89,50 +102,63 @@ class NotificationHelper {
     }
   }
 
-  /// Show a Flushbar notification using the navigator key's context
+  /// Show a Flushbar notification
   static void _showFlushbar(
+    BuildContext context,
     String title,
     String message,
-    ContentType type,
-  ) {
-    // Check if we have a valid navigator key
-    if (_navigatorKey == null || _navigatorKey!.currentContext == null) {
-      debugPrint('Cannot show Flushbar: No valid navigator key or context');
-      return;
-    }
-
-    // Get the context from the navigator key
-    final navigatorContext = _navigatorKey!.currentContext!;
+    ContentType type, {
+    Duration? duration,
+    bool isDismissible = true,
+  }) {
     Flushbar? flushbar;
+    final effectiveDuration =
+        duration ?? Duration(seconds: isDismissible ? 5 : 3);
 
-    // Create the appropriate Flushbar based on notification type
+    // Create the appropriate Flushbar based on notification type and add a dismiss button
     switch (type) {
       case ContentType.success:
-        flushbar = CustomFlushbar.createSuccess(
-          context: navigatorContext,
+        flushbar = _createFeedbackFlushbar(
+          context: context,
           title: title,
           message: message,
+          duration: effectiveDuration,
+          backgroundColor: Colors.green,
+          icon: Icons.check_circle,
+          isDismissible: isDismissible,
         );
         break;
       case ContentType.warning:
-        flushbar = CustomFlushbar.createWarning(
-          context: navigatorContext,
+        flushbar = _createFeedbackFlushbar(
+          context: context,
           title: title,
           message: message,
+          duration: effectiveDuration,
+          backgroundColor: Colors.orange,
+          icon: Icons.warning,
+          isDismissible: isDismissible,
         );
         break;
       case ContentType.help:
-        flushbar = CustomFlushbar.createInfo(
-          context: navigatorContext,
+        flushbar = _createFeedbackFlushbar(
+          context: context,
           title: title,
           message: message,
+          duration: effectiveDuration,
+          backgroundColor: Colors.blue,
+          icon: Icons.info,
+          isDismissible: isDismissible,
         );
         break;
       case ContentType.failure:
-        flushbar = CustomFlushbar.createError(
-          context: navigatorContext,
+        flushbar = _createFeedbackFlushbar(
+          context: context,
           title: title,
           message: message,
+          duration: effectiveDuration,
+          backgroundColor: Colors.red,
+          icon: Icons.error,
+          isDismissible: isDismissible,
         );
         break;
     }
@@ -142,8 +168,8 @@ class NotificationHelper {
       _currentFlushbar = flushbar;
 
       try {
-        // Use the navigator context directly
-        flushbar.show(navigatorContext).then((_) {
+        // Show the flushbar
+        flushbar.show(context).then((_) {
           if (_currentFlushbar == flushbar) {
             _currentFlushbar = null;
           }
@@ -160,13 +186,51 @@ class NotificationHelper {
     }
   }
 
+  /// Create a customized Flushbar with the appropriate styling
+  static Flushbar _createFeedbackFlushbar({
+    required BuildContext context,
+    required String title,
+    required String message,
+    required Duration duration,
+    required Color backgroundColor,
+    required IconData icon,
+    bool isDismissible = true,
+  }) {
+    return Flushbar(
+      title: title,
+      message: message,
+      duration: duration,
+      backgroundColor: backgroundColor,
+      icon: Icon(icon, color: Colors.white),
+      leftBarIndicatorColor: backgroundColor.withOpacity(0.7),
+      flushbarPosition: FlushbarPosition.TOP,
+      flushbarStyle: FlushbarStyle.FLOATING,
+      reverseAnimationCurve: Curves.decelerate,
+      forwardAnimationCurve: Curves.elasticOut,
+      margin: const EdgeInsets.all(8),
+      borderRadius: BorderRadius.circular(8),
+      isDismissible: isDismissible,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      mainButton: isDismissible
+          ? TextButton(
+              onPressed: () => _dismissCurrentNotification(),
+              child: const Text(
+                'DISMISS',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : null,
+    );
+  }
+
   /// Show a SnackBar notification
   static void _showSnackbar(
     BuildContext context,
     String title,
     String message,
-    ContentType type,
-  ) {
+    ContentType type, {
+    bool isDismissible = true,
+  }) {
     final snackBar = SnackBar(
       elevation: 0,
       behavior: SnackBarBehavior.fixed,
@@ -176,6 +240,18 @@ class NotificationHelper {
         message: message,
         contentType: type,
       ),
+      action: isDismissible
+          ? SnackBarAction(
+              label: 'DISMISS',
+              textColor: Colors.white,
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+            )
+          : null,
+      duration: isDismissible
+          ? const Duration(seconds: 5)
+          : const Duration(seconds: 3),
     );
 
     try {

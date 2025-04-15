@@ -7,11 +7,21 @@ class CustomFlushbar {
     String? title,
     required String message,
     Duration? duration,
+    bool isDismissible = true,
+    VoidCallback? onDismissed,
   }) {
+    // Create a variable for the dismiss callback
+    dismissCallback() {
+      if (onDismissed != null) onDismissed();
+    }
+
     return Flushbar(
       title: title,
       message: message,
-      duration: duration ?? const Duration(seconds: 3),
+      duration: duration ??
+          (isDismissible
+              ? const Duration(seconds: 5)
+              : const Duration(seconds: 3)),
       backgroundColor: Colors.green,
       icon: const Icon(
         Icons.check_circle,
@@ -24,6 +34,17 @@ class CustomFlushbar {
       forwardAnimationCurve: Curves.elasticOut,
       margin: const EdgeInsets.all(8),
       borderRadius: BorderRadius.circular(8),
+      isDismissible: isDismissible,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      mainButton: isDismissible
+          ? TextButton(
+              onPressed: dismissCallback,
+              child: const Text(
+                'DISMISS',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : null,
     );
   }
 
@@ -32,11 +53,21 @@ class CustomFlushbar {
     String? title,
     required String message,
     Duration? duration,
+    bool isDismissible = true,
+    VoidCallback? onDismissed,
   }) {
+    // Create a variable for the dismiss callback
+    dismissCallback() {
+      if (onDismissed != null) onDismissed();
+    }
+
     return Flushbar(
       title: title,
       message: message,
-      duration: duration ?? const Duration(seconds: 3),
+      duration: duration ??
+          (isDismissible
+              ? const Duration(seconds: 5)
+              : const Duration(seconds: 3)),
       backgroundColor: Colors.red,
       icon: const Icon(
         Icons.error,
@@ -49,6 +80,17 @@ class CustomFlushbar {
       forwardAnimationCurve: Curves.elasticOut,
       margin: const EdgeInsets.all(8),
       borderRadius: BorderRadius.circular(8),
+      isDismissible: isDismissible,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      mainButton: isDismissible
+          ? TextButton(
+              onPressed: dismissCallback,
+              child: const Text(
+                'DISMISS',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : null,
     );
   }
 
@@ -57,11 +99,21 @@ class CustomFlushbar {
     String? title,
     required String message,
     Duration? duration,
+    bool isDismissible = true,
+    VoidCallback? onDismissed,
   }) {
+    // Create a variable for the dismiss callback
+    dismissCallback() {
+      if (onDismissed != null) onDismissed();
+    }
+
     return Flushbar(
       title: title,
       message: message,
-      duration: duration ?? const Duration(seconds: 3),
+      duration: duration ??
+          (isDismissible
+              ? const Duration(seconds: 5)
+              : const Duration(seconds: 3)),
       backgroundColor: Colors.blue,
       icon: const Icon(
         Icons.info,
@@ -74,6 +126,17 @@ class CustomFlushbar {
       forwardAnimationCurve: Curves.elasticOut,
       margin: const EdgeInsets.all(8),
       borderRadius: BorderRadius.circular(8),
+      isDismissible: isDismissible,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      mainButton: isDismissible
+          ? TextButton(
+              onPressed: dismissCallback,
+              child: const Text(
+                'DISMISS',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : null,
     );
   }
 
@@ -82,11 +145,21 @@ class CustomFlushbar {
     String? title,
     required String message,
     Duration? duration,
+    bool isDismissible = true,
+    VoidCallback? onDismissed,
   }) {
+    // Create a variable for the dismiss callback
+    dismissCallback() {
+      if (onDismissed != null) onDismissed();
+    }
+
     return Flushbar(
       title: title,
       message: message,
-      duration: duration ?? const Duration(seconds: 3),
+      duration: duration ??
+          (isDismissible
+              ? const Duration(seconds: 5)
+              : const Duration(seconds: 3)),
       backgroundColor: Colors.orange,
       icon: const Icon(
         Icons.warning,
@@ -99,6 +172,17 @@ class CustomFlushbar {
       forwardAnimationCurve: Curves.elasticOut,
       margin: const EdgeInsets.all(8),
       borderRadius: BorderRadius.circular(8),
+      isDismissible: isDismissible,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      mainButton: isDismissible
+          ? TextButton(
+              onPressed: dismissCallback,
+              child: const Text(
+                'DISMISS',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : null,
     );
   }
 
@@ -107,11 +191,21 @@ class CustomFlushbar {
     String? title,
     required String message,
     Duration? duration,
+    bool isDismissible = true,
+    VoidCallback? onDismissed,
   }) {
+    // Create a variable for the dismiss callback
+    dismissCallback() {
+      if (onDismissed != null) onDismissed();
+    }
+
     return Flushbar(
       title: title,
       message: message,
-      duration: duration ?? const Duration(seconds: 3),
+      duration: duration ??
+          (isDismissible
+              ? const Duration(seconds: 5)
+              : const Duration(seconds: 3)),
       backgroundColor: Colors.blue,
       icon: const Icon(
         Icons.hourglass_empty,
@@ -126,6 +220,17 @@ class CustomFlushbar {
       forwardAnimationCurve: Curves.elasticOut,
       margin: const EdgeInsets.all(8),
       borderRadius: BorderRadius.circular(8),
+      isDismissible: isDismissible,
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      mainButton: isDismissible
+          ? TextButton(
+              onPressed: dismissCallback,
+              child: const Text(
+                'DISMISS',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : null,
     );
   }
 }
