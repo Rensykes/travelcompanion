@@ -14,7 +14,6 @@ import 'package:trackie/presentation/screens/dashboard_screen.dart';
 import 'package:trackie/presentation/screens/export_import_screen.dart';
 import 'package:trackie/presentation/screens/logs_screen.dart';
 import 'package:trackie/presentation/screens/manual_add_screen.dart';
-import 'package:trackie/presentation/screens/quick_logs_add_screen.dart';
 import 'package:trackie/presentation/screens/relations_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
 import 'package:trackie/presentation/screens/statistics_screen.dart';
@@ -89,10 +88,6 @@ final router = GoRouter(
           redirect: (context, state) =>
               '${RouteConstants.add}/${RouteConstants.getRouteName(RouteConstants.manualAdd)}',
           routes: [
-            GoRoute(
-              path: RouteConstants.quickLogsAdd,
-              builder: (context, state) => const QuickLogsAddScreen(),
-            ),
             GoRoute(
               path: RouteConstants.manualAdd,
               builder: (context, state) => const ManualAddScreen(),

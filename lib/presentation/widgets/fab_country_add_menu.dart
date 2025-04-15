@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
+import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class FABCountryAddMenu extends StatefulWidget {
   const FABCountryAddMenu({super.key});
@@ -58,7 +59,7 @@ class _FABCountryAddMenuState extends State<FABCountryAddMenu> {
     final countryVisitsCubit = context.read<CountryVisitsCubit>();
 
     // Use the method to detect and add the current country
-    await countryVisitsCubit.detectAndAddCurrentCountry(
+    final success = await countryVisitsCubit.detectAndAddCurrentCountry(
       (title, message, status) {
         NotificationHelper.showNotification(
           context,
@@ -68,9 +69,15 @@ class _FABCountryAddMenuState extends State<FABCountryAddMenu> {
         );
       },
     );
+
+    // If successful, refresh all data
+    if (success && context.mounted) {
+      // Use DataRefreshUtil to refresh all cubits consistently
+      DataRefreshUtil.refreshAllData(context: context);
+    }
   }
 
   void _handleManualOption(BuildContext context) {
-    context.push(RouteConstants.manualAddFullPath);
+    context.go(RouteConstants.manualAddFullPath);
   }
 }

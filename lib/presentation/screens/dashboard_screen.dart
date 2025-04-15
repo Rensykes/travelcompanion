@@ -255,7 +255,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                               textStyle: const TextStyle(fontSize: 12),
                             ),
                             onPressed: () {
-                              context.push(RouteConstants.quickLogsAddFullPath);
+                              context.go(RouteConstants.quickLogsAddFullPath);
                             },
                           ),
                         ],
@@ -280,7 +280,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           icon: const Icon(Icons.add_location),
                           label: const Text('Add Location'),
                           onPressed: () {
-                            context.push(RouteConstants.quickLogsAddFullPath);
+                            context.go(RouteConstants.quickLogsAddFullPath);
                           },
                         ),
                         const SizedBox(height: 8),
@@ -327,25 +327,25 @@ class _DashboardScreenState extends State<DashboardScreen>
                   context,
                   Icons.add_location,
                   'Add Location',
-                  () => context.push(RouteConstants.quickLogsAddFullPath),
+                  () => context.go(RouteConstants.quickLogsAddFullPath),
                 ),
                 _buildActionButton(
                   context,
                   Icons.list_alt,
                   'View Countries',
-                  () => context.push(RouteConstants.countriesFullPath),
+                  () => context.go(RouteConstants.countriesFullPath),
                 ),
                 _buildActionButton(
                   context,
                   Icons.history,
                   'Timeline',
-                  () => context.push(RouteConstants.travelHistoryFullPath),
+                  () => context.go(RouteConstants.travelHistoryFullPath),
                 ),
                 _buildActionButton(
                   context,
                   Icons.calendar_month,
                   'Calendar',
-                  () => context.push(RouteConstants.calendar),
+                  () => context.go(RouteConstants.calendar),
                 ),
                 _buildActionButton(
                   context,
@@ -425,7 +425,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                       ),
                       TextButton(
                         onPressed: () {
-                          context.push(RouteConstants.countriesFullPath);
+                          context.go(RouteConstants.countriesFullPath);
                         },
                         child: const Text('View All'),
                       ),
@@ -443,7 +443,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         subtitle: Text('${visit.daysSpent} days'),
                         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                         onTap: () {
-                          context.push(RouteConstants.buildRelationsRoute(
+                          context.go(RouteConstants.buildRelationsRoute(
                               visit.countryCode));
                         },
                       )),

@@ -186,7 +186,7 @@ class _CountriesScreenState extends State<CountriesScreen>
                       subtitle: Text('Days: ${visit.daysSpent}'),
                       trailing: Text('Entry: ${_formatDate(visit.entryDate)}'),
                       onTap: () {
-                        context.push(RouteConstants.buildRelationsRoute(
+                        context.go(RouteConstants.buildRelationsRoute(
                             visit.countryCode));
                       },
                     ),

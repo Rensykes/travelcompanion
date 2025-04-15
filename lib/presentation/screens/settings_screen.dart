@@ -80,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('Export & Import Data'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    context.push(RouteConstants.exportImportFullPath);
+                    context.go(RouteConstants.exportImportFullPath);
                   },
                 ),
                 // Database cleanup button
@@ -95,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('Advanced Settings'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
-                    context.push(RouteConstants.advancedSettingsFullPath);
+                    context.go(RouteConstants.advancedSettingsFullPath);
                   },
                 ),
               ],
