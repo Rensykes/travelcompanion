@@ -3,6 +3,7 @@ import 'package:trackie/application/services/export_import_service.dart';
 import 'package:trackie/application/services/permission_service.dart';
 import 'package:trackie/application/services/file_service.dart';
 import 'package:trackie/application/services/location_service.dart';
+import 'package:trackie/core/services/notification_service.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
@@ -31,6 +32,10 @@ class DependencyInjection {
       // Services
       getIt.registerSingleton<PermissionService>(PermissionService());
       getIt.registerSingleton<FileService>(FileService());
+
+      // Register NotificationService as a singleton
+      getIt.registerLazySingleton<NotificationService>(
+          () => NotificationService());
 
       // Repositories
       getIt.registerFactory<LocationLogsRepository>(

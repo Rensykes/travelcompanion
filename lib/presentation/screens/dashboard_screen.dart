@@ -6,6 +6,10 @@ import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:trackie/core/services/notification_service.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
+import 'package:get_it/get_it.dart';
+import 'dart:developer' as dev;
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -23,9 +27,13 @@ class _DashboardScreenState extends State<DashboardScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
     // Initial load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshData();
+
+      // Check for and display any pending notifications
+      _checkForPendingNotifications();
     });
   }
 
@@ -44,6 +52,31 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   void refreshData() {
     DataRefreshUtil.refreshAllData(context: context);
+  }
+
+  /// Check for and display any pending notifications from the notification service
+  void _checkForPendingNotifications() {
+    final notificationService = GetIt.instance.get<NotificationService>();
+
+    if (notificationService.hasPendingNotification()) {
+      // Wait a moment for the screen to be fully built
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (!mounted) return;
+
+        final notification = notificationService.consumePendingNotification();
+        if (notification != null) {
+          dev.log('Showing notification on dashboard: ${notification.title}');
+
+          // Show the notification using the helper
+          NotificationHelper.showNotification(
+            context,
+            notification.title,
+            notification.message,
+            notification.type,
+          );
+        }
+      });
+    }
   }
 
   @override

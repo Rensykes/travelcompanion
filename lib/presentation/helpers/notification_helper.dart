@@ -110,78 +110,50 @@ class NotificationHelper {
     Duration? duration,
     bool isDismissible = true,
   }) {
-    Flushbar? flushbar;
-    final effectiveDuration =
-        duration ?? Duration(seconds: isDismissible ? 5 : 3);
+    // Dismiss any existing Flushbar first
+    _dismissCurrentNotification();
 
-    // Create the appropriate Flushbar based on notification type and add a dismiss button
+    _currentFlushbar = Flushbar(
+      flushbarPosition: FlushbarPosition.TOP,
+      title: title,
+      message: message,
+      isDismissible: isDismissible,
+      duration: duration ?? Duration(seconds: isDismissible ? 5 : 3),
+      backgroundColor: _getBackgroundColor(type),
+      borderRadius: BorderRadius.circular(8),
+      margin: const EdgeInsets.all(8),
+      icon: _getIconForType(type),
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      mainButton: isDismissible
+          ? TextButton(
+              onPressed: () => _dismissCurrentNotification(),
+              child: const Text(
+                'DISMISS',
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          : null,
+      onStatusChanged: (status) {
+        if (status == FlushbarStatus.DISMISSED) {
+          _currentFlushbar = null;
+        }
+      },
+    )..show(context);
+  }
+
+  /// Get the appropriate icon for the notification type
+  static Icon _getIconForType(ContentType type) {
     switch (type) {
       case ContentType.success:
-        flushbar = _createFeedbackFlushbar(
-          context: context,
-          title: title,
-          message: message,
-          duration: effectiveDuration,
-          backgroundColor: Colors.green,
-          icon: Icons.check_circle,
-          isDismissible: isDismissible,
-        );
-        break;
-      case ContentType.warning:
-        flushbar = _createFeedbackFlushbar(
-          context: context,
-          title: title,
-          message: message,
-          duration: effectiveDuration,
-          backgroundColor: Colors.orange,
-          icon: Icons.warning,
-          isDismissible: isDismissible,
-        );
-        break;
-      case ContentType.help:
-        flushbar = _createFeedbackFlushbar(
-          context: context,
-          title: title,
-          message: message,
-          duration: effectiveDuration,
-          backgroundColor: Colors.blue,
-          icon: Icons.info,
-          isDismissible: isDismissible,
-        );
-        break;
+        return const Icon(Icons.check_circle, color: Colors.white);
       case ContentType.failure:
-        flushbar = _createFeedbackFlushbar(
-          context: context,
-          title: title,
-          message: message,
-          duration: effectiveDuration,
-          backgroundColor: Colors.red,
-          icon: Icons.error,
-          isDismissible: isDismissible,
-        );
-        break;
-    }
-
-    // Show the Flushbar if it was created
-    if (flushbar != null) {
-      _currentFlushbar = flushbar;
-
-      try {
-        // Show the flushbar
-        flushbar.show(context).then((_) {
-          if (_currentFlushbar == flushbar) {
-            _currentFlushbar = null;
-          }
-        }).catchError((error) {
-          debugPrint('Error showing Flushbar: $error');
-          if (_currentFlushbar == flushbar) {
-            _currentFlushbar = null;
-          }
-        });
-      } catch (e) {
-        debugPrint('Exception while showing Flushbar: $e');
-        _currentFlushbar = null;
-      }
+        return const Icon(Icons.error, color: Colors.white);
+      case ContentType.help:
+        return const Icon(Icons.info, color: Colors.white);
+      case ContentType.warning:
+        return const Icon(Icons.warning, color: Colors.white);
+      default:
+        return const Icon(Icons.notifications, color: Colors.white);
     }
   }
 
@@ -259,6 +231,21 @@ class NotificationHelper {
         ..showSnackBar(snackBar);
     } catch (e) {
       debugPrint('Error showing SnackBar: $e');
+    }
+  }
+
+  static Color _getBackgroundColor(ContentType type) {
+    switch (type) {
+      case ContentType.success:
+        return Colors.green;
+      case ContentType.failure:
+        return Colors.red;
+      case ContentType.help:
+        return Colors.blue;
+      case ContentType.warning:
+        return Colors.orange;
+      default:
+        return Colors.grey;
     }
   }
 }

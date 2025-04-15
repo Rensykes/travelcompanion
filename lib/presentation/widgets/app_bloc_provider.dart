@@ -8,7 +8,7 @@ import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.dart';
 import 'package:trackie/presentation/bloc/notification/notification_bloc.dart';
-import 'package:trackie/presentation/widgets/notification_listener.dart';
+import 'package:trackie/presentation/widgets/app_notification_listener.dart';
 
 /// Root widget that provides all the necessary blocs
 class AppBlocProvider extends StatelessWidget {
