@@ -8,7 +8,6 @@ import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/core/services/task_status_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const fetchLocationInBackgroundTask = "fetchLocationInBackgroundTask";
 
