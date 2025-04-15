@@ -20,20 +20,44 @@ class AppNotificationListener extends StatefulWidget {
       _AppNotificationListenerState();
 }
 
-class _AppNotificationListenerState extends State<AppNotificationListener> {
+class _AppNotificationListenerState extends State<AppNotificationListener>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     // Check for queued notifications after the widget is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        final notificationBloc = context.read<NotificationBloc>();
-        // Trigger check for any queued notifications
-        dev.log('Checking for queued notifications on app start or navigation');
-        notificationBloc.add(CheckQueuedNotifications());
+        _checkQueuedNotifications();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkQueuedNotifications();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      _checkQueuedNotifications();
+    }
+  }
+
+  void _checkQueuedNotifications() {
+    final notificationBloc = context.read<NotificationBloc>();
+    dev.log('Checking for queued notifications in AppNotificationListener');
+    notificationBloc.add(CheckQueuedNotifications());
   }
 
   @override
@@ -53,14 +77,19 @@ class _AppNotificationListenerState extends State<AppNotificationListener> {
             contentType = ContentType.help;
           }
 
-          NotificationHelper.showNotification(
-            context,
-            state.title,
-            state.message,
-            contentType,
-            useFlushbar: state.useFlushbar,
-            isDismissible: true, // Always allow dismissing notifications
-          );
+          // Use a small delay to ensure the current screen is fully built
+          Future.microtask(() {
+            if (mounted) {
+              NotificationHelper.showNotification(
+                context,
+                state.title,
+                state.message,
+                contentType,
+                useFlushbar: state.useFlushbar,
+                isDismissible: true, // Always allow dismissing notifications
+              );
+            }
+          });
         }
       },
       child: widget.child,

@@ -13,8 +13,10 @@ import 'package:trackie/presentation/widgets/manual_add/date_selection_field.dar
 import 'package:trackie/presentation/widgets/manual_add/submit_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/core/constants/route_constants.dart';
-import 'package:trackie/core/services/notification_service.dart';
 import 'dart:developer' as dev;
+
+// Import the navigator key
+import 'package:trackie/main.dart' show navigatorKey;
 
 class ManualAddScreen extends StatelessWidget {
   const ManualAddScreen({super.key});
@@ -51,17 +53,25 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
           // First refresh the data
           DataRefreshUtil.refreshAllData(context: context);
 
-          // Set a pending notification in the service instead of showing it directly
-          GetIt.instance.get<NotificationService>().setPendingNotification(
+          // Store this for later - we'll use it after navigation
+          const successMessage = 'Successfully added visit';
+          dev.log('Location added successfully, navigating to dashboard');
+
+          // Navigate to dashboard immediately
+          context.go(RouteConstants.dashboardFullPath);
+
+          // After navigation, show notification with a small delay to ensure UI is ready
+          Future.delayed(const Duration(milliseconds: 500), () {
+            final dashboardContext = navigatorKey.currentContext;
+            if (dashboardContext != null) {
+              NotificationHelper.showNotification(
+                dashboardContext,
                 'Location Added',
-                'Successfully added visit',
+                successMessage,
                 ContentType.success,
               );
-
-          dev.log('Set notification and navigating to dashboard');
-
-          // Navigate to dashboard immediately - notification will be shown there
-          context.go(RouteConstants.dashboardFullPath);
+            }
+          });
         } else if (state is SubmissionFailure) {
           // Use NotificationHelper directly for error notifications
           NotificationHelper.showNotification(
