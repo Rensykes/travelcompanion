@@ -59,16 +59,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.build(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Travel Companion'),
-        backgroundColor: Colors.transparent,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: refreshData,
-          ),
-        ],
-      ),
       body: RefreshIndicator(
         onRefresh: () async {
           refreshData();
