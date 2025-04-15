@@ -6,10 +6,6 @@ import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
 import 'package:country_flags/country_flags.dart';
-import 'package:trackie/presentation/bloc/notification/notification_bloc.dart';
-import 'package:trackie/presentation/bloc/notification/notification_event.dart';
-import 'package:get_it/get_it.dart';
-import 'dart:developer' as dev;
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -31,9 +27,6 @@ class _DashboardScreenState extends State<DashboardScreen>
     // Initial load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshData();
-
-      // Check for queued notifications
-      _checkForQueuedNotifications();
     });
   }
 
@@ -47,21 +40,11 @@ class _DashboardScreenState extends State<DashboardScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       refreshData();
-      _checkForQueuedNotifications();
     }
   }
 
   void refreshData() {
     DataRefreshUtil.refreshAllData(context: context);
-  }
-
-  /// Check for queued notifications using the NotificationBloc
-  void _checkForQueuedNotifications() {
-    if (!mounted) return;
-
-    dev.log('Checking for queued notifications in dashboard');
-    final notificationBloc = context.read<NotificationBloc>();
-    notificationBloc.add(CheckQueuedNotifications());
   }
 
   @override

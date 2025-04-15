@@ -6,14 +6,19 @@ import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
 
-class CountryAddMenu extends StatelessWidget {
+class CountryAddMenu extends StatefulWidget {
   const CountryAddMenu({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Create a key to control the CircularMenu state
-    final menuKey = GlobalKey<CircularMenuState>();
+  State<CountryAddMenu> createState() => _CountryAddMenuState();
+}
 
+class _CountryAddMenuState extends State<CountryAddMenu> {
+  // Create the key as a class member instead of inside build
+  final menuKey = GlobalKey<CircularMenuState>();
+
+  @override
+  Widget build(BuildContext context) {
     return CircularMenu(
       key: menuKey,
       alignment: Alignment.bottomRight,

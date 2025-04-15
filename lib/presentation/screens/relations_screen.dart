@@ -7,12 +7,11 @@ import 'package:trackie/core/utils/db_util.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_state.dart';
-import 'package:trackie/presentation/bloc/notification/notification_bloc.dart';
-import 'package:trackie/presentation/bloc/notification/notification_event.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/core/utils/data_refresh_util.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
 
 class RelationsScreen extends StatefulWidget {
   final CountryVisit countryVisit;
@@ -61,13 +60,12 @@ class _RelationsScreenState extends State<RelationsScreen>
       DataRefreshUtil.refreshAllData(context: context);
 
       // Show notification
-      context.read<NotificationBloc>().add(
-            ShowNotification(
-              title: "No Logs",
-              message: "No logs found for ${widget.countryVisit.countryCode}",
-              type: ContentType.help,
-            ),
-          );
+      NotificationHelper.showNotification(
+        context,
+        "No Logs",
+        "No logs found for ${widget.countryVisit.countryCode}",
+        ContentType.help,
+      );
 
       // Show manual back option after a delay if navigation fails
       Future.delayed(const Duration(milliseconds: 500), () {
@@ -254,27 +252,25 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               }
 
               if (context.mounted) {
-                // Use the notification bloc instead of direct helper
-                context.read<NotificationBloc>().add(
-                      ShowNotification(
-                        title: "Deleted",
-                        message: "Log entry successfully removed",
-                        type: ContentType.success,
-                      ),
-                    );
+                // Use direct notification helper instead of bloc
+                NotificationHelper.showNotification(
+                  context,
+                  "Deleted",
+                  "Log entry successfully removed",
+                  ContentType.success,
+                );
               }
               return true;
             } catch (e) {
               developer.log("❌ Error dismissing log with ID ${log.id}: $e");
               if (context.mounted) {
-                // Use the notification bloc instead of direct helper
-                context.read<NotificationBloc>().add(
-                      ShowNotification(
-                        title: "Error",
-                        message: "Failed to delete log: $e",
-                        type: ContentType.failure,
-                      ),
-                    );
+                // Use direct notification helper instead of bloc
+                NotificationHelper.showNotification(
+                  context,
+                  "Error",
+                  "Failed to delete log: $e",
+                  ContentType.failure,
+                );
               }
               return false;
             }
