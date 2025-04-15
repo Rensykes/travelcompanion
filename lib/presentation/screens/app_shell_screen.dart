@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:trackie/presentation/widgets/custom_google_navbar.dart';
-import 'package:trackie/presentation/widgets/country_add_menu.dart';
+import 'package:trackie/presentation/widgets/navbar.dart';
+import 'package:trackie/presentation/widgets/fab_country_add_menu.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_cubit.dart';
 import 'package:trackie/presentation/bloc/app_shell/app_shell_state.dart';
 import 'package:trackie/core/constants/route_constants.dart';
@@ -100,11 +100,11 @@ class _AppShellScreenState extends State<AppShellScreen>
             body: SafeArea(
               child: widget.child,
             ),
-            bottomNavigationBar: CustomGoogleNavBar(
+            bottomNavigationBar: Navbar(
               selectedIndex: _getCurrentIndex(context),
               onTabChange: (index) => _onTabChange(context, index),
             ),
-            floatingActionButton: showFab ? const CountryAddMenu() : null,
+            floatingActionButton: showFab ? const FABCountryAddMenu() : null,
           );
         },
       ),

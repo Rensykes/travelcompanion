@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
 
-class CustomGoogleNavBar extends StatelessWidget {
+class Navbar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onTabChange;
 
-  const CustomGoogleNavBar({
+  const Navbar({
     super.key,
     required this.selectedIndex,
     required this.onTabChange,

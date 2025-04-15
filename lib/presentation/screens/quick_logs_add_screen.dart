@@ -60,6 +60,7 @@ class _QuickLogsAddScreenState extends State<QuickLogsAddScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Add Location Log'),
+        backgroundColor: Colors.transparent,
       ),
       body: BlocBuilder<CountryVisitsCubit, CountryVisitsState>(
         builder: (context, state) {

@@ -31,6 +31,8 @@ class AppShellCubit extends Cubit<AppShellState> {
     final bool isAddScreen = currentPath.startsWith(RouteConstants.add);
     final bool isTravelHistoryScreen =
         currentPath.startsWith(RouteConstants.travelHistory);
+    final bool isStatisticsScreen =
+        currentPath.startsWith(RouteConstants.statistics);
 
     // Show FAB only on Dashboard and Countries screens
     final bool isDashboardScreen =

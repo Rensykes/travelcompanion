@@ -40,10 +40,11 @@ dependencies:
   omni_datetime_picker: ^2.0.4
   circular_menu: ^4.0.0
   another_flushbar: ^1.12.30
-  
+  tab_container: ^3.5.3
+
   # UI - Icons
   cupertino_icons: ^1.0.2
-  country_flags: ^2.0.1
+  country_flags: ^3.2.0  
   line_icons: ^2.0.3
 
   # DB

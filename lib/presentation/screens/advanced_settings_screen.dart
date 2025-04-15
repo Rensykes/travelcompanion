@@ -63,7 +63,10 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Advanced Settings')),
+      appBar: AppBar(
+        title: const Text('Advanced Settings'),
+        backgroundColor: Colors.transparent,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

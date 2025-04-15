@@ -7,6 +7,7 @@ class RouteConstants {
   static const String settings = '/settings';
   static const String travelHistory = '/travel-history';
   static const String countries = '/countries'; // Renamed from home
+  static const String statistics = '/statistics';
 
   // Nested routes
   static const String relations =
@@ -29,6 +30,7 @@ class RouteConstants {
   static const String advancedSettingsFullPath = '/settings/advanced';
   static const String calendar = '/calendar';
   static const String travelHistoryFullPath = '/travel-history';
+  static const String statisticsFullPath = '/statistics';
   static const String exportImportFullPath = '/settings/export-import';
   static const String quickLogsAddFullPath = '/add/quick-logs-add';
   static const String manualAddFullPath = '/add/manual-add';

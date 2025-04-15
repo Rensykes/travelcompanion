@@ -86,6 +86,7 @@ class _RelationsScreenState extends State<RelationsScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text('Logs for ${widget.countryVisit.countryCode}'),
+        backgroundColor: Colors.transparent,
         leading: BackButton(
           onPressed: _navigateToCountriesScreen,
         ),

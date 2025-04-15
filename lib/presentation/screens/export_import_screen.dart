@@ -20,7 +20,10 @@ class _ExportImportScreenState extends State<ExportImportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Export & Import')),
+      appBar: AppBar(
+        title: const Text('Export & Import'),
+        backgroundColor: Colors.transparent,
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

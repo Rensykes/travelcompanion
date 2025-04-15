@@ -6,14 +6,14 @@ import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
 
-class CountryAddMenu extends StatefulWidget {
-  const CountryAddMenu({super.key});
+class FABCountryAddMenu extends StatefulWidget {
+  const FABCountryAddMenu({super.key});
 
   @override
-  State<CountryAddMenu> createState() => _CountryAddMenuState();
+  State<FABCountryAddMenu> createState() => _FABCountryAddMenuState();
 }
 
-class _CountryAddMenuState extends State<CountryAddMenu> {
+class _FABCountryAddMenuState extends State<FABCountryAddMenu> {
   // Create the key as a class member instead of inside build
   final menuKey = GlobalKey<CircularMenuState>();
 

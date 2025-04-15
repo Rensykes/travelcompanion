@@ -66,6 +66,7 @@ class _LogsScreenState extends State<LogsScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Location Logs'),
+        backgroundColor: Colors.transparent,
         actions: [
           // Show error logs toggle switch
           Switch(

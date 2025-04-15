@@ -127,7 +127,10 @@ class _CountriesScreenState extends State<CountriesScreen>
     super.build(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Countries Visited')),
+      appBar: AppBar(
+        title: const Text('Countries Visited'),
+        backgroundColor: Colors.transparent,
+      ),
       body: BlocBuilder<CountryVisitsCubit, CountryVisitsState>(
         builder: (context, state) {
           if (state is CountryVisitsLoading) {
@@ -177,7 +180,7 @@ class _CountriesScreenState extends State<CountriesScreen>
                         visit.countryCode,
                         width: 40,
                         height: 30,
-                        borderRadius: 8,
+                        shape: const RoundedRectangle(6),
                       ),
                       title: Text(visit.countryCode),
                       subtitle: Text('Days: ${visit.daysSpent}'),

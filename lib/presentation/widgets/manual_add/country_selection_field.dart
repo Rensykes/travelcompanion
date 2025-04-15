@@ -74,7 +74,7 @@ class CountrySelectionField extends StatelessWidget {
           countryCode,
           height: 24,
           width: 30,
-          borderRadius: 4,
+          shape: const RoundedRectangle(4),
         ),
         const SizedBox(width: 12),
         Flexible(

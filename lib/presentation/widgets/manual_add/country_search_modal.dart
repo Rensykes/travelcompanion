@@ -77,7 +77,7 @@ class CountrySearchModal extends StatelessWidget {
               country.alpha2Code,
               height: 30,
               width: 40,
-              borderRadius: 4,
+              shape: const RoundedRectangle(4),
             ),
           ),
           title: Text(

@@ -89,6 +89,7 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Manual Location Entry'),
+            backgroundColor: Colors.transparent,
           ),
           body: SingleChildScrollView(
             child: Padding(

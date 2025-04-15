@@ -16,6 +16,7 @@ class TravelHistoryScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Travel History'),
+        backgroundColor: Colors.transparent,
       ),
       body: BlocBuilder<TravelHistoryCubit, TravelHistoryState>(
         builder: (context, state) {
@@ -231,17 +232,11 @@ class _CountryIndicator extends StatelessWidget {
         ),
       ),
       child: Center(
-        child: ClipOval(
-          child: SizedBox(
-            width: 30,
-            height: 30,
-            child: CountryFlag.fromCountryCode(
-              countryCode,
-              height: 30,
-              width: 30,
-              borderRadius: 15,
-            ),
-          ),
+        child: CountryFlag.fromCountryCode(
+          countryCode,
+          height: 30,
+          width: 30,
+          shape: const Circle(),
         ),
       ),
     );

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
+import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.dart';
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 import 'package:trackie/presentation/screens/app_shell_screen.dart';
@@ -16,6 +17,7 @@ import 'package:trackie/presentation/screens/manual_add_screen.dart';
 import 'package:trackie/presentation/screens/quick_logs_add_screen.dart';
 import 'package:trackie/presentation/screens/relations_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
+import 'package:trackie/presentation/screens/statistics_screen.dart';
 import 'package:trackie/presentation/screens/travel_history_screen.dart';
 
 // Import the navigator key from main.dart
@@ -65,6 +67,18 @@ final router = GoRouter(
           builder: (context, state) => BlocProvider.value(
             value: GetIt.instance.get<CalendarCubit>(),
             child: const CalendarViewScreen(),
+          ),
+        ),
+        GoRoute(
+          path: RouteConstants.statistics,
+          builder: (context, state) => MultiBlocProvider(
+            providers: [
+              BlocProvider.value(
+                  value: GetIt.instance.get<TravelHistoryCubit>()),
+              BlocProvider.value(
+                  value: GetIt.instance.get<LocationLogsCubit>()),
+            ],
+            child: const StatisticsScreen(),
           ),
         ),
         GoRoute(

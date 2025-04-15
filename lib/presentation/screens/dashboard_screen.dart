@@ -61,6 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Travel Companion'),
+        backgroundColor: Colors.transparent,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -123,12 +124,24 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Travel Statistics',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Travel Statistics',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        GoRouter.of(context)
+                            .go(RouteConstants.statisticsFullPath);
+                      },
+                      child: const Text('View Charts'),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Row(
@@ -213,7 +226,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         state.isoCode!,
                         width: 60,
                         height: 40,
-                        borderRadius: 4,
+                        shape: const RoundedRectangle(6),
                       ),
                       const SizedBox(width: 16),
                       Column(
@@ -334,6 +347,13 @@ class _DashboardScreenState extends State<DashboardScreen>
                   'Calendar',
                   () => context.push(RouteConstants.calendar),
                 ),
+                _buildActionButton(
+                  context,
+                  Icons.bar_chart,
+                  'Statistics',
+                  () => GoRouter.of(context)
+                      .go(RouteConstants.statisticsFullPath),
+                ),
               ],
             ),
           ],
@@ -417,7 +437,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           visit.countryCode,
                           width: 40,
                           height: 30,
-                          borderRadius: 4,
+                          shape: const RoundedRectangle(6),
                         ),
                         title: Text(visit.countryCode),
                         subtitle: Text('${visit.daysSpent} days'),
