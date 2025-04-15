@@ -67,17 +67,6 @@ class _LogsScreenState extends State<LogsScreen>
       appBar: AppBar(
         title: const Text('Location Logs'),
         backgroundColor: Colors.transparent,
-        actions: [
-          // Show error logs toggle switch
-          Switch(
-            value: _showErrorLogs,
-            onChanged: (value) {
-              setState(() {
-                _showErrorLogs = value;
-              });
-            },
-          ),
-        ],
       ),
       body: BlocBuilder<LocationLogsCubit, LocationLogsState>(
         builder: (context, state) {
@@ -100,9 +89,38 @@ class _LogsScreenState extends State<LogsScreen>
                 },
                 child: ListView(
                   physics: const AlwaysScrollableScrollPhysics(),
-                  children: const [
-                    SizedBox(height: 100),
-                    Center(child: Text("No logs available")),
+                  children: [
+                    const SizedBox(height: 100),
+                    Icon(
+                      Icons.location_off,
+                      size: 80,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      _showErrorLogs
+                          ? 'No location logs found'
+                          : 'No successful location logs found',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                      child: Text(
+                        _showErrorLogs
+                            ? 'Your location logs will appear here once they\'re collected'
+                            : 'Try enabling error logs or check your permissions in Advanced Settings',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               );

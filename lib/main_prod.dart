@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'core/scheduler/background_task.dart';
 import 'main.dart' as app;
 
 void main() async {
+  // Set production environment
+  app.isDebugMode = false;
+
+  // Initialize app
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Production-specific initialization
-  // For example, configuring crash reporting
-  initializeWorkmanager(isInDebugMode: false);
-
+  // Start the app - background tasks will be initialized
+  // after the battery optimization dialog is shown
   app.main();
 }

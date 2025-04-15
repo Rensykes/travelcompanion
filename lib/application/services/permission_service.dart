@@ -73,4 +73,48 @@ class PermissionService {
     // For Android 12 and below, use storage permission
     return requestStoragePermission();
   }
+
+  /// Requests the user to disable battery optimization for the app
+  /// to enable more reliable background processing.
+  ///
+  /// Returns:
+  /// - true if battery optimization is disabled or the request was shown
+  /// - false if the request failed
+  Future<bool> requestIgnoreBatteryOptimization() async {
+    if (!Platform.isAndroid) return true;
+
+    try {
+      final status = await Permission.ignoreBatteryOptimizations.status;
+
+      if (status.isGranted) {
+        log(
+          "Battery optimization is already disabled for this app",
+          name: 'PermissionService',
+          level: 0, // INFO
+          time: DateTime.now(),
+        );
+        return true;
+      }
+
+      final result = await Permission.ignoreBatteryOptimizations.request();
+
+      log(
+        "Battery optimization exemption request status: ${result.name}",
+        name: 'PermissionService',
+        level: 0, // INFO
+        time: DateTime.now(),
+      );
+
+      return result.isGranted;
+    } catch (e) {
+      log(
+        "Failed to request battery optimization exemption",
+        name: 'PermissionService',
+        error: e,
+        level: 900, // ERROR
+        time: DateTime.now(),
+      );
+      return false;
+    }
+  }
 }

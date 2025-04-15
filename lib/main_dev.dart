@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:trackie/core/scheduler/background_task.dart';
-
 import 'main.dart' as app;
 
 void main() async {
+  // Set development environment
+  app.isDebugMode = true;
+
+  // Initialize app
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Workmanager for background tasks
-  initializeWorkmanager(isInDebugMode: true);
-
+  // Start the app - background tasks will be initialized
+  // after the battery optimization dialog is shown
   app.main();
 }

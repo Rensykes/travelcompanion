@@ -7,19 +7,24 @@ import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_state.dart';
 import 'package:trackie/core/routes/app_router.dart';
 import 'package:trackie/presentation/widgets/app_bloc_provider.dart';
+import 'package:trackie/presentation/widgets/first_run_handler.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
 
 // Create a global navigator key for the app
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
+// This flag will be set by the flavor-specific main_*.dart files
+bool isDebugMode = false;
+
 void main() async {
   try {
-    await AppInitialization.init();
+    // Initialize core app dependencies
+    await AppInitialization.init(isDebugMode: isDebugMode);
 
     // Set the navigator key in NotificationHelper
     NotificationHelper.setNavigatorKey(navigatorKey);
 
-    runApp(const MyApp());
+    runApp(MyApp(isDebugMode: isDebugMode));
   } catch (e) {
     // Handle initialization errors
     log(
@@ -34,7 +39,9 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isDebugMode;
+
+  const MyApp({super.key, required this.isDebugMode});
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +54,12 @@ class MyApp extends StatelessWidget {
             theme: AppThemes.lightTheme,
             darkTheme: AppThemes.darkTheme,
             routerConfig: router,
+            builder: (context, child) {
+              return FirstRunHandler(
+                child: child ?? const SizedBox(),
+                isDebugMode: isDebugMode,
+              );
+            },
           );
         },
       ),

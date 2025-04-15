@@ -7,6 +7,8 @@ import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
 import 'package:trackie/application/services/location_service.dart';
+import 'package:trackie/core/services/task_status_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 const fetchLocationInBackgroundTask = "fetchLocationInBackgroundTask";
 
@@ -16,6 +18,10 @@ late AppDatabase backgroundDatabase;
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    // Create tracking service
+    final taskStatusService = TaskStatusService();
+    bool taskSuccess = false;
+
     try {
       DartPluginRegistrant.ensureInitialized();
 
@@ -47,6 +53,9 @@ void callbackDispatcher() {
           name: 'Workmanager',
           time: DateTime.now(),
         );
+
+        // Mark task as successful
+        taskSuccess = true;
       } else {
         log(
           "${DateTime.now()} - Background task failed: No country detected",
@@ -67,10 +76,25 @@ void callbackDispatcher() {
         level: 1000,
         time: DateTime.now(),
       );
-      return Future.value(false);
+
+      // The task failed due to an exception
+      taskSuccess = false;
     }
 
-    return Future.value(true);
+    // Record the task execution status
+    try {
+      await taskStatusService.recordTaskExecution(success: taskSuccess);
+    } catch (e) {
+      log(
+        "Failed to record task status: $e",
+        name: 'Workmanager',
+        error: e,
+        level: 900,
+        time: DateTime.now(),
+      );
+    }
+
+    return Future.value(taskSuccess);
   });
 }
 
@@ -88,6 +112,12 @@ void initializeWorkmanager({required bool isInDebugMode}) {
     "1",
     fetchLocationInBackgroundTask,
     frequency: const Duration(minutes: 15),
-    existingWorkPolicy: ExistingWorkPolicy.keep,
+    existingWorkPolicy: ExistingWorkPolicy.replace,
+    backoffPolicy: BackoffPolicy.linear,
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+      requiresBatteryNotLow: false,
+    ),
+    initialDelay: const Duration(seconds: 10),
   );
 }

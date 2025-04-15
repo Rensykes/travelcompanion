@@ -37,7 +37,9 @@ class ErrorScreen extends StatelessWidget {
                   // Restart app
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const MyApp()),
+                    MaterialPageRoute(
+                      builder: (context) => MyApp(isDebugMode: isDebugMode),
+                    ),
                   );
                 },
                 child: const Text('Try Again'),
