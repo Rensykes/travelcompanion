@@ -7,6 +7,7 @@ import 'package:get_it/get_it.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 import 'package:trackie/presentation/widgets/manual_add/country_selection_field.dart';
 import 'package:trackie/presentation/widgets/manual_add/country_search_modal.dart';
 import 'package:trackie/presentation/widgets/manual_add/date_selection_field.dart';
@@ -86,7 +87,7 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
         final cubit = context.read<ManualAddCubit>();
         final isLoading = state is SubmissionInProgress;
 
-        return Scaffold(
+        return GradientScaffold(
           appBar: AppBar(
             title: const Text('Manual Location Entry'),
             backgroundColor: Colors.transparent,

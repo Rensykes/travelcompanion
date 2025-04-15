@@ -12,6 +12,7 @@ import 'package:trackie/core/di/dependency_injection.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 
 class RelationsScreen extends StatefulWidget {
   final CountryVisit countryVisit;
@@ -83,7 +84,7 @@ class _RelationsScreenState extends State<RelationsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: Text('Logs for ${widget.countryVisit.countryCode}'),
         backgroundColor: Colors.transparent,

@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_state.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -47,13 +48,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     // Initialize textTheme here to ensure it's always available
     textTheme = Theme.of(context).textTheme;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Travel Statistics'),
-        backgroundColor: Colors.transparent,
-        centerTitle: true,
-        elevation: 0,
-      ),
+    return GradientScaffold(
       floatingActionButton: null,
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -9,6 +9,7 @@ import 'package:trackie/presentation/bloc/country_visits/country_visits_state.da
 import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 
 class CountriesScreen extends StatefulWidget {
   const CountriesScreen({super.key});
@@ -126,7 +127,7 @@ class _CountriesScreenState extends State<CountriesScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: const Text('Countries Visited'),
         backgroundColor: Colors.transparent,

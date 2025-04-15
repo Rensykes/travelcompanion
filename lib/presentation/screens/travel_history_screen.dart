@@ -7,13 +7,14 @@ import 'package:trackie/data/models/one_time_visit.dart';
 import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.dart';
 import 'package:trackie/presentation/bloc/travel_history/travel_history_state.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 
 class TravelHistoryScreen extends StatelessWidget {
   const TravelHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: const Text('Travel History'),
         backgroundColor: Colors.transparent,

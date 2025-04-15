@@ -8,6 +8,9 @@ import 'package:trackie/presentation/bloc/country_visits/country_visits_state.da
 import 'package:country_flags/country_flags.dart';
 import 'package:trackie/presentation/bloc/current_location/current_location_cubit.dart';
 import 'package:trackie/presentation/bloc/current_location/current_location_state.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
+import 'package:trackie/presentation/widgets/glass_card.dart';
+import 'package:trackie/presentation/helpers/card_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -58,7 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Scaffold(
+    return GradientScaffold(
       body: RefreshIndicator(
         onRefresh: () async {
           refreshData();
@@ -107,50 +110,46 @@ class _DashboardScreenState extends State<DashboardScreen>
               state.visits.fold(0, (sum, visit) => sum + visit.daysSpent);
         }
 
-        return Card(
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Travel Statistics',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+        return CardHelper.statCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Travel Statistics',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    TextButton(
-                      onPressed: () {
-                        GoRouter.of(context)
-                            .go(RouteConstants.statisticsFullPath);
-                      },
-                      child: const Text('View Charts'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem(
-                      Icons.public,
-                      countriesCount.toString(),
-                      'Countries Visited',
-                    ),
-                    _buildStatItem(
-                      Icons.calendar_today,
-                      totalDays.toString(),
-                      'Days Traveled',
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      GoRouter.of(context)
+                          .go(RouteConstants.statisticsFullPath);
+                    },
+                    child: const Text('View Charts'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStatItem(
+                    Icons.public,
+                    countriesCount.toString(),
+                    'Countries Visited',
+                  ),
+                  _buildStatItem(
+                    Icons.calendar_today,
+                    totalDays.toString(),
+                    'Days Traveled',
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
@@ -183,109 +182,104 @@ class _DashboardScreenState extends State<DashboardScreen>
   Widget _buildCurrentCountrySection() {
     return BlocBuilder<CurrentLocationCubit, CurrentLocationState>(
       builder: (context, state) {
-        return Card(
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Current Location',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+        return CardHelper.standardCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Current Location',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 16),
-                if (state is CurrentLocationLoading)
-                  const Center(
-                    child: Column(
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 8),
-                        Text('Detecting your location...'),
-                      ],
-                    ),
-                  )
-                else if (state is CurrentLocationLoaded &&
-                    state.isoCode != null)
-                  Row(
+              ),
+              const SizedBox(height: 16),
+              if (state is CurrentLocationLoading)
+                const Center(
+                  child: Column(
                     children: [
-                      CountryFlag.fromCountryCode(
-                        state.isoCode!,
-                        width: 60,
-                        height: 40,
-                        shape: const RoundedRectangle(6),
-                      ),
-                      const SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            state.isoCode!,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          ElevatedButton.icon(
-                            icon: const Icon(
-                              Icons.add_location,
-                              size: 16,
-                              color: Colors.white,
-                            ),
-                            label: const Text('Add to Log'),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              textStyle: const TextStyle(fontSize: 12),
-                            ),
-                            onPressed: () {
-                              context.go(RouteConstants.quickLogsAddFullPath);
-                            },
-                          ),
-                        ],
-                      ),
+                      CircularProgressIndicator(),
+                      SizedBox(height: 8),
+                      Text('Detecting your location...'),
                     ],
-                  )
-                else
-                  Center(
-                    child: Column(
+                  ),
+                )
+              else if (state is CurrentLocationLoaded && state.isoCode != null)
+                Row(
+                  children: [
+                    CountryFlag.fromCountryCode(
+                      state.isoCode!,
+                      width: 60,
+                      height: 40,
+                      shape: const RoundedRectangle(6),
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.location_off,
-                            size: 40, color: Colors.grey),
-                        const SizedBox(height: 8),
                         Text(
-                          state is CurrentLocationError
-                              ? 'Error: ${state.message}'
-                              : 'No current location data',
-                          style: const TextStyle(color: Colors.grey),
+                          state.isoCode!,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         ElevatedButton.icon(
-                          icon: const Icon(Icons.add_location),
-                          label: const Text('Add Location'),
+                          icon: const Icon(
+                            Icons.add_location,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                          label: const Text('Add to Log'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            textStyle: const TextStyle(fontSize: 12),
+                          ),
                           onPressed: () {
                             context.go(RouteConstants.quickLogsAddFullPath);
                           },
                         ),
-                        const SizedBox(height: 8),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.refresh),
-                          label: const Text('Detect Location'),
-                          onPressed: () {
-                            _currentLocationCubit.detectCurrentCountry();
-                          },
-                        ),
                       ],
                     ),
+                  ],
+                )
+              else
+                Center(
+                  child: Column(
+                    children: [
+                      const Icon(Icons.location_off,
+                          size: 40, color: Colors.grey),
+                      const SizedBox(height: 8),
+                      Text(
+                        state is CurrentLocationError
+                            ? 'Error: ${state.message}'
+                            : 'No current location data',
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.add_location),
+                        label: const Text('Add Location'),
+                        onPressed: () {
+                          context.go(RouteConstants.quickLogsAddFullPath);
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Detect Location'),
+                        onPressed: () {
+                          _currentLocationCubit.detectCurrentCountry();
+                        },
+                      ),
+                    ],
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         );
       },
@@ -293,61 +287,57 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildQuickActionsSection(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Quick Actions',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+    return CardHelper.highlightCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Quick Actions',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            alignment: WrapAlignment.spaceEvenly,
+            spacing: 8.0,
+            runSpacing: 16.0,
+            children: [
+              _buildActionButton(
+                context,
+                Icons.add_location,
+                'Add Location',
+                () => context.go(RouteConstants.quickLogsAddFullPath),
               ),
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.spaceEvenly,
-              spacing: 8.0,
-              runSpacing: 16.0,
-              children: [
-                _buildActionButton(
-                  context,
-                  Icons.add_location,
-                  'Add Location',
-                  () => context.go(RouteConstants.quickLogsAddFullPath),
-                ),
-                _buildActionButton(
-                  context,
-                  Icons.list_alt,
-                  'View Countries',
-                  () => context.go(RouteConstants.countriesFullPath),
-                ),
-                _buildActionButton(
-                  context,
-                  Icons.history,
-                  'Timeline',
-                  () => context.go(RouteConstants.travelHistoryFullPath),
-                ),
-                _buildActionButton(
-                  context,
-                  Icons.calendar_month,
-                  'Calendar',
-                  () => context.go(RouteConstants.calendar),
-                ),
-                _buildActionButton(
-                  context,
-                  Icons.bar_chart,
-                  'Statistics',
-                  () => GoRouter.of(context)
-                      .go(RouteConstants.statisticsFullPath),
-                ),
-              ],
-            ),
-          ],
-        ),
+              _buildActionButton(
+                context,
+                Icons.list_alt,
+                'View Countries',
+                () => context.go(RouteConstants.countriesFullPath),
+              ),
+              _buildActionButton(
+                context,
+                Icons.history,
+                'Timeline',
+                () => context.go(RouteConstants.travelHistoryFullPath),
+              ),
+              _buildActionButton(
+                context,
+                Icons.calendar_month,
+                'Calendar',
+                () => context.go(RouteConstants.calendar),
+              ),
+              _buildActionButton(
+                context,
+                Icons.bar_chart,
+                'Statistics',
+                () =>
+                    GoRouter.of(context).go(RouteConstants.statisticsFullPath),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -396,50 +386,47 @@ class _DashboardScreenState extends State<DashboardScreen>
         if (state is CountryVisitsLoaded && state.visits.isNotEmpty) {
           final recentVisits = state.visits.take(3).toList();
 
-          return Card(
-            elevation: 4,
-            child: Padding(
+          final listItems = <Widget>[
+            Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Recent Countries',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          context.go(RouteConstants.countriesFullPath);
-                        },
-                        child: const Text('View All'),
-                      ),
-                    ],
+                  const Text(
+                    'Recent Countries',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  ...recentVisits.map((visit) => ListTile(
-                        leading: CountryFlag.fromCountryCode(
-                          visit.countryCode,
-                          width: 40,
-                          height: 30,
-                          shape: const RoundedRectangle(6),
-                        ),
-                        title: Text(visit.countryCode),
-                        subtitle: Text('${visit.daysSpent} days'),
-                        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                        onTap: () {
-                          context.go(RouteConstants.buildRelationsRoute(
-                              visit.countryCode));
-                        },
-                      )),
+                  TextButton(
+                    onPressed: () {
+                      context.go(RouteConstants.countriesFullPath);
+                    },
+                    child: const Text('View All'),
+                  ),
                 ],
               ),
             ),
+            ...recentVisits.map((visit) => ListTile(
+                  leading: CountryFlag.fromCountryCode(
+                    visit.countryCode,
+                    width: 40,
+                    height: 30,
+                    shape: const RoundedRectangle(6),
+                  ),
+                  title: Text(visit.countryCode),
+                  subtitle: Text('${visit.daysSpent} days'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    context.go(
+                        RouteConstants.buildRelationsRoute(visit.countryCode));
+                  },
+                )),
+          ];
+
+          return CardHelper.listCard(
+            children: listItems,
           );
         }
 

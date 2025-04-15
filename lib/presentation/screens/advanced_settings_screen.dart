@@ -10,6 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:trackie/core/services/task_status_service.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 
 class AdvancedSettingsScreen extends StatefulWidget {
   const AdvancedSettingsScreen({super.key});
@@ -207,7 +208,7 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: const Text('Advanced Settings'),
         backgroundColor: Colors.transparent,

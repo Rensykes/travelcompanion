@@ -7,6 +7,7 @@ import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_state.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 import 'package:trackie/presentation/widgets/logs_screen/log_entry_tile.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/data/datasource/database.dart';
@@ -63,7 +64,7 @@ class _LogsScreenState extends State<LogsScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: const Text('Location Logs'),
         backgroundColor: Colors.transparent,

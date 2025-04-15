@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/core/services/first_run_service.dart';
 import 'package:trackie/core/app_initialization.dart';
+import 'package:trackie/presentation/widgets/glass_card.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
+import 'package:trackie/presentation/helpers/card_helper.dart';
 
 /// Widget that handles showing onboarding screens and first-run tasks
 ///
@@ -157,7 +160,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
+    return GradientScaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -269,32 +272,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 120,
-            color: color,
-          ),
-          const SizedBox(height: 40),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.bold,
+      child: CardHelper.coloredCard(
+        color: color,
+        elevation: 4.0,
+        padding: const EdgeInsets.all(28.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 100,
+              color: color,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            description,
-            style: const TextStyle(
-              fontSize: 18,
+            const SizedBox(height: 28),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+            const SizedBox(height: 18),
+            Text(
+              description,
+              style: const TextStyle(
+                fontSize: 16,
+                height: 1.4,
+                letterSpacing: 0.3,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:trackie/presentation/bloc/theme/theme_state.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -19,10 +20,9 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: const Text('Settings'),
-        backgroundColor: Colors.transparent,
       ),
       body: _buildSettingsUI(context),
     );

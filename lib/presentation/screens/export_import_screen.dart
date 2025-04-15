@@ -3,6 +3,9 @@ import 'package:line_icons/line_icons.dart';
 import 'package:trackie/application/services/export_import_service.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
+import 'package:trackie/presentation/widgets/glass_card.dart';
+import 'package:trackie/presentation/helpers/card_helper.dart';
 
 class ExportImportScreen extends StatefulWidget {
   const ExportImportScreen({super.key});
@@ -19,7 +22,7 @@ class _ExportImportScreenState extends State<ExportImportScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       appBar: AppBar(
         title: const Text('Export & Import'),
         backgroundColor: Colors.transparent,
@@ -30,13 +33,12 @@ class _ExportImportScreenState extends State<ExportImportScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Card(
-                margin: EdgeInsets.only(bottom: 16),
-                child: Padding(
-                  padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: CardHelper.standardCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: const [
                       Text('Export',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
@@ -56,13 +58,12 @@ class _ExportImportScreenState extends State<ExportImportScreen> {
                 ),
               ),
               const SizedBox(height: 32),
-              const Card(
-                margin: EdgeInsets.only(bottom: 16),
-                child: Padding(
-                  padding: EdgeInsets.all(16),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: CardHelper.standardCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                    children: const [
                       Text('Import',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),

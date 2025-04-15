@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:trackie/main.dart';
+import 'package:trackie/presentation/widgets/gradient_background.dart';
 
 class ErrorScreen extends StatelessWidget {
   final String error;
@@ -10,7 +11,7 @@ class ErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GradientScaffold(
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),

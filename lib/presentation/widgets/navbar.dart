@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:line_icons/line_icons.dart';
+import 'package:trackie/core/utils/app_themes.dart';
 
 class Navbar extends StatelessWidget {
   final int selectedIndex;
@@ -16,19 +17,32 @@ class Navbar extends StatelessWidget {
   Widget build(BuildContext context) {
     const double gap = 0;
     const padding = EdgeInsets.symmetric(horizontal: 8, vertical: 8);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       height: 60,
-      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: const BorderRadius.all(Radius.circular(30)),
+        color: isDarkMode
+            ? const Color(0xFF1F2820)
+                .withOpacity(0.8) // Semi-transparent dark green
+            : Colors.white.withOpacity(0.6), // Semi-transparent white
+        // No border radius for a flat design
+        borderRadius: BorderRadius.zero,
+        border: Border(
+          top: BorderSide(
+            color: isDarkMode
+                ? AppThemes.darkTheme.primaryColor.withOpacity(0.2)
+                : AppThemes.primaryGreen.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            spreadRadius: -10,
-            blurRadius: 60,
-            color: Colors.black.withValues(alpha: .4),
-            offset: const Offset(0, 25),
+            spreadRadius: -5,
+            blurRadius: 10,
+            color: Colors.black.withOpacity(0.15),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -42,66 +56,59 @@ class Navbar extends StatelessWidget {
           tabActiveBorder: Border.all(color: Colors.transparent, width: 1),
           duration: const Duration(milliseconds: 200),
           activeColor: Theme.of(context).primaryColor,
+          iconSize: 22, // Slightly larger icons
+          tabBackgroundColor: Colors.transparent, // Transparent tab background
+          hoverColor: isDarkMode
+              ? Colors.white.withOpacity(0.05)
+              : AppThemes.primaryGreen.withOpacity(0.05),
           tabs: [
             // Dashboard
             GButton(
-              iconActiveColor: Colors.blue,
+              iconActiveColor: AppThemes.primaryGreen,
               iconColor: Colors.grey,
-              textColor: Colors.blue,
-              backgroundColor: Colors.blue.withValues(alpha: .2),
-              iconSize: 20,
+              textColor: AppThemes.primaryGreen,
+              backgroundColor: AppThemes.primaryGreen.withOpacity(0.15),
               icon: LineIcons.home,
-              //text: 'Home',
             ),
             // Travel History Timeline
             GButton(
-              iconActiveColor: Colors.green,
+              iconActiveColor: AppThemes.primaryGreen,
               iconColor: Colors.grey,
-              textColor: Colors.green,
-              backgroundColor: Colors.green.withValues(alpha: .2),
-              iconSize: 20,
+              textColor: AppThemes.primaryGreen,
+              backgroundColor: AppThemes.primaryGreen.withOpacity(0.15),
               icon: LineIcons.history,
-              //text: 'Timeline',
             ),
             // Calendar
             GButton(
-              iconActiveColor: Colors.purple,
+              iconActiveColor: AppThemes.primaryGreen,
               iconColor: Colors.grey,
-              textColor: Colors.purple,
-              backgroundColor: Colors.purple.withValues(alpha: .2),
-              iconSize: 20,
+              textColor: AppThemes.primaryGreen,
+              backgroundColor: AppThemes.primaryGreen.withOpacity(0.15),
               icon: LineIcons.calendar,
-              //text: 'Calendar',
             ),
             // Countries List
             GButton(
-              iconActiveColor: Colors.orange,
+              iconActiveColor: AppThemes.primaryGreen,
               iconColor: Colors.grey,
-              textColor: Colors.orange,
-              backgroundColor: Colors.orange.withValues(alpha: .2),
-              iconSize: 20,
+              textColor: AppThemes.primaryGreen,
+              backgroundColor: AppThemes.primaryGreen.withOpacity(0.15),
               icon: LineIcons.globe,
-              //text: 'Countries',
             ),
             // Logs
             GButton(
-              iconActiveColor: Colors.indigo,
+              iconActiveColor: AppThemes.primaryGreen,
               iconColor: Colors.grey,
-              textColor: Colors.indigo,
-              backgroundColor: Colors.indigo.withValues(alpha: .2),
-              iconSize: 20,
+              textColor: AppThemes.primaryGreen,
+              backgroundColor: AppThemes.primaryGreen.withOpacity(0.15),
               icon: LineIcons.alternateListAlt,
-              //text: 'Logs',
             ),
             // Settings
             GButton(
-              iconActiveColor: Colors.teal,
+              iconActiveColor: AppThemes.primaryGreen,
               iconColor: Colors.grey,
-              textColor: Colors.teal,
-              backgroundColor: Colors.teal.withValues(alpha: .2),
-              iconSize: 20,
+              textColor: AppThemes.primaryGreen,
+              backgroundColor: AppThemes.primaryGreen.withOpacity(0.15),
               icon: LineIcons.cog,
-              //text: 'Settings',
             ),
           ],
           selectedIndex: selectedIndex,
