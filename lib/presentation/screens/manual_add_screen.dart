@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:omni_datetime_picker/omni_datetime_picker.dart';
-import 'package:trackie/presentation/helpers/snackbar_helper.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:get_it/get_it.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
@@ -13,13 +13,14 @@ import 'package:trackie/presentation/widgets/manual_add/date_selection_field.dar
 import 'package:trackie/presentation/widgets/manual_add/submit_button.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/core/constants/route_constants.dart';
+import 'package:trackie/presentation/bloc/notification/notification_bloc.dart';
+import 'package:trackie/presentation/bloc/notification/notification_event.dart';
 
 class ManualAddScreen extends StatelessWidget {
   const ManualAddScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // Provide ManualAddCubit to this screen
     return BlocProvider(
       create: (_) => GetIt.instance.get<ManualAddCubit>(),
       child: const _ManualAddScreenContent(),
@@ -47,25 +48,29 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
         if (!mounted) return;
 
         if (state is SubmissionSuccess) {
-          // Refresh all data using context
+          // First refresh the data
           DataRefreshUtil.refreshAllData(context: context);
 
-          SnackBarHelper.showSnackBar(
-            context,
-            'Location Added',
-            'Successfully added visit',
-            ContentType.success,
-          );
+          // Emit success notification
+          context.read<NotificationBloc>().add(
+                ShowNotification(
+                  title: 'Location Added',
+                  message: 'Successfully added visit',
+                  type: ContentType.success,
+                ),
+              );
 
-          // Always navigate to home after successful submission
+          // Navigate to dashboard
           context.go(RouteConstants.dashboardFullPath);
         } else if (state is SubmissionFailure) {
-          SnackBarHelper.showSnackBar(
-            context,
-            'Error',
-            'Failed to add location: ${state.error}',
-            ContentType.failure,
-          );
+          // Emit error notification
+          context.read<NotificationBloc>().add(
+                ShowNotification(
+                  title: 'Error',
+                  message: 'Failed to add location: ${state.error}',
+                  type: ContentType.failure,
+                ),
+              );
         }
       },
       builder: (context, state) {
@@ -148,7 +153,6 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        // Provide the existing cubit to the modal context
         return BlocProvider.value(
           value: cubit,
           child: BlocBuilder<ManualAddCubit, ManualAddState>(
@@ -162,11 +166,10 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
                   },
                   onSearchClear: () {
                     cubit.searchController.clear();
-                    cubit.filterCountries(); // Call filtering explicitly
+                    cubit.filterCountries();
                   },
                   onSearchChanged: (query) {
-                    // Don't need setState anymore because we're using BlocBuilder
-                    cubit.filterCountries(); // Call filtering explicitly
+                    cubit.filterCountries();
                   },
                 );
               }
@@ -176,7 +179,6 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
         );
       },
     ).then((_) {
-      // Check if mounted before updating search state
       if (mounted) {
         cubit.setSearching(false);
       }
@@ -215,7 +217,6 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
       transitionDuration: const Duration(milliseconds: 200),
       barrierDismissible: true,
       selectableDayPredicate: (dateTime) {
-        // Disallow dates in the future
         return dateTime.isBefore(DateTime.now().add(const Duration(days: 1)));
       },
     );

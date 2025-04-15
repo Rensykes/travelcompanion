@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
-import 'package:trackie/presentation/helpers/snackbar_helper.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
 
@@ -85,7 +85,7 @@ class _QuickLogsAddScreenState extends State<QuickLogsAddScreen> {
                                 .read<CountryVisitsCubit>()
                                 .detectAndAddCurrentCountry(
                               (title, message, status) {
-                                SnackBarHelper.showSnackBar(
+                                NotificationHelper.showNotification(
                                   context,
                                   title,
                                   message,

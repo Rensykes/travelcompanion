@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
-import 'package:trackie/presentation/helpers/snackbar_helper.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
 
 class CountryAddMenu extends StatelessWidget {
   const CountryAddMenu({super.key});
@@ -55,7 +55,7 @@ class CountryAddMenu extends StatelessWidget {
     // Use the method to detect and add the current country
     await countryVisitsCubit.detectAndAddCurrentCountry(
       (title, message, status) {
-        SnackBarHelper.showSnackBar(
+        NotificationHelper.showNotification(
           context,
           title,
           message,

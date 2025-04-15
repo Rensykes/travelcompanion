@@ -7,10 +7,18 @@ import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_state.dart';
 import 'package:trackie/core/routes/app_router.dart';
 import 'package:trackie/presentation/widgets/app_bloc_provider.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
+
+// Create a global navigator key for the app
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   try {
     await AppInitialization.init();
+
+    // Set the navigator key in NotificationHelper
+    NotificationHelper.setNavigatorKey(navigatorKey);
+
     runApp(const MyApp());
   } catch (e) {
     // Handle initialization errors

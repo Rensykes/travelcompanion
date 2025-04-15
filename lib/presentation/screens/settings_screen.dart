@@ -6,6 +6,8 @@ import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/theme/theme_state.dart';
 import 'package:trackie/core/constants/route_constants.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -134,22 +136,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await database.delete(database.logCountryRelations).go();
 
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Database cleaned up successfully'),
-              duration: Duration(seconds: 2),
-            ),
+          NotificationHelper.showNotification(
+            context,
+            "Success",
+            'Database cleaned up successfully',
+            ContentType.success,
           );
         }
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error cleaning up database: $e'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
+        NotificationHelper.showNotification(
+          context,
+          "Error",
+          'Error cleaning up database: $e',
+          ContentType.failure,
         );
       }
     }

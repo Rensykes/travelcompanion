@@ -1,12 +1,14 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/core/utils/db_util.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/relation_logs/relation_logs_state.dart';
-import 'package:trackie/presentation/helpers/snackbar_helper.dart';
+import 'package:trackie/presentation/bloc/notification/notification_bloc.dart';
+import 'package:trackie/presentation/bloc/notification/notification_event.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'dart:developer' as developer;
 import 'package:trackie/core/utils/data_refresh_util.dart';
@@ -23,6 +25,7 @@ class RelationsScreen extends StatefulWidget {
 
 class _RelationsScreenState extends State<RelationsScreen> {
   late final RelationLogsCubit _relationLogsCubit;
+  bool _hasNavigatedBack = false;
 
   @override
   void initState() {
@@ -39,6 +42,29 @@ class _RelationsScreenState extends State<RelationsScreen> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void _goBackIfNoLogs() {
+    if (!_hasNavigatedBack) {
+      _hasNavigatedBack = true;
+
+      // First refresh the data
+      DataRefreshUtil.refreshAllData(context: context);
+
+      // Show notification using the NotificationBloc
+      context.read<NotificationBloc>().add(
+            ShowNotification(
+              title: "No Logs",
+              message: "No logs found for ${widget.countryVisit.countryCode}",
+              type: ContentType.help,
+            ),
+          );
+
+      // Navigate back safely using GoRouter
+      if (context.mounted) {
+        context.pop();
+      }
+    }
   }
 
   @override
@@ -58,13 +84,11 @@ class _RelationsScreenState extends State<RelationsScreen> {
             final logs = state.logs;
 
             if (logs.isEmpty) {
-              // If no logs are present, refresh both cubits and navigate back
-              Future.microtask(() {
-                DataRefreshUtil.refreshAllData(context: context);
-                Navigator.of(context).pop();
+              // If no logs are present, refresh data and navigate back safely
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _goBackIfNoLogs();
               });
-              return const Center(
-                  child: Text('No logs found for this country'));
+              return const Center(child: CircularProgressIndicator());
             }
 
             return _DismissibleLogsList(
@@ -124,6 +148,13 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
     final visibleLogs =
         logs.where((log) => !dismissedLogIds.contains(log.id)).toList();
 
+    // If all logs have been dismissed, notify parent
+    if (visibleLogs.isEmpty && logs.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        widget.onDeleted();
+      });
+    }
+
     return ListView.builder(
       itemCount: visibleLogs.length,
       itemBuilder: (context, index) {
@@ -153,23 +184,27 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               }
 
               if (context.mounted) {
-                SnackBarHelper.showSnackBar(
-                  context,
-                  "Deleted",
-                  'Log entry successfully removed',
-                  ContentType.success,
-                );
+                // Use the notification bloc instead of direct helper
+                context.read<NotificationBloc>().add(
+                      ShowNotification(
+                        title: "Deleted",
+                        message: "Log entry successfully removed",
+                        type: ContentType.success,
+                      ),
+                    );
               }
               return true;
             } catch (e) {
               developer.log("❌ Error dismissing log with ID ${log.id}: $e");
               if (context.mounted) {
-                SnackBarHelper.showSnackBar(
-                  context,
-                  "Error",
-                  'Failed to delete log: $e',
-                  ContentType.failure,
-                );
+                // Use the notification bloc instead of direct helper
+                context.read<NotificationBloc>().add(
+                      ShowNotification(
+                        title: "Error",
+                        message: "Failed to delete log: $e",
+                        type: ContentType.failure,
+                      ),
+                    );
               }
               return false;
             }

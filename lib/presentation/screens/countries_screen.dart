@@ -6,7 +6,7 @@ import 'package:trackie/data/datasource/database.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
-import 'package:trackie/presentation/helpers/snackbar_helper.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
 
@@ -92,7 +92,7 @@ class _CountriesScreenState extends State<CountriesScreen>
             .deleteCountryVisit(visit.countryCode);
 
         if (context.mounted && success) {
-          SnackBarHelper.showSnackBar(
+          NotificationHelper.showNotification(
             context,
             "Deleted",
             'Deleted all data for ${visit.countryCode} 👌',
@@ -108,7 +108,7 @@ class _CountriesScreenState extends State<CountriesScreen>
         }
       } catch (e) {
         if (context.mounted) {
-          SnackBarHelper.showSnackBar(
+          NotificationHelper.showNotification(
             context,
             "Error",
             'Error deleting data: $e ❌',

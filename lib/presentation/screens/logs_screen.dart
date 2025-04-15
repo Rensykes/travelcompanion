@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/core/utils/db_util.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
-import 'package:trackie/presentation/helpers/snackbar_helper.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_state.dart';
 import 'package:trackie/presentation/widgets/logs_screen/log_entry_tile.dart';
@@ -193,7 +193,7 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
                 }
 
                 if (context.mounted) {
-                  SnackBarHelper.showSnackBar(
+                  NotificationHelper.showNotification(
                     context,
                     "Deleted",
                     'Log entry successfully removed',
@@ -204,7 +204,7 @@ class _DismissibleLogsListState extends State<_DismissibleLogsList> {
               } catch (e) {
                 developer.log("❌ Error dismissing log with ID ${log.id}: $e");
                 if (context.mounted) {
-                  SnackBarHelper.showSnackBar(
+                  NotificationHelper.showNotification(
                     context,
                     "Error",
                     'Failed to delete log: $e',

@@ -18,7 +18,11 @@ import 'package:trackie/presentation/screens/relations_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
 import 'package:trackie/presentation/screens/travel_history_screen.dart';
 
+// Import the navigator key from main.dart
+import 'package:trackie/main.dart' show navigatorKey;
+
 final router = GoRouter(
+  navigatorKey: navigatorKey,
   initialLocation: RouteConstants.dashboard,
   routes: [
     ShellRoute(
