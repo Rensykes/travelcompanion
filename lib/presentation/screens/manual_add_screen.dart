@@ -51,26 +51,32 @@ class _ManualAddScreenContentState extends State<_ManualAddScreenContent> {
           // First refresh the data
           DataRefreshUtil.refreshAllData(context: context);
 
-          // Emit success notification
-          context.read<NotificationBloc>().add(
-                ShowNotification(
-                  title: 'Location Added',
-                  message: 'Successfully added visit',
-                  type: ContentType.success,
-                ),
-              );
+          // Use NotificationHelper directly to ensure the notification is shown
+          // before navigation happens
+          NotificationHelper.showNotification(
+            context,
+            'Location Added',
+            'Successfully added visit',
+            ContentType.success,
+            useFlushbar: true,
+            // Short duration since we'll navigate away
+            duration: const Duration(seconds: 2),
+          );
 
-          // Navigate to dashboard
-          context.go(RouteConstants.dashboardFullPath);
+          // Navigate to dashboard after a brief moment
+          Future.delayed(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              context.go(RouteConstants.dashboardFullPath);
+            }
+          });
         } else if (state is SubmissionFailure) {
-          // Emit error notification
-          context.read<NotificationBloc>().add(
-                ShowNotification(
-                  title: 'Error',
-                  message: 'Failed to add location: ${state.error}',
-                  type: ContentType.failure,
-                ),
-              );
+          // Use NotificationHelper directly for error notifications too
+          NotificationHelper.showNotification(
+            context,
+            'Error',
+            'Failed to add location: ${state.error}',
+            ContentType.failure,
+          );
         }
       },
       builder: (context, state) {
