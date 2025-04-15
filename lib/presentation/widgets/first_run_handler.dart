@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/core/services/first_run_service.dart';
 import 'package:trackie/core/app_initialization.dart';
-import 'package:trackie/presentation/widgets/glass_card.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
 import 'package:trackie/presentation/helpers/card_helper.dart';
 

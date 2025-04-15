@@ -4,7 +4,6 @@ import 'package:trackie/application/services/export_import_service.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
-import 'package:trackie/presentation/widgets/glass_card.dart';
 import 'package:trackie/presentation/helpers/card_helper.dart';
 
 class ExportImportScreen extends StatefulWidget {
@@ -36,9 +35,9 @@ class _ExportImportScreenState extends State<ExportImportScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: CardHelper.standardCard(
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text('Export',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),
@@ -61,9 +60,9 @@ class _ExportImportScreenState extends State<ExportImportScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: CardHelper.standardCard(
-                  child: Column(
+                  child: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text('Import',
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold)),

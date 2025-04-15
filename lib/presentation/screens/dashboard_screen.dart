@@ -9,7 +9,6 @@ import 'package:country_flags/country_flags.dart';
 import 'package:trackie/presentation/bloc/current_location/current_location_cubit.dart';
 import 'package:trackie/presentation/bloc/current_location/current_location_state.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
-import 'package:trackie/presentation/widgets/glass_card.dart';
 import 'package:trackie/presentation/helpers/card_helper.dart';
 
 class DashboardScreen extends StatefulWidget {
