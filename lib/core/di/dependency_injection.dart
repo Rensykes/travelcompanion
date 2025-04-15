@@ -15,6 +15,7 @@ import 'package:trackie/presentation/bloc/relation_logs/relation_logs_cubit.dart
 import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.dart';
+import 'package:trackie/presentation/bloc/current_location/current_location_cubit.dart';
 
 /// Service locator instance
 final getIt = GetIt.instance;
@@ -96,6 +97,9 @@ class DependencyInjection {
           fileService: getIt<FileService>(),
         ),
       );
+
+      // Register the CurrentLocationCubit as a singleton
+      getIt.registerSingleton<CurrentLocationCubit>(CurrentLocationCubit());
     } catch (e) {
       throw Exception('Failed to initialize dependencies: $e');
     }

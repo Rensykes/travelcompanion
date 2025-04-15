@@ -6,6 +6,8 @@ import 'package:trackie/core/utils/data_refresh_util.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_cubit.dart';
 import 'package:trackie/presentation/bloc/country_visits/country_visits_state.dart';
 import 'package:country_flags/country_flags.dart';
+import 'package:trackie/presentation/bloc/current_location/current_location_cubit.dart';
+import 'package:trackie/presentation/bloc/current_location/current_location_state.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -16,6 +18,8 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen>
     with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
+  late final CurrentLocationCubit _currentLocationCubit;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -23,10 +27,12 @@ class _DashboardScreenState extends State<DashboardScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _currentLocationCubit = context.read<CurrentLocationCubit>();
 
     // Initial load
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshData();
+      _currentLocationCubit.detectCurrentCountry();
     });
   }
 
@@ -40,6 +46,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       refreshData();
+      _currentLocationCubit.detectCurrentCountry();
     }
   }
 
@@ -171,16 +178,8 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Widget _buildCurrentCountrySection() {
-    return BlocBuilder<CountryVisitsCubit, CountryVisitsState>(
+    return BlocBuilder<CurrentLocationCubit, CurrentLocationState>(
       builder: (context, state) {
-        String? currentCountry;
-
-        if (state is CountryVisitsLoaded && state.visits.isNotEmpty) {
-          // For simplicity, let's assume the latest country is the current one
-          final latestVisit = state.visits.first;
-          currentCountry = latestVisit.countryCode;
-        }
-
         return Card(
           elevation: 4,
           child: Padding(
@@ -196,11 +195,22 @@ class _DashboardScreenState extends State<DashboardScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (currentCountry != null)
+                if (state is CurrentLocationLoading)
+                  const Center(
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 8),
+                        Text('Detecting your location...'),
+                      ],
+                    ),
+                  )
+                else if (state is CurrentLocationLoaded &&
+                    state.isoCode != null)
                   Row(
                     children: [
                       CountryFlag.fromCountryCode(
-                        currentCountry,
+                        state.isoCode!,
                         width: 60,
                         height: 40,
                         borderRadius: 4,
@@ -210,15 +220,20 @@ class _DashboardScreenState extends State<DashboardScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            currentCountry,
+                            state.isoCode!,
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                          const SizedBox(height: 4),
                           ElevatedButton.icon(
-                            icon: const Icon(Icons.add_location, size: 16),
-                            label: const Text('Update Location'),
+                            icon: const Icon(
+                              Icons.add_location,
+                              size: 16,
+                              color: Colors.white,
+                            ),
+                            label: const Text('Add to Log'),
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
@@ -241,9 +256,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                         const Icon(Icons.location_off,
                             size: 40, color: Colors.grey),
                         const SizedBox(height: 8),
-                        const Text(
-                          'No current location data',
-                          style: TextStyle(color: Colors.grey),
+                        Text(
+                          state is CurrentLocationError
+                              ? 'Error: ${state.message}'
+                              : 'No current location data',
+                          style: const TextStyle(color: Colors.grey),
                         ),
                         const SizedBox(height: 8),
                         ElevatedButton.icon(
@@ -251,6 +268,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                           label: const Text('Add Location'),
                           onPressed: () {
                             context.push(RouteConstants.quickLogsAddFullPath);
+                          },
+                        ),
+                        const SizedBox(height: 8),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('Detect Location'),
+                          onPressed: () {
+                            _currentLocationCubit.detectCurrentCountry();
                           },
                         ),
                       ],
