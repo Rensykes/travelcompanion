@@ -1,7 +1,6 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
-import 'package:trackie/core/utils/flushbar_helper.dart';
 
 class NotificationHelper {
   static Flushbar? _currentFlushbar;
