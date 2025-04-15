@@ -157,43 +157,6 @@ class NotificationHelper {
     }
   }
 
-  /// Create a customized Flushbar with the appropriate styling
-  static Flushbar _createFeedbackFlushbar({
-    required BuildContext context,
-    required String title,
-    required String message,
-    required Duration duration,
-    required Color backgroundColor,
-    required IconData icon,
-    bool isDismissible = true,
-  }) {
-    return Flushbar(
-      title: title,
-      message: message,
-      duration: duration,
-      backgroundColor: backgroundColor,
-      icon: Icon(icon, color: Colors.white),
-      leftBarIndicatorColor: backgroundColor.withOpacity(0.7),
-      flushbarPosition: FlushbarPosition.TOP,
-      flushbarStyle: FlushbarStyle.FLOATING,
-      reverseAnimationCurve: Curves.decelerate,
-      forwardAnimationCurve: Curves.elasticOut,
-      margin: const EdgeInsets.all(8),
-      borderRadius: BorderRadius.circular(8),
-      isDismissible: isDismissible,
-      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
-      mainButton: isDismissible
-          ? TextButton(
-              onPressed: () => _dismissCurrentNotification(),
-              child: const Text(
-                'DISMISS',
-                style: TextStyle(color: Colors.white),
-              ),
-            )
-          : null,
-    );
-  }
-
   /// Show a SnackBar notification
   static void _showSnackbar(
     BuildContext context,
