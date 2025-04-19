@@ -76,7 +76,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: const Text('Name, country, and preferences'),
                     trailing: const Icon(Icons.arrow_forward_ios),
                     onTap: () {
-                      context.go(RouteConstants.userProfileFullPath);
+                      context.push(RouteConstants.userProfileFullPath);
                     },
                   ),
                   const Divider(),
