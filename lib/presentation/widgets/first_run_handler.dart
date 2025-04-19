@@ -9,7 +9,6 @@ import 'package:trackie/presentation/helpers/card_helper.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:trackie/presentation/bloc/user_info/user_info_cubit.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
-import 'package:trackie/presentation/widgets/manual_add/country_search_modal.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
 

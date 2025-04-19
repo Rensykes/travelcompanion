@@ -9,8 +9,6 @@ import 'package:trackie/core/constants/route_constants.dart';
 import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
-import 'package:trackie/presentation/widgets/user_info_display.dart';
-import 'package:trackie/presentation/widgets/first_run_handler.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
