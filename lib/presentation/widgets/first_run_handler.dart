@@ -13,6 +13,9 @@ import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:trackie/presentation/helpers/notification_helper.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:trackie/application/services/permission_service.dart';
 
 /// Widget that handles showing onboarding screens and first-run tasks
 ///
@@ -132,11 +135,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   // Add a navigator key as a class field
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
+  // Service for handling permissions
+  final PermissionService _permissionService = getIt<PermissionService>();
+
   // Add controllers for the new form fields
   final TextEditingController _nameController = TextEditingController();
   String? _selectedCountryCode;
   List<Country> _countryList = [];
-  bool _batteryOptimizationEnabled = true;
+  bool _batteryOptimizationEnabled = false;
   bool _isFormValid = false;
 
   // Animation controller for form fields
@@ -255,14 +261,30 @@ class _OnboardingScreenState extends State<OnboardingScreen>
 
       log('User name: ${_nameController.text}');
       log('User country: $_selectedCountryCode');
+      
+      // Show success notification
+      NotificationHelper.showNotification(
+        context,
+        'Profile Saved',
+        'Your profile has been created successfully!',
+        ContentType.success,
+      );
     } else {
       // If fields are not filled, don't proceed
       return;
     }
 
-    // Set battery optimization based on switch value without showing dialog
-    // The switch in the UI controls this value directly
+    // Set battery optimization based on switch value
     log('Battery optimization enabled: $_batteryOptimizationEnabled');
+    if (_batteryOptimizationEnabled) {
+      try {
+        // Request battery optimization exemption if it's enabled
+        final bool result = await _permissionService.requestIgnoreBatteryOptimization();
+        log('Battery optimization exemption request result: $result');
+      } catch (e) {
+        log('Error requesting battery optimization exemption: $e');
+      }
+    }
 
     // Complete onboarding
     await widget.onComplete();
@@ -576,7 +598,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           elevation: 0,
                           child: SwitchListTile(
                             title: const Text(
-                              'Allow background location tracking',
+                              'Enable background tracking',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -584,38 +606,54 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                               ),
                             ),
                             subtitle: const Text(
-                              "Don't worry, I won't use too much battery!",
+                              "Allows more reliable location tracking by disabling battery optimizations",
                               style: TextStyle(
                                   fontSize: 14, color: Colors.black54),
                             ),
                             value: _batteryOptimizationEnabled,
-                            onChanged: (value) {
+                            onChanged: (value) async {
                               setState(() {
                                 _batteryOptimizationEnabled = value;
                               });
-                              // Use _navigatorKey.currentContext to show SnackBar
-                              if (_navigatorKey.currentContext != null) {
-                                ScaffoldMessenger.of(
-                                        _navigatorKey.currentContext!)
-                                    .showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      value
-                                          ? 'Background tracking enabled'
-                                          : 'Background tracking disabled',
-                                      style:
-                                          const TextStyle(color: Colors.white),
-                                    ),
-                                    duration: const Duration(seconds: 2),
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    behavior: SnackBarBehavior.floating,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    margin: const EdgeInsets.all(10),
-                                  ),
-                                );
+                              
+                              // If enabling, request battery optimization exemption
+                              if (value) {
+                                try {
+                                  final bool result = await _permissionService.requestIgnoreBatteryOptimization();
+                                  
+                                  // Use NotificationHelper to show notification based on result
+                                  if (_navigatorKey.currentContext != null) {
+                                    NotificationHelper.showNotification(
+                                      _navigatorKey.currentContext,
+                                      'Battery Optimization',
+                                      result 
+                                        ? 'Background tracking enabled' 
+                                        : 'Battery settings unchanged',
+                                      result ? ContentType.success : ContentType.warning,
+                                    );
+                                  }
+                                } catch (e) {
+                                  log('Error requesting battery optimization exemption: $e');
+                                  
+                                  if (_navigatorKey.currentContext != null) {
+                                    NotificationHelper.showNotification(
+                                      _navigatorKey.currentContext,
+                                      'Error',
+                                      'Failed to change battery settings',
+                                      ContentType.failure,
+                                    );
+                                  }
+                                }
+                              } else {
+                                // Just show notification that it's disabled
+                                if (_navigatorKey.currentContext != null) {
+                                  NotificationHelper.showNotification(
+                                    _navigatorKey.currentContext,
+                                    'Battery Optimization',
+                                    'Background tracking disabled',
+                                    ContentType.help,
+                                  );
+                                }
                               }
                             },
                             activeColor: AppThemes.primaryGreen,
@@ -768,8 +806,14 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final navigatorContext = _navigatorKey.currentContext;
 
     if (navigatorContext == null) {
-      // If navigator context is null, we can't show the modal - should not happen
+      // If navigator context is null, show error notification
       log('Error: Navigator context is null');
+      NotificationHelper.showNotification(
+        context,
+        'Error',
+        'Could not open country picker. Please try again.',
+        ContentType.failure,
+      );
       return;
     }
 
