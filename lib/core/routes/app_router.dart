@@ -6,6 +6,7 @@ import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart';
 import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.dart';
+import 'package:trackie/presentation/bloc/user_info/user_info_cubit.dart';
 import 'package:trackie/presentation/screens/advanced_settings_screen.dart';
 import 'package:trackie/presentation/screens/app_shell_screen.dart';
 import 'package:trackie/presentation/screens/calendar_view_screen.dart';
@@ -18,6 +19,7 @@ import 'package:trackie/presentation/screens/relations_screen.dart';
 import 'package:trackie/presentation/screens/settings_screen.dart';
 import 'package:trackie/presentation/screens/statistics_screen.dart';
 import 'package:trackie/presentation/screens/travel_history_screen.dart';
+import 'package:trackie/presentation/screens/user_profile_screen.dart';
 
 // Import the navigator key from main.dart
 import 'package:trackie/main.dart' show navigatorKey;
@@ -33,7 +35,10 @@ final router = GoRouter(
       routes: [
         GoRoute(
           path: RouteConstants.dashboard,
-          builder: (context, state) => const DashboardScreen(),
+          builder: (context, state) => BlocProvider.value(
+            value: GetIt.instance.get<UserInfoCubit>(),
+            child: const DashboardScreen(),
+          ),
         ),
         GoRoute(
           path: RouteConstants.countries,
@@ -107,6 +112,10 @@ final router = GoRouter(
               builder: (context, state) => const ExportImportScreen(),
             ),
           ],
+        ),
+        GoRoute(
+          path: RouteConstants.userProfile,
+          builder: (context, state) => const UserProfileScreen(),
         ),
       ],
     ),

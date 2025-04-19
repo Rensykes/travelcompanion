@@ -6,6 +6,7 @@ import 'package:trackie/application/services/location_service.dart';
 import 'package:trackie/core/services/notification_service.dart';
 import 'package:trackie/core/services/first_run_service.dart';
 import 'package:trackie/core/services/task_status_service.dart';
+import 'package:trackie/core/services/user_info_service.dart';
 import 'package:trackie/data/datasource/database.dart';
 import 'package:trackie/data/repositories/country_visits_repository.dart';
 import 'package:trackie/data/repositories/location_logs_repository.dart';
@@ -18,6 +19,7 @@ import 'package:trackie/presentation/bloc/theme/theme_cubit.dart';
 import 'package:trackie/presentation/bloc/calendar/calendar_cubit.dart';
 import 'package:trackie/presentation/bloc/travel_history/travel_history_cubit.dart';
 import 'package:trackie/presentation/bloc/current_location/current_location_cubit.dart';
+import 'package:trackie/presentation/bloc/user_info/user_info_cubit.dart';
 
 /// Service locator instance
 final getIt = GetIt.instance;
@@ -46,6 +48,9 @@ class DependencyInjection {
 
       // Register TaskStatusService
       getIt.registerLazySingleton<TaskStatusService>(() => TaskStatusService());
+
+      // Register UserInfoService
+      getIt.registerLazySingleton<UserInfoService>(() => UserInfoService());
 
       // Repositories
       getIt.registerFactory<LocationLogsRepository>(
@@ -91,6 +96,11 @@ class DependencyInjection {
         () => ManualAddCubit(
           locationService: getIt<LocationService>(),
         ),
+      );
+
+      // Register UserInfoCubit
+      getIt.registerLazySingleton<UserInfoCubit>(
+        () => UserInfoCubit(getIt<UserInfoService>()),
       );
 
       // Export/Import Service

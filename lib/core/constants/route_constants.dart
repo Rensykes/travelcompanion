@@ -8,6 +8,7 @@ class RouteConstants {
   static const String travelHistory = '/travel-history';
   static const String countries = '/countries'; // Renamed from home
   static const String statistics = '/statistics';
+  static const String userProfile = '/user-profile';
 
   // Nested routes
   static const String relations =
@@ -34,6 +35,7 @@ class RouteConstants {
   static const String exportImportFullPath = '/settings/export-import';
   static const String quickLogsAddFullPath = '/add/quick-logs-add';
   static const String manualAddFullPath = '/add/manual-add';
+  static const String userProfileFullPath = '/user-profile';
 
   // Parameter names
   static const String countryCodeParam = 'countryCode';

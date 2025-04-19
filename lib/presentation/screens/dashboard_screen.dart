@@ -10,6 +10,9 @@ import 'package:trackie/presentation/bloc/current_location/current_location_cubi
 import 'package:trackie/presentation/bloc/current_location/current_location_state.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
 import 'package:trackie/presentation/helpers/card_helper.dart';
+import 'package:trackie/presentation/bloc/user_info/user_info_cubit.dart';
+import 'package:trackie/presentation/bloc/user_info/user_info_state.dart';
+import 'package:trackie/core/utils/app_themes.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -35,6 +38,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshData();
       _currentLocationCubit.detectCurrentCountry();
+
+      // Load user info
+      context.read<UserInfoCubit>().loadUserInfo();
     });
   }
 
@@ -72,6 +78,11 @@ class _DashboardScreenState extends State<DashboardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Greeting section
+                _buildGreetingSection(),
+
+                const SizedBox(height: 24),
+
                 // Stats Card
                 _buildStatsCard(),
 
@@ -94,6 +105,34 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildGreetingSection() {
+    return BlocBuilder<UserInfoCubit, UserInfoState>(
+      builder: (context, state) {
+        String userName = 'there';
+
+        if (state is UserInfoLoaded) {
+          userName = state.name;
+        } else if (state is UserInfoInitial || state is UserInfoNotFound) {
+          // If user info is not loaded yet, trigger loading
+          context.read<UserInfoCubit>().loadUserInfo();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(top: 6.0, bottom: 6.0),
+          child: Text(
+            'Hi, $userName',
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              height: 1.2,
+              color: AppThemes.lightGreen.withOpacity(0.8),
+            ),
+          ),
+        );
+      },
     );
   }
 

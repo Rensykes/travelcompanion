@@ -50,7 +50,7 @@ class ThemeCard extends StatelessWidget {
         (isDarkMode
             ? const Color(0xFF1F2820)
                 .withAlpha(100) // Dark green-gray for dark theme
-            : Colors.white);
+            : Colors.white.withAlpha(100));
 
     // Border color based on theme
     final border = borderColor ??
