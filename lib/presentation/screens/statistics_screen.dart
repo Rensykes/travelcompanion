@@ -9,6 +9,8 @@ import 'package:trackie/presentation/bloc/location_logs/location_logs_cubit.dart
 import 'package:trackie/presentation/bloc/location_logs/location_logs_state.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
 import 'package:trackie/presentation/widgets/statistics/stats_components.dart';
+import 'package:trackie/presentation/helpers/card_helper.dart';
+import 'package:trackie/presentation/widgets/theme_card.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -321,42 +323,39 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 shrinkWrap: true,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-                childAspectRatio: 0.9,
+                childAspectRatio: 1.2,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  StatsCard(
-                    title: 'Countries Visited',
-                    value: countriesCount.toString(),
-                    icon: Icons.public,
-                    color: Colors.blue.shade400,
+                  _buildCustomStatCard(
+                    'Countries Visited',
+                    countriesCount.toString(),
+                    Icons.public,
+                    Colors.blue.shade400,
                   ),
-                  StatsCard(
-                    title: 'Total Days',
-                    value: totalDays.toString(),
-                    icon: Icons.calendar_today,
-                    color: Colors.purple.shade400,
+                  _buildCustomStatCard(
+                    'Total Days',
+                    totalDays.toString(),
+                    Icons.calendar_today,
+                    Colors.purple.shade400,
                   ),
-                  StatsCard(
-                    title: 'Individual Visits',
-                    value: visitsCount.toString(),
-                    icon: Icons.flight_takeoff,
-                    color: Colors.orange.shade400,
+                  _buildCustomStatCard(
+                    'Individual Visits',
+                    visitsCount.toString(),
+                    Icons.flight_takeoff,
+                    Colors.orange.shade400,
                   ),
-                  StatsCard(
-                    title: 'Longest Stay',
-                    value: '$longestStay days',
-                    icon: Icons.home,
-                    color: Colors.green.shade400,
+                  _buildCustomStatCard(
+                    'Longest Stay',
+                    '$longestStay days',
+                    Icons.home,
+                    Colors.green.shade400,
                   ),
                 ],
               ),
               const SizedBox(height: 24),
 
               // Most visited section
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+              CardHelper.standardCard(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -395,61 +394,55 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               const SizedBox(height: 24),
 
               // Instructions
-              Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+              CardHelper.coloredCard(
                 color: colorScheme.primaryContainer,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.info_outline,
-                              color: colorScheme.onPrimaryContainer),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              'Analysis Tools',
-                              style: textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.info_outline,
+                            color: colorScheme.onPrimaryContainer),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Analysis Tools',
+                            style: textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onPrimaryContainer,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Use the tabs to explore different aspects of your travel data:',
-                        style: TextStyle(color: colorScheme.onPrimaryContainer),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildInfoItem(
-                        icon: Icons.pie_chart,
-                        text: 'Countries - Time spent in each country',
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                      _buildInfoItem(
-                        icon: Icons.bar_chart,
-                        text: 'Timeline - Duration of each country visit',
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                      _buildInfoItem(
-                        icon: Icons.donut_large,
-                        text: 'Status - Distribution of location log statuses',
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                      _buildInfoItem(
-                        icon: Icons.show_chart,
-                        text: 'Activity - Monthly travel activity levels',
-                        color: colorScheme.onPrimaryContainer,
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Use the tabs to explore different aspects of your travel data:',
+                      style: TextStyle(color: colorScheme.onPrimaryContainer),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildInfoItem(
+                      icon: Icons.pie_chart,
+                      text: 'Countries - Time spent in each country',
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                    _buildInfoItem(
+                      icon: Icons.bar_chart,
+                      text: 'Timeline - Duration of each country visit',
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                    _buildInfoItem(
+                      icon: Icons.donut_large,
+                      text: 'Status - Distribution of location log statuses',
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                    _buildInfoItem(
+                      icon: Icons.show_chart,
+                      text: 'Activity - Monthly travel activity levels',
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -469,6 +462,60 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(text, style: TextStyle(color: color)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCustomStatCard(String title, String value, IconData icon, Color color) {
+    // Use ThemeCard directly instead of CardHelper.statCard to have more control over padding
+    return ThemeCard(
+      elevation: 3,
+      borderRadius: 18.0,
+      borderWidth: 0.7,
+      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0), // Reduced padding
+      child: _buildStatCardContent(
+        title,
+        value,
+        icon,
+        color,
+      ),
+    );
+  }
+
+  Widget _buildStatCardContent(String title, String value, IconData icon, Color color) {
+    return SizedBox(
+      height: 82, // Fixed height to prevent overflow
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 30, color: color),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Text(
+              title,
+              style: textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          const Spacer(flex: 1), // Flexible space
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),

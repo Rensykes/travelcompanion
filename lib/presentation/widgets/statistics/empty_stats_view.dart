@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trackie/core/utils/app_themes.dart';
 import 'package:trackie/core/utils/data_refresh_util.dart';
 
 class EmptyStatsView extends StatelessWidget {
@@ -77,7 +78,7 @@ class EmptyStatsView extends StatelessWidget {
                       DataRefreshUtil.refreshAllData(context: context);
                     }
                   },
-                  icon: const Icon(Icons.refresh),
+                  icon: const Icon(Icons.refresh, color: AppThemes.lightGreen),
                   label: const Text('Refresh Data'),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
