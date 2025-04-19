@@ -7,6 +7,7 @@ class AppThemes {
   static const Color darkGreen = Color(0xFF2E5F24); // Dark Forest Green
   static const Color lightGreen = Color(0xFFE7F0DC); // Very Light Green
   static const Color contrastBrown = Color(0xFF795548); // Brown for contrast
+  static const Color darkGrey = Color(0xFF222121); 
 
   // Light Theme
   static final lightTheme = ThemeData(

@@ -325,28 +325,28 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           children: [
                             // Welcome page
                             _buildOnboardingPage(
-                              title: 'Welcome to Travel Companion',
+                              title: '🌍 Welcome to Trackie!',
                               description:
-                                  'Track your travels and keep a digital record of places you\'ve visited.',
+                                  'Trackie is a lightweight, privacy-first companion built for digital nomads who want to keep track of their time abroad with ease.',
                               icon: Icons.travel_explore,
                               color: Colors.blue,
                             ),
 
                             // Features page
                             _buildOnboardingPage(
-                              title: 'Key Features',
+                              title: '📊 Stay in Control',
                               description:
-                                  'Automatic location tracking, travel statistics, and trip history.',
-                              icon: Icons.map,
+                                  'Track your days in each country, get simple overviews, and stay compliant with visa or tax requirements—without the clutter.',
+                              icon: Icons.insights,
                               color: Colors.green,
                             ),
 
                             // Permissions page
                             _buildOnboardingPage(
-                              title: 'One Last Thing',
+                              title: '🔒 Privacy, Reinvented',
                               description:
-                                  'We need permission to track your location in the background for accurate travel logs.',
-                              icon: Icons.location_on,
+                                  'We don’t use GPS to track your location. Instead, Trackie relies on carrier info, making the app more secure, battery-friendly, and respectful of your privacy.',
+                              icon: Icons.privacy_tip,
                               color: Colors.orange,
                             ),
 
@@ -449,9 +449,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   }) {
     return Padding(
       padding: const EdgeInsets.all(24.0),
-      child: CardHelper.coloredCard(
-        color: color,
-        elevation: 4.0,
+      child: CardHelper.standardCard(
+        elevation: 2.0,
         padding: const EdgeInsets.all(24.0), // Slightly smaller padding
         child: LayoutBuilder(builder: (context, constraints) {
           return SingleChildScrollView(
@@ -477,7 +476,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 24, // Slightly smaller font
+                      fontSize: 24,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 0.5,
                     ),
@@ -531,7 +530,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                             color: AppThemes.lightGreen,
                           ),
                           speed:
-                              const Duration(milliseconds: 150), // Slower speed
+                              const Duration(milliseconds: 100),
                         ),
                       ],
                       totalRepeatCount: 1,
@@ -908,7 +907,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         TextField(
                           controller: cubit.searchController,
                           autofocus: false,
-                          style: const TextStyle(color: AppThemes.lightGreen),
+                          style: const TextStyle(color: AppThemes.darkGreen),
                           cursorColor: AppThemes.primaryGreen,
                           decoration: InputDecoration(
                             hintText: 'Search countries...',
@@ -980,6 +979,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                           '${country.alpha2Code} - ${country.name}',
                                           style: const TextStyle(
                                             fontSize: 16,
+                                            color: AppThemes.darkGrey,
                                           ),
                                         ),
                                         onTap: () {
