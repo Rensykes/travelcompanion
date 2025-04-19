@@ -22,50 +22,74 @@ void callbackDispatcher() {
     bool taskSuccess = false;
 
     try {
+      log(
+        "⚙️ Background task started",
+        name: 'Workmanager',
+        level: 0,
+        time: DateTime.now(),
+      );
+      
       DartPluginRegistrant.ensureInitialized();
 
       // Initialize database for background task
       backgroundDatabase = AppDatabase();
+      
+      log("Database initialized", name: 'Workmanager');
 
-      // Create repository instances
-      final countryVisitsRepository =
-          CountryVisitsRepository(backgroundDatabase);
-      final locationLogsRepository = LocationLogsRepository(backgroundDatabase);
+      try {
+        // Create repository instances
+        final countryVisitsRepository =
+            CountryVisitsRepository(backgroundDatabase);
+        final locationLogsRepository = LocationLogsRepository(backgroundDatabase);
 
-      // Create service using repositories
-      final locationService = LocationService(
-        locationLogsRepository: locationLogsRepository,
-        countryVisitsRepository: countryVisitsRepository,
-      );
-
-      String? isoCode = await SimInfoService.getIsoCode();
-
-      if (isoCode != null) {
-        // Use the service to log the entry, which will handle all the complex logic
-        await locationService.addEntry(
-            logSource: DBUtils.scheduledEntry,
-            countryCode: isoCode,
-            logDateTime: DateTime.now());
-
-        log(
-          "${DateTime.now()} - Background task completed for country: $isoCode",
-          name: 'Workmanager',
-          time: DateTime.now(),
+        // Create service using repositories
+        final locationService = LocationService(
+          locationLogsRepository: locationLogsRepository,
+          countryVisitsRepository: countryVisitsRepository,
         );
+        
+        log("Services initialized", name: 'Workmanager');
 
-        // Mark task as successful
-        taskSuccess = true;
-      } else {
+        String? isoCode = await SimInfoService.getIsoCode();
+        log("ISO code detection result: $isoCode", name: 'Workmanager');
+
+        if (isoCode != null) {
+          // Use the service to log the entry, which will handle all the complex logic
+          await locationService.addEntry(
+              logSource: DBUtils.scheduledEntry,
+              countryCode: isoCode,
+              logDateTime: DateTime.now());
+
+          log(
+            "${DateTime.now()} - Background task completed for country: $isoCode",
+            name: 'Workmanager',
+            time: DateTime.now(),
+          );
+
+          // Mark task as successful
+          taskSuccess = true;
+        } else {
+          log(
+            "${DateTime.now()} - Background task failed: No country detected",
+            name: 'Workmanager',
+            level: 900,
+            time: DateTime.now(),
+          );
+        }
+      } catch (e, stack) {
         log(
-          "${DateTime.now()} - Background task failed: No country detected",
+          "Error during task execution: $e",
           name: 'Workmanager',
+          error: e,
+          stackTrace: stack,
           level: 900,
           time: DateTime.now(),
         );
+      } finally {
+        // Close the database to prevent memory leaks
+        await backgroundDatabase.close();
+        log("Database closed", name: 'Workmanager');
       }
-
-      // Close the database to prevent memory leaks
-      await backgroundDatabase.close();
     } catch (e, stack) {
       log(
         "Background task crashed",
@@ -82,7 +106,21 @@ void callbackDispatcher() {
 
     // Record the task execution status
     try {
+      log(
+        "Recording task execution status: $taskSuccess",
+        name: 'Workmanager',
+        level: 0,
+        time: DateTime.now(),
+      );
+      
       await taskStatusService.recordTaskExecution(success: taskSuccess);
+      
+      log(
+        "Task execution status recorded successfully",
+        name: 'Workmanager',
+        level: 0,
+        time: DateTime.now(),
+      );
     } catch (e) {
       log(
         "Failed to record task status: $e",

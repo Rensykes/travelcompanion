@@ -19,7 +19,7 @@ class AdvancedSettingsScreen extends StatefulWidget {
   AdvancedSettingsScreenState createState() => AdvancedSettingsScreenState();
 }
 
-class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
+class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> with WidgetsBindingObserver {
   bool _showErrorLogs = true;
   bool _expandTaskStats = false;
 
@@ -43,15 +43,53 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
   @override
   void initState() {
     super.initState();
+    // Register the observer for lifecycle events
+    WidgetsBinding.instance.addObserver(this);
+    
     // Load data when the screen is initialized
     _loadPreferences();
     _checkPermissionStatus();
     _loadTaskStatus();
   }
+  
+  @override
+  void dispose() {
+    // Remove the observer when disposing
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Refresh data when app resumes from background
+    if (state == AppLifecycleState.resumed) {
+      _refreshAllData();
+    }
+  }
+  
+  // Add this method to refresh all data at once
+  Future<void> _refreshAllData() async {
+    await _checkPermissionStatus();
+    await _loadTaskStatus();
+    
+    if (mounted) {
+      setState(() {
+        // Force UI refresh
+      });
+    }
+  }
+  
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Refresh data when dependencies change (e.g., when returning to this screen)
+    _refreshAllData();
+  }
 
   // Load task status information
   Future<void> _loadTaskStatus() async {
     try {
+      // This will now trigger synchronization from the file if needed
       final stats = await _taskStatusService.getTaskStatistics();
       final health = await _taskStatusService.checkTaskHealth();
       final lastExecution =
@@ -65,6 +103,14 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
         _successRate = stats['successRate'] ?? 'N/A';
         _taskHealth = health;
       });
+      
+      // Log task stats loaded to help with debugging
+      log(
+        'Task stats loaded - Executions: $_executionCount, Success: $_successCount, Failure: $_failureCount',
+        name: 'AdvancedSettingsScreen',
+        level: 0, // INFO
+        time: DateTime.now(),
+      );
     } catch (e) {
       log('Error loading task status: $e');
     }
@@ -186,7 +232,7 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
   }
 
   // Reinitialize the workmanager
-  void _reinitializeWorkmanager() {
+  Future<void> _reinitializeWorkmanager() async {
     // Initialize the background tasks
     AppInitialization.initializeBackgroundTasks(isDebugMode: isDebugMode);
 
@@ -199,8 +245,17 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
     );
 
     // Reset task statistics but don't show notification from there
-    // since we'll show a combined notification here
-    _resetTaskStatisticsWithoutNotification();
+    await _resetTaskStatisticsWithoutNotification();
+    
+    // Explicitly refresh the status UI
+    await _loadTaskStatus();
+    
+    // Make sure UI state is updated
+    if (mounted) {
+      setState(() {
+        // Force UI refresh
+      });
+    }
     
     // Show a single notification for both actions
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -217,8 +272,42 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
   
   // Reset task statistics without showing a notification
   Future<void> _resetTaskStatisticsWithoutNotification() async {
-    await _taskStatusService.resetTaskStatistics();
-    await _loadTaskStatus();
+    try {
+      // Reset the statistics in the service
+      await _taskStatusService.resetTaskStatistics();
+      
+      // Reload task status data to refresh the UI
+      final stats = await _taskStatusService.getTaskStatistics();
+      final health = await _taskStatusService.checkTaskHealth();
+      final lastExecution = await _taskStatusService.getFormattedTimeSinceLastExecution();
+      
+      // Update the state with the refreshed data
+      if (mounted) {
+        setState(() {
+          _lastExecution = lastExecution;
+          _executionCount = stats['executionCount'] ?? 0;
+          _successCount = stats['successCount'] ?? 0;
+          _failureCount = stats['failureCount'] ?? 0; 
+          _successRate = stats['successRate'] ?? 'N/A';
+          _taskHealth = health;
+        });
+      }
+      
+      log(
+        'Task statistics reset successfully',
+        name: 'AdvancedSettingsScreen',
+        level: 0, // INFO
+        time: DateTime.now(),
+      );
+    } catch (e) {
+      log(
+        'Error resetting task statistics: $e',
+        name: 'AdvancedSettingsScreen',
+        error: e,
+        level: 900, // ERROR
+        time: DateTime.now(),
+      );
+    }
   }
 
   @override
@@ -229,10 +318,7 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
         backgroundColor: Colors.transparent,
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          await _checkPermissionStatus();
-          await _loadTaskStatus();
-        },
+        onRefresh: _refreshAllData,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
@@ -329,18 +415,41 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
                                 ),
                               ],
                             ),
-                            IconButton(
-                              icon: Icon(
-                                _expandTaskStats
-                                    ? Icons.keyboard_arrow_up
-                                    : Icons.keyboard_arrow_down,
-                                color: Theme.of(context).primaryColor,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _expandTaskStats = !_expandTaskStats;
-                                });
-                              },
+                            Row(
+                              children: [
+                                // Add refresh button
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.refresh,
+                                    size: 20,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  onPressed: () {
+                                    _loadTaskStatus();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Refreshed task status'),
+                                        duration: Duration(seconds: 1),
+                                      ),
+                                    );
+                                  },
+                                  tooltip: 'Refresh status',
+                                ),
+                                // Expand/collapse button
+                                IconButton(
+                                  icon: Icon(
+                                    _expandTaskStats
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      _expandTaskStats = !_expandTaskStats;
+                                    });
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
