@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +15,7 @@ class UserInfoService {
       final prefs = await SharedPreferences.getInstance();
       return await prefs.setString(_nameKey, name);
     } catch (e) {
-      debugPrint('Error saving user name: $e');
+      log('Error saving user name: $e');
       return false;
     }
   }
@@ -24,7 +26,7 @@ class UserInfoService {
       final prefs = await SharedPreferences.getInstance();
       return await prefs.setString(_countryCodeKey, countryCode);
     } catch (e) {
-      debugPrint('Error saving user country: $e');
+      log('Error saving user country: $e');
       return false;
     }
   }
@@ -40,7 +42,7 @@ class UserInfoService {
       final countryResult = await prefs.setString(_countryCodeKey, countryCode);
       return nameResult && countryResult;
     } catch (e) {
-      debugPrint('Error saving user info: $e');
+      log('Error saving user info: $e');
       return false;
     }
   }
@@ -51,7 +53,7 @@ class UserInfoService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getString(_nameKey);
     } catch (e) {
-      debugPrint('Error getting user name: $e');
+      log('Error getting user name: $e');
       return null;
     }
   }
@@ -62,7 +64,7 @@ class UserInfoService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.getString(_countryCodeKey);
     } catch (e) {
-      debugPrint('Error getting user country: $e');
+      log('Error getting user country: $e');
       return null;
     }
   }
@@ -73,7 +75,7 @@ class UserInfoService {
       final prefs = await SharedPreferences.getInstance();
       return prefs.containsKey(_nameKey) && prefs.containsKey(_countryCodeKey);
     } catch (e) {
-      debugPrint('Error checking user info: $e');
+      log('Error checking user info: $e');
       return false;
     }
   }
@@ -86,7 +88,7 @@ class UserInfoService {
       await prefs.remove(_countryCodeKey);
       return true;
     } catch (e) {
-      debugPrint('Error clearing user info: $e');
+      log('Error clearing user info: $e');
       return false;
     }
   }

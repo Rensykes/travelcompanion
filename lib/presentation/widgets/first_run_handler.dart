@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/core/services/first_run_service.dart';
@@ -6,6 +8,10 @@ import 'package:trackie/presentation/widgets/gradient_background.dart';
 import 'package:trackie/presentation/helpers/card_helper.dart';
 import 'package:country_flags/country_flags.dart';
 import 'package:trackie/presentation/bloc/user_info/user_info_cubit.dart';
+import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
+import 'package:trackie/presentation/widgets/manual_add/country_search_modal.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
 
 /// Widget that handles showing onboarding screens and first-run tasks
 ///
@@ -72,8 +78,7 @@ class _FirstRunHandlerState extends State<FirstRunHandler> {
         isDebugMode: widget.isDebugMode,
       );
 
-      debugPrint(
-          'Background tasks initialized with debug mode: ${widget.isDebugMode}');
+      log('Background tasks initialized with debug mode: ${widget.isDebugMode}');
     }
   }
 
@@ -98,13 +103,6 @@ class _FirstRunHandlerState extends State<FirstRunHandler> {
     if (_showOnboarding) {
       return OnboardingScreen(
         onComplete: _completeOnboarding,
-        requestBatteryOptimization: () async {
-          if (mounted) {
-            return await _firstRunService
-                .showBatteryOptimizationDialog(context);
-          }
-          return false;
-        },
       );
     }
 
@@ -115,12 +113,10 @@ class _FirstRunHandlerState extends State<FirstRunHandler> {
 /// The onboarding screen with multiple pages
 class OnboardingScreen extends StatefulWidget {
   final Function() onComplete;
-  final Future<bool> Function() requestBatteryOptimization;
 
   const OnboardingScreen({
     super.key,
     required this.onComplete,
-    required this.requestBatteryOptimization,
   });
 
   @override
@@ -226,17 +222,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         countryCode: _selectedCountryCode!,
       );
 
-      debugPrint('User name: ${_nameController.text}');
-      debugPrint('User country: $_selectedCountryCode');
+      log('User name: ${_nameController.text}');
+      log('User country: $_selectedCountryCode');
     } else {
       // If fields are not filled, don't proceed
       return;
     }
 
-    // Request battery optimization if enabled
-    if (_batteryOptimizationEnabled) {
-      await widget.requestBatteryOptimization();
-    }
+    // Set battery optimization based on switch value without showing dialog
+    // The switch in the UI controls this value directly
+    log('Battery optimization enabled: $_batteryOptimizationEnabled');
 
     // Complete onboarding
     await widget.onComplete();
@@ -249,15 +244,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: theme,
-      home: Navigator(
-        onGenerateRoute: (_) => MaterialPageRoute(
-          builder: (_) => Scaffold(
-            body: GradientScaffold(
-              body: SafeArea(
+      // Set navigatorKey to make sure we always have a valid navigator context
+      navigatorKey: _navigatorKey,
+      home: Scaffold(
+        body: GradientScaffold(
+          body: SafeArea(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 child: Column(
                   children: [
                     // Content - PageView
-                    Expanded(
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
                       child: PageView(
                         controller: _pageController,
                         onPageChanged: (page) {
@@ -445,105 +447,110 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // New method to build the user info page
   Widget _buildUserInfoPage() {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: CardHelper.coloredCard(
-        color: Colors.purple,
-        elevation: 4.0,
-        padding: const EdgeInsets.all(24.0), // Reduced padding
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Center(
-                child: Text(
-                  'Let me know you better',
-                  style: TextStyle(
-                    fontSize: 22, // Reduced size
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+    return SafeArea(
+      // Wrap in Scaffold to provide ScaffoldMessenger
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => FocusScope.of(context).unfocus(),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Name text field
+                  TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      labelText: "What's your name?*",
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
+                      prefixIcon: Icon(Icons.person),
+                      helperText: "Required",
+                    ),
+                    onChanged: (_) => _validateForm(),
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 24),
+                  const SizedBox(height: 20),
 
-              // Name text field
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: "What's your name?*",
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Colors.white,
-                  prefixIcon: Icon(Icons.person),
-                  helperText: "Required",
-                ),
-                onChanged: (_) => _validateForm(),
-              ),
-              const SizedBox(height: 20),
+                  // Country selection field
+                  _buildCountrySelectionField(),
+                  const SizedBox(height: 20),
 
-              // Country selection field
-              _buildCountrySelectionField(),
-              const SizedBox(height: 20),
-
-              // Battery optimization heading
-              const Padding(
-                padding: EdgeInsets.only(left: 4.0, bottom: 8.0),
-                child: Text(
-                  'Settings',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-              ),
-
-              // Battery optimization switch
-              SwitchListTile(
-                title: const Text(
-                  'Allow battery optimization',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
-                subtitle: const Text(
-                  'Enable for accurate background location tracking',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-                value: _batteryOptimizationEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    _batteryOptimizationEnabled = value;
-                  });
-                },
-                tileColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  side: BorderSide(color: Colors.grey.shade300),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                dense: true,
-              ),
-
-              if (!_isFormValid)
-                Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
-                  child: Text(
-                    'Please fill in all required fields',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
-                      fontSize: 14,
+                  // Battery optimization heading
+                  const Padding(
+                    padding: EdgeInsets.only(left: 4.0, bottom: 8.0),
+                    child: Text(
+                      'Settings',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
                     ),
                   ),
-                ),
-            ],
+
+                  // Battery optimization switch
+                  SwitchListTile(
+                    title: const Text(
+                      'Allow background location tracking',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      'Enabling this will improve accuracy but may use more battery',
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                    value: _batteryOptimizationEnabled,
+                    onChanged: (value) {
+                      setState(() {
+                        _batteryOptimizationEnabled = value;
+                      });
+                      // Use _navigatorKey.currentContext to show SnackBar
+                      if (_navigatorKey.currentContext != null) {
+                        ScaffoldMessenger.of(_navigatorKey.currentContext!)
+                            .showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              value
+                                  ? 'Background tracking enabled'
+                                  : 'Background tracking disabled',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            duration: const Duration(seconds: 2),
+                            backgroundColor: Theme.of(context).primaryColor,
+                          ),
+                        );
+                      }
+                    },
+                    tileColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    dense: true,
+                  ),
+
+                  if (!_isFormValid)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: Text(
+                        'Please fill in all required fields',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -552,53 +559,56 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // Build the country selection field
   Widget _buildCountrySelectionField() {
-    // Use a Builder to get the correct context
-    return Builder(builder: (BuildContext builderContext) {
-      return FormField<String>(
-        validator: (value) {
-          if (_selectedCountryCode == null) {
-            return 'Please select a country';
-          }
-          return null;
-        },
-        builder: (FormFieldState<String> field) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              InkWell(
-                onTap: () => _showCountryPicker(builderContext),
-                child: InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: 'Where are you located?*',
-                    hintText: 'Select a country',
-                    border: const OutlineInputBorder(),
-                    prefixIcon: const Icon(Icons.flag),
-                    errorText: field.errorText,
-                    filled: true,
-                    fillColor: Colors.white,
-                    helperText: "Required",
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _selectedCountryCode != null
-                            ? _buildCountryDisplay(_selectedCountryCode!)
-                            : const Text(
-                                'Select a country',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                      ),
-                      const Icon(Icons.arrow_drop_down),
-                    ],
-                  ),
+    return FormField<String>(
+      validator: (value) {
+        if (_selectedCountryCode == null) {
+          return 'Please select a country';
+        }
+        return null;
+      },
+      builder: (FormFieldState<String> field) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            InkWell(
+              onTap: () {
+                // Explicitly unfocus before showing modal
+                FocusScope.of(context).unfocus();
+
+                // Show country picker immediately using the navigator key context
+                _showCountryPicker(context);
+              },
+              child: InputDecorator(
+                decoration: InputDecoration(
+                  labelText: 'Where are you located?*',
+                  hintText: 'Select a country',
+                  border: const OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.flag),
+                  errorText: field.errorText,
+                  filled: true,
+                  fillColor: Colors.white,
+                  helperText: "Required",
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: _selectedCountryCode != null
+                          ? _buildCountryDisplay(_selectedCountryCode!)
+                          : const Text(
+                              'Select a country',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                    ),
+                    const Icon(Icons.arrow_drop_down),
+                  ],
                 ),
               ),
-            ],
-          );
-        },
-      );
-    });
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Display selected country with flag
@@ -640,61 +650,185 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   // Show a country picker dialog
   void _showCountryPicker(BuildContext context) {
+    // Get ManualAddCubit from dependency injection
+    final ManualAddCubit cubit = getIt<ManualAddCubit>();
+    cubit.setSearching(true);
+
+    // Get the context from the navigator key to ensure we have a valid navigation context
+    final navigatorContext = _navigatorKey.currentContext;
+
+    if (navigatorContext == null) {
+      // If navigator context is null, we can't show the modal - should not happen
+      log('Error: Navigator context is null');
+      return;
+    }
+
     showModalBottomSheet(
-      context: context,
+      context:
+          navigatorContext, // Use navigator context instead of the passed context
       isScrollControlled: true,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Container(
-            height: MediaQuery.of(context).size.height * 0.7,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const Text(
-                  'Select Your Country',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+      isDismissible: true,
+      enableDrag: true,
+      barrierColor: Colors.black54,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext modalContext) {
+        // Calculate a higher position to avoid keyboard
+        final keyboardHeight = MediaQuery.of(modalContext).viewInsets.bottom;
+        final screenHeight = MediaQuery.of(modalContext).size.height;
+        // Reduce height to 60% instead of 70%
+        final modalHeight = screenHeight * 0.6;
+
+        return BlocProvider.value(
+          value: cubit,
+          child: BlocBuilder<ManualAddCubit, ManualAddState>(
+            builder: (modalContext, state) {
+              if (state is CountriesLoaded) {
+                // Create a custom modal without using go_router's context.pop()
+                return Padding(
+                  // Apply padding to move the modal up when keyboard is visible
+                  padding: EdgeInsets.only(
+                    bottom: keyboardHeight > 0 ? keyboardHeight * 0.7 : 0,
+                    // Add additional top padding to push content up
+                    top: 8,
                   ),
-                ),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: _countryList.length,
-                    itemBuilder: (context, index) {
-                      final country = _countryList[index];
-                      return ListTile(
-                        leading: Container(
-                          width: 30,
-                          height: 24,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade300),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            countryEmoji(country.alpha2Code),
-                            style: const TextStyle(fontSize: 16),
-                          ),
+                  child: Container(
+                    height: modalHeight,
+                    padding:
+                        const EdgeInsets.only(top: 16, left: 16, right: 16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Title row with close button
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Select Country',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.close),
+                              onPressed: () => Navigator.of(modalContext).pop(),
+                            ),
+                          ],
                         ),
-                        title: Text(country.name),
-                        onTap: () {
-                          setState(() {
-                            _selectedCountryCode = country.alpha2Code;
-                          });
-                          _validateForm();
-                          Navigator.pop(context);
-                        },
-                      );
-                    },
+                        const SizedBox(height: 8),
+                        // Search field
+                        TextField(
+                          controller: cubit.searchController,
+                          autofocus: false,
+                          decoration: InputDecoration(
+                            hintText: 'Search countries...',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: cubit.searchController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      cubit.searchController.clear();
+                                      cubit.filterCountries();
+                                    },
+                                  )
+                                : null,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onChanged: (value) => cubit.filterCountries(),
+                        ),
+                        const SizedBox(height: 16),
+                        // Country list
+                        Expanded(
+                          child: state.filteredCountries.isNotEmpty
+                              ? ListView.builder(
+                                  itemCount: state.filteredCountries.length,
+                                  // Ensure scrolling works well
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  // Make each item smaller to fit more countries
+                                  itemExtent: 60,
+                                  itemBuilder: (context, index) {
+                                    final country =
+                                        state.filteredCountries[index];
+                                    return ListTile(
+                                      leading: SizedBox(
+                                        width: 40,
+                                        child: CountryFlag.fromCountryCode(
+                                          country.alpha2Code,
+                                          height: 30,
+                                          width: 40,
+                                          shape: const RoundedRectangle(4),
+                                        ),
+                                      ),
+                                      title: Text(
+                                        '${country.alpha2Code} - ${country.name}',
+                                        style: const TextStyle(fontSize: 16),
+                                      ),
+                                      onTap: () {
+                                        // 1. Get the country code
+                                        final String selectedCode =
+                                            country.alpha2Code;
+
+                                        // 2. Set autofocus to false on the text field first
+                                        cubit.searchController.text = '';
+
+                                        // 3. Clear focus
+                                        FocusScope.of(modalContext).unfocus();
+
+                                        // 4. Dismiss with the correct Navigator context
+                                        Navigator.of(modalContext).pop();
+
+                                        // 5. Update the state after modal is closed
+                                        Future.microtask(() {
+                                          if (mounted) {
+                                            setState(() {
+                                              _selectedCountryCode =
+                                                  selectedCode;
+                                            });
+                                            _validateForm();
+
+                                            // 6. Ensure the parent screen doesn't focus on any field
+                                            FocusScope.of(context).unfocus();
+                                          }
+                                        });
+                                      },
+                                    );
+                                  },
+                                )
+                              : const Center(
+                                  child: Text(
+                                    'No countries found',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                );
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
           ),
         );
       },
-    );
+    ).then((_) {
+      if (mounted) {
+        cubit.setSearching(false);
+
+        // Ensure no field has focus after modal is dismissed
+        FocusScope.of(context).unfocus();
+
+        // Add small delay to prevent focus
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            FocusScope.of(context).unfocus();
+          }
+        });
+      }
+    });
   }
 
   // Helper function to convert country code to emoji flag

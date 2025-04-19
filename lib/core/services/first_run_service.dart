@@ -68,8 +68,7 @@ class FirstRunService {
 
     // Safety check for valid context
     if (!context.mounted) {
-      debugPrint(
-          "Context is not mounted, skipping battery optimization dialog");
+      log("Context is not mounted, skipping battery optimization dialog");
       return false;
     }
 
@@ -138,7 +137,7 @@ class FirstRunService {
 
       return result;
     } catch (e) {
-      debugPrint("Error showing battery optimization dialog: $e");
+      log("Error showing battery optimization dialog: $e");
       // In case of error, fall back to direct permission request
       return await _permissionService.requestIgnoreBatteryOptimization();
     }
@@ -168,7 +167,7 @@ class FirstRunService {
         await markFirstRunCompleted();
       }
     } catch (e) {
-      debugPrint("Error performing first run tasks: $e");
+      log("Error performing first run tasks: $e");
     }
   }
 }

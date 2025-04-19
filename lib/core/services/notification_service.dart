@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 
@@ -25,14 +27,14 @@ class NotificationService {
       message: message,
       type: type,
     );
-    debugPrint('Set pending notification: $title - $message');
+    log('Set pending notification: $title - $message');
   }
 
   /// Get and clear the pending notification
   NotificationData? consumePendingNotification() {
     final notification = _pendingNotification;
     if (notification != null) {
-      debugPrint('Consuming notification: ${notification.title}');
+      log('Consuming notification: ${notification.title}');
     }
     _pendingNotification = null;
     return notification;

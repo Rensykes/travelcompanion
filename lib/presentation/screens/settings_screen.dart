@@ -10,6 +10,7 @@ import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
 import 'package:trackie/presentation/widgets/user_info_display.dart';
+import 'package:trackie/presentation/widgets/first_run_handler.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -36,113 +37,119 @@ class _SettingsScreenState extends State<SettingsScreen> {
         final useSystemTheme = themeCubit.useSystemTheme;
         final isDarkMode = themeCubit.isDarkMode;
 
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // User Profile Section
-                const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'User Profile',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+        return GestureDetector(
+          onTap: () {
+            // Dismiss keyboard when tapping outside of text fields
+            FocusScope.of(context).unfocus();
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // User Profile Section
+                  const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'User Profile',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // User profile tile
-                ListTile(
-                  leading: const Icon(Icons.person),
-                  title: const Text('Edit Profile'),
-                  subtitle: const Text('Name, country, and preferences'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    context.go(RouteConstants.userProfileFullPath);
-                  },
-                ),
-                const Divider(),
-                // Theme Settings Section
-                const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Theme',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+                  // User profile tile
+                  ListTile(
+                    leading: const Icon(Icons.person),
+                    title: const Text('Edit Profile'),
+                    subtitle: const Text('Name, country, and preferences'),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      context.go(RouteConstants.userProfileFullPath);
+                    },
+                  ),
+                  const Divider(),
+                  // Theme Settings Section
+                  const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Theme',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SwitchListTile(
-                  title: const Text('Use System Theme'),
-                  value: useSystemTheme,
-                  onChanged: (bool value) {
-                    themeCubit.setUseSystemTheme(value);
-                  },
-                ),
-                SwitchListTile(
-                  title: const Text('Dark Mode'),
-                  value: isDarkMode,
-                  onChanged: useSystemTheme
-                      ? null // Disable this switch if using system theme
-                      : (bool value) {
-                          themeCubit.setDarkMode(value);
-                        },
-                ),
-                const SizedBox(height: 24),
-                // Data Management Section
-                const Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Data Management',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey,
+                  SwitchListTile(
+                    title: const Text('Use System Theme'),
+                    value: useSystemTheme,
+                    onChanged: (bool value) {
+                      themeCubit.setUseSystemTheme(value);
+                    },
+                  ),
+                  SwitchListTile(
+                    title: const Text('Dark Mode'),
+                    value: isDarkMode,
+                    onChanged: useSystemTheme
+                        ? null // Disable this switch if using system theme
+                        : (bool value) {
+                            themeCubit.setDarkMode(value);
+                          },
+                  ),
+                  const SizedBox(height: 24),
+                  // Data Management Section
+                  const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Data Management',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                // Export/Import button
-                ListTile(
-                  leading: const Icon(Icons.import_export),
-                  title: const Text('Export & Import Data'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    context.go(RouteConstants.exportImportFullPath);
-                  },
-                ),
-                // Database cleanup button
-                ListTile(
-                  leading: const Icon(Icons.cleaning_services),
-                  title: const Text('Clean up Database'),
-                  onTap: () => _cleanupDatabase(context),
-                ),
-                const SizedBox(height: 24),
-                // Advanced settings button
-                ListTile(
-                  title: const Text('Advanced Settings'),
-                  trailing: const Icon(Icons.arrow_forward_ios),
-                  onTap: () {
-                    context.go(RouteConstants.advancedSettingsFullPath);
-                  },
-                ),
-              ],
+                  // Export/Import button
+                  ListTile(
+                    leading: const Icon(Icons.import_export),
+                    title: const Text('Export & Import Data'),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      context.go(RouteConstants.exportImportFullPath);
+                    },
+                  ),
+                  // Database cleanup button
+                  ListTile(
+                    leading: const Icon(Icons.cleaning_services),
+                    title: const Text('Clean up Database'),
+                    onTap: () => _cleanupDatabase(context),
+                  ),
+                  const SizedBox(height: 24),
+                  // Advanced settings button
+                  ListTile(
+                    title: const Text('Advanced Settings'),
+                    trailing: const Icon(Icons.arrow_forward_ios),
+                    onTap: () {
+                      context.go(RouteConstants.advancedSettingsFullPath);
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         );

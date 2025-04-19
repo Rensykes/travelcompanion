@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -57,8 +59,7 @@ class NotificationHelper {
 
     // If no valid context is available, log an error and return
     if (effectiveContext == null) {
-      debugPrint(
-          'Warning: No valid context available for showing notification');
+      log('Warning: No valid context available for showing notification');
       return;
     }
 
@@ -88,13 +89,13 @@ class NotificationHelper {
           _isDismissing = false;
         }).catchError((error) {
           // Handle any errors during dismissal
-          debugPrint('Error dismissing Flushbar: $error');
+          log('Error dismissing Flushbar: $error');
           _currentFlushbar = null;
           _isDismissing = false;
         });
       } catch (e) {
         // Reset state if an exception occurs
-        debugPrint('Exception while dismissing Flushbar: $e');
+        log('Exception while dismissing Flushbar: $e');
         _currentFlushbar = null;
         _isDismissing = false;
       }
@@ -193,7 +194,7 @@ class NotificationHelper {
         ..hideCurrentSnackBar()
         ..showSnackBar(snackBar);
     } catch (e) {
-      debugPrint('Error showing SnackBar: $e');
+      log('Error showing SnackBar: $e');
     }
   }
 

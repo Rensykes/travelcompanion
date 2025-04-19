@@ -66,7 +66,7 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
         _taskHealth = health;
       });
     } catch (e) {
-      debugPrint('Error loading task status: $e');
+      log('Error loading task status: $e');
     }
   }
 
