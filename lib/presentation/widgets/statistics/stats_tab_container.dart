@@ -48,17 +48,24 @@ class StatsTabItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    // Use the secondary color which is more visible in dark theme
+    // or fallback to onSurface with high opacity for better visibility
+    final tabColor = colorScheme.secondary.computeLuminance() > 0.4
+        ? colorScheme.secondary
+        : colorScheme.onSurface.withOpacity(0.9);
+    
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
+        Icon(icon, size: 18, color: tabColor),
         const SizedBox(height: 2),
         Text(
           label,
           style: TextStyle(
             fontSize: 10,
-            color: Theme.of(context).colorScheme.primary,
+            color: tabColor,
           ),
         ),
       ],

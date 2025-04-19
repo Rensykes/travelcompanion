@@ -60,11 +60,11 @@ class AppThemes {
     brightness: Brightness.dark,
     primaryColor: Color(0xFF1F452A), // Darker Forest Green
     secondaryHeaderColor: Color(0xFF1F452A),
-    hintColor: Color(0xFF5A9E6F), // Medium Green
+    hintColor: Color(0xFF76FF03), // Bright Green for visibility
     scaffoldBackgroundColor: Color(0xFF121212), // Dark Background
     colorScheme: const ColorScheme.dark(
       primary: Color(0xFF1F452A), // Darker Forest Green
-      secondary: Color(0xFF5A9E6F), // Medium Green
+      secondary: Color(0xFFAEEA00), // Bright Lime for high visibility in dark theme
       tertiary: Color(0xFF91694F), // Darker Brown for contrast
       onPrimary: Colors.white,
       onSecondary: Colors.white,
