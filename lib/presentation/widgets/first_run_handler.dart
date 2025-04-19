@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:trackie/core/di/dependency_injection.dart';
 import 'package:trackie/core/services/first_run_service.dart';
 import 'package:trackie/core/app_initialization.dart';
+import 'package:trackie/core/utils/app_themes.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
 import 'package:trackie/presentation/helpers/card_helper.dart';
 import 'package:country_flags/country_flags.dart';
@@ -11,6 +12,7 @@ import 'package:trackie/presentation/bloc/user_info/user_info_cubit.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trackie/presentation/bloc/manual_add/manual_add_cubit.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 /// Widget that handles showing onboarding screens and first-run tasks
 ///
@@ -122,7 +124,8 @@ class OnboardingScreen extends StatefulWidget {
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends State<OnboardingScreen> {
+class _OnboardingScreenState extends State<OnboardingScreen>
+    with SingleTickerProviderStateMixin {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   final int _pageCount = 4;
@@ -136,6 +139,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   bool _batteryOptimizationEnabled = true;
   bool _isFormValid = false;
 
+  // Animation controller for form fields
+  late AnimationController _animationController;
+  late Animation<double> _formOpacityAnimation;
+  bool _showForm = false;
+
   @override
   void initState() {
     super.initState();
@@ -144,6 +152,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     // Add listener to validate the form
     _nameController.addListener(_validateForm);
+
+    // Initialize animation controller
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500), // Slower animation
+    );
+
+    _formOpacityAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeIn,
+    ));
   }
 
   // Load countries for the dropdown
@@ -197,11 +219,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void dispose() {
     _pageController.dispose();
     _nameController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
   void _nextPage() {
     if (_currentPage < _pageCount - 1) {
+      // If moving to the user info page (which is the last page)
+      if (_currentPage == _pageCount - 2) {
+        // Reset form animation state
+        setState(() {
+          _showForm = false;
+        });
+        _animationController.reset();
+      }
+
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
@@ -405,6 +437,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Icon
                   SizedBox(
                     height: 100,
                     width: 100,
@@ -415,6 +448,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  // Title text
                   Text(
                     title,
                     style: const TextStyle(
@@ -425,6 +459,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
+                  // Description text
                   Text(
                     description,
                     style: const TextStyle(
@@ -455,98 +490,142 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             behavior: HitTestBehavior.opaque,
             onTap: () => FocusScope.of(context).unfocus(),
             child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Name text field
-                  TextField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: "What's your name?*",
-                      border: OutlineInputBorder(),
-                      filled: true,
-                      fillColor: Colors.white,
-                      prefixIcon: Icon(Icons.person),
-                      helperText: "Required",
-                    ),
-                    onChanged: (_) => _validateForm(),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Country selection field
-                  _buildCountrySelectionField(),
-                  const SizedBox(height: 20),
-
-                  // Battery optimization heading
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0, bottom: 8.0),
-                    child: Text(
-                      'Settings',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  ),
-
-                  // Battery optimization switch
-                  SwitchListTile(
-                    title: const Text(
-                      'Allow background location tracking',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    subtitle: const Text(
-                      'Enabling this will improve accuracy but may use more battery',
-                      style: TextStyle(fontSize: 14, color: Colors.black54),
-                    ),
-                    value: _batteryOptimizationEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        _batteryOptimizationEnabled = value;
-                      });
-                      // Use _navigatorKey.currentContext to show SnackBar
-                      if (_navigatorKey.currentContext != null) {
-                        ScaffoldMessenger.of(_navigatorKey.currentContext!)
-                            .showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              value
-                                  ? 'Background tracking enabled'
-                                  : 'Background tracking disabled',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            duration: const Duration(seconds: 2),
-                            backgroundColor: Theme.of(context).primaryColor,
+                  // Animated heading text - slower speed
+                  Center(
+                    child: AnimatedTextKit(
+                      animatedTexts: [
+                        TypewriterAnimatedText(
+                          'Let me know you better',
+                          textStyle: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppThemes.lightGreen,
                           ),
-                        );
-                      }
-                    },
-                    tileColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    contentPadding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                    dense: true,
-                  ),
-
-                  if (!_isFormValid)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: Text(
-                        'Please fill in all required fields',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                          fontSize: 14,
+                          speed:
+                              const Duration(milliseconds: 150), // Slower speed
                         ),
-                      ),
+                      ],
+                      totalRepeatCount: 1,
+                      onFinished: () {
+                        setState(() {
+                          _showForm = true;
+                        });
+                        _animationController.forward();
+                      },
                     ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Form fields with fade-in animation
+                  AnimatedBuilder(
+                    animation: _animationController,
+                    builder: (context, child) {
+                      return Opacity(
+                        opacity: _showForm ? _formOpacityAnimation.value : 0.0,
+                        child: child,
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        // Name text field
+                        TextField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
+                            labelText: "What's your name?*",
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Colors.white,
+                            prefixIcon: Icon(Icons.person),
+                            helperText: "Required",
+                          ),
+                          onChanged: (_) => _validateForm(),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Country selection field
+                        _buildCountrySelectionField(),
+                        const SizedBox(height: 20),
+
+                        // Battery optimization heading
+                        const Padding(
+                          padding: EdgeInsets.only(left: 4.0, bottom: 8.0),
+                          child: Text(
+                            'Settings',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ),
+
+                        // Battery optimization switch
+                        SwitchListTile(
+                          title: const Text(
+                            'Allow background location tracking',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          subtitle: const Text(
+                            'Enabling this will improve accuracy but may use more battery',
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.black54),
+                          ),
+                          value: _batteryOptimizationEnabled,
+                          onChanged: (value) {
+                            setState(() {
+                              _batteryOptimizationEnabled = value;
+                            });
+                            // Use _navigatorKey.currentContext to show SnackBar
+                            if (_navigatorKey.currentContext != null) {
+                              ScaffoldMessenger.of(
+                                      _navigatorKey.currentContext!)
+                                  .showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    value
+                                        ? 'Background tracking enabled'
+                                        : 'Background tracking disabled',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                  backgroundColor:
+                                      Theme.of(context).primaryColor,
+                                ),
+                              );
+                            }
+                          },
+                          tileColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: BorderSide(color: Colors.grey.shade300),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 4),
+                          dense: true,
+                        ),
+
+                        if (!_isFormValid)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16.0),
+                            child: Text(
+                              'Please fill in all required fields',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
