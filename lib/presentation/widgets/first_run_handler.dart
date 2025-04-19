@@ -246,8 +246,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Future<void> _finishOnboarding() async {
     // Save user information first
     if (_nameController.text.isNotEmpty && _selectedCountryCode != null) {
-      // Save user info using the UserInfoCubit
-      final userInfoCubit = getIt<UserInfoCubit>();
+      // Save user info using the UserInfoCubit from context
+      final userInfoCubit = context.read<UserInfoCubit>();
       await userInfoCubit.saveUserInfo(
         name: _nameController.text,
         countryCode: _selectedCountryCode!,
@@ -277,136 +277,139 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       theme: theme,
       // Set navigatorKey to make sure we always have a valid navigator context
       navigatorKey: _navigatorKey,
-      home: Scaffold(
-        body: GradientScaffold(
-          body: SafeArea(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => FocusScope.of(context).unfocus(),
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                child: Column(
-                  children: [
-                    // Content - PageView
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      child: PageView(
-                        controller: _pageController,
-                        onPageChanged: (page) {
-                          setState(() {
-                            _currentPage = page;
-                          });
-                        },
-                        children: [
-                          // Welcome page
-                          _buildOnboardingPage(
-                            title: 'Welcome to Travel Companion',
-                            description:
-                                'Track your travels and keep a digital record of places you\'ve visited.',
-                            icon: Icons.travel_explore,
-                            color: Colors.blue,
-                          ),
+      home: BlocProvider<UserInfoCubit>.value(
+        value: getIt<UserInfoCubit>(),
+        child: Scaffold(
+          body: GradientScaffold(
+            body: SafeArea(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => FocusScope.of(context).unfocus(),
+                child: SingleChildScrollView(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  child: Column(
+                    children: [
+                      // Content - PageView
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.7,
+                        child: PageView(
+                          controller: _pageController,
+                          onPageChanged: (page) {
+                            setState(() {
+                              _currentPage = page;
+                            });
+                          },
+                          children: [
+                            // Welcome page
+                            _buildOnboardingPage(
+                              title: 'Welcome to Travel Companion',
+                              description:
+                                  'Track your travels and keep a digital record of places you\'ve visited.',
+                              icon: Icons.travel_explore,
+                              color: Colors.blue,
+                            ),
 
-                          // Features page
-                          _buildOnboardingPage(
-                            title: 'Key Features',
-                            description:
-                                'Automatic location tracking, travel statistics, and trip history.',
-                            icon: Icons.map,
-                            color: Colors.green,
-                          ),
+                            // Features page
+                            _buildOnboardingPage(
+                              title: 'Key Features',
+                              description:
+                                  'Automatic location tracking, travel statistics, and trip history.',
+                              icon: Icons.map,
+                              color: Colors.green,
+                            ),
 
-                          // Permissions page
-                          _buildOnboardingPage(
-                            title: 'One Last Thing',
-                            description:
-                                'We need permission to track your location in the background for accurate travel logs.',
-                            icon: Icons.location_on,
-                            color: Colors.orange,
-                          ),
+                            // Permissions page
+                            _buildOnboardingPage(
+                              title: 'One Last Thing',
+                              description:
+                                  'We need permission to track your location in the background for accurate travel logs.',
+                              icon: Icons.location_on,
+                              color: Colors.orange,
+                            ),
 
-                          // User info page
-                          _buildUserInfoPage(),
-                        ],
+                            // User info page
+                            _buildUserInfoPage(),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    // Bottom section (non-scrollable)
-                    Container(
-                      color: Colors.transparent,
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Page indicator
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: List.generate(
-                                _pageCount,
-                                (index) => Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 4.0),
-                                  width: 10,
-                                  height: 10,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: _currentPage == index
-                                        ? theme.colorScheme.primary
-                                        : theme.colorScheme.primary
-                                            .withOpacity(0.3),
+                      // Bottom section (non-scrollable)
+                      Container(
+                        color: Colors.transparent,
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Page indicator
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  _pageCount,
+                                  (index) => Container(
+                                    margin: const EdgeInsets.symmetric(
+                                        horizontal: 4.0),
+                                    width: 10,
+                                    height: 10,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: _currentPage == index
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.primary
+                                              .withOpacity(0.3),
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
 
-                          // Navigation buttons
-                          Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if (_currentPage > 0)
-                                  TextButton(
-                                    onPressed: () {
-                                      _pageController.previousPage(
-                                        duration:
-                                            const Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    },
-                                    child: const Text('Back'),
-                                  )
-                                else
-                                  const SizedBox(width: 80),
-                                ElevatedButton(
-                                  onPressed: (_currentPage < _pageCount - 1 ||
-                                          _isFormValid)
-                                      ? _nextPage
-                                      : null, // Disable on last page unless form is valid
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 12,
+                            // Navigation buttons
+                            Padding(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  if (_currentPage > 0)
+                                    TextButton(
+                                      onPressed: () {
+                                        _pageController.previousPage(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      },
+                                      child: const Text('Back'),
+                                    )
+                                  else
+                                    const SizedBox(width: 80),
+                                  ElevatedButton(
+                                    onPressed: (_currentPage < _pageCount - 1 ||
+                                            _isFormValid)
+                                        ? _nextPage
+                                        : null, // Disable on last page unless form is valid
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 24,
+                                        vertical: 12,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      _currentPage < _pageCount - 1
+                                          ? 'Next'
+                                          : 'Get Started',
                                     ),
                                   ),
-                                  child: Text(
-                                    _currentPage < _pageCount - 1
-                                        ? 'Next'
-                                        : 'Get Started',
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
