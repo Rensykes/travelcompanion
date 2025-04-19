@@ -12,6 +12,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// - System theme (follows the device settings)
 ///
 /// Theme settings are persisted between app sessions using SharedPreferences.
+/// 
+/// TODO: THEME ROLLBACK INSTRUCTIONS
+/// To restore normal theme functionality:
+/// 1. Replace the _loadTheme method with the original implementation that loads saved preferences
+/// 2. Replace the setUseSystemTheme and setDarkMode methods with their original implementations
+/// 3. Remove the forced dark theme settings in all methods
+/// The original implementations are commented below for reference
 class ThemeCubit extends Cubit<ThemeState> {
   /// Key for storing the theme mode preference (light/dark)
   static const String themePreferenceKey = 'theme_mode';
@@ -31,16 +38,25 @@ class ThemeCubit extends Cubit<ThemeState> {
   /// First checks if the user has chosen to use the system theme.
   /// If not, loads the specific theme preference (light or dark).
   Future<void> _loadTheme() async {
+    // Always use dark theme regardless of saved preferences
+    emit(const ThemeState(themeMode: ThemeMode.dark));
+    
+    // Save this preference for future launches
     final prefs = await SharedPreferences.getInstance();
-    final useSystemTheme = prefs.getBool(useSystemThemeKey) ?? true;
-
-    if (useSystemTheme) {
-      emit(const ThemeState(themeMode: ThemeMode.system));
-    } else {
-      final isDarkMode = prefs.getBool(themePreferenceKey) ?? false;
-      final themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
-      emit(ThemeState(themeMode: themeMode));
-    }
+    await prefs.setBool(useSystemThemeKey, false);
+    await prefs.setBool(themePreferenceKey, true);
+    
+    // TODO: ROLLBACK - Replace with original implementation:
+    // final prefs = await SharedPreferences.getInstance();
+    // final useSystemTheme = prefs.getBool(useSystemThemeKey) ?? true;
+    //
+    // if (useSystemTheme) {
+    //   emit(const ThemeState(themeMode: ThemeMode.system));
+    // } else {
+    //   final isDarkMode = prefs.getBool(themePreferenceKey) ?? false;
+    //   final themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    //   emit(ThemeState(themeMode: themeMode));
+    // }
   }
 
   /// Sets whether to use the system theme.
@@ -51,17 +67,27 @@ class ThemeCubit extends Cubit<ThemeState> {
   /// Parameters:
   /// - [useSystemTheme]: True to use system theme, false to use explicit setting
   Future<void> setUseSystemTheme(bool useSystemTheme) async {
+    // Always use dark theme - ignore the requested setting
+    // Save the preference for future reference
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(useSystemThemeKey, useSystemTheme);
-
-    if (useSystemTheme) {
-      emit(const ThemeState(themeMode: ThemeMode.system));
-    } else {
-      // If not using system theme, use the saved theme or default to light
-      final isDarkMode = prefs.getBool(themePreferenceKey) ?? false;
-      final themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
-      emit(ThemeState(themeMode: themeMode));
-    }
+    await prefs.setBool(useSystemThemeKey, false);
+    await prefs.setBool(themePreferenceKey, true);
+    
+    // Always emit dark theme
+    emit(const ThemeState(themeMode: ThemeMode.dark));
+    
+    // TODO: ROLLBACK - Replace with original implementation:
+    // final prefs = await SharedPreferences.getInstance();
+    // await prefs.setBool(useSystemThemeKey, useSystemTheme);
+    //
+    // if (useSystemTheme) {
+    //   emit(const ThemeState(themeMode: ThemeMode.system));
+    // } else {
+    //   // If not using system theme, use the saved theme or default to light
+    //   final isDarkMode = prefs.getBool(themePreferenceKey) ?? false;
+    //   final themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    //   emit(ThemeState(themeMode: themeMode));
+    // }
   }
 
   /// Sets the explicit dark/light theme preference.
@@ -72,11 +98,21 @@ class ThemeCubit extends Cubit<ThemeState> {
   /// Parameters:
   /// - [isDarkMode]: True to use dark theme, false to use light theme
   Future<void> setDarkMode(bool isDarkMode) async {
+    // Always use dark theme - ignore the requested setting
+    // Save the preference for future reference
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(themePreferenceKey, isDarkMode);
-
-    final themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
-    emit(ThemeState(themeMode: themeMode));
+    await prefs.setBool(themePreferenceKey, true);
+    await prefs.setBool(useSystemThemeKey, false);
+    
+    // Always emit dark theme
+    emit(const ThemeState(themeMode: ThemeMode.dark));
+    
+    // TODO: ROLLBACK - Replace with original implementation:
+    // final prefs = await SharedPreferences.getInstance();
+    // await prefs.setBool(themePreferenceKey, isDarkMode);
+    // 
+    // final themeMode = isDarkMode ? ThemeMode.dark : ThemeMode.light;
+    // emit(ThemeState(themeMode: themeMode));
   }
 
   /// Whether the current theme setting is to use the system theme

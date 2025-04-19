@@ -10,6 +10,13 @@ import 'package:trackie/presentation/helpers/notification_helper.dart';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:trackie/presentation/widgets/gradient_background.dart';
 
+// TODO: THEME ROLLBACK INSTRUCTIONS
+// To restore normal theme switching functionality:
+// 1. Remove the note explaining dark theme is enforced
+// 2. Restore the theme switches to use the actual values from themeCubit
+// 3. Re-enable the onChanged handlers
+// Original implementations are commented below in the switches section
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -89,21 +96,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
+                  // Note about dark theme being enforced
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                    child: Text(
+                      'Dark theme is currently enforced in this version',
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                  // TODO: ROLLBACK - Remove the note above when restoring theme functionality
+                  
                   SwitchListTile(
                     title: const Text('Use System Theme'),
-                    value: useSystemTheme,
-                    onChanged: (bool value) {
-                      themeCubit.setUseSystemTheme(value);
-                    },
+                    subtitle: const Text('Temporarily disabled'),
+                    value: false,
+                    onChanged: null, // Disabled
+                    // TODO: ROLLBACK - Replace with original implementation:
+                    // value: useSystemTheme,
+                    // onChanged: (bool value) {
+                    //   themeCubit.setUseSystemTheme(value);
+                    // },
                   ),
                   SwitchListTile(
                     title: const Text('Dark Mode'),
-                    value: isDarkMode,
-                    onChanged: useSystemTheme
-                        ? null // Disable this switch if using system theme
-                        : (bool value) {
-                            themeCubit.setDarkMode(value);
-                          },
+                    subtitle: const Text('Always enabled in this version'),
+                    value: true,
+                    onChanged: null, // Disabled
+                    // TODO: ROLLBACK - Replace with original implementation:
+                    // value: isDarkMode,
+                    // onChanged: useSystemTheme
+                    //     ? null // Disable this switch if using system theme
+                    //     : (bool value) {
+                    //         themeCubit.setDarkMode(value);
+                    //       },
                   ),
                   const SizedBox(height: 24),
                   // Data Management Section
