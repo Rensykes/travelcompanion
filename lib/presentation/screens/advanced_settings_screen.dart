@@ -72,9 +72,10 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
 
   // Reset task statistics
   Future<void> _resetTaskStatistics() async {
-    await _taskStatusService.resetTaskStatistics();
-    await _loadTaskStatus();
-
+    // Use the implementation without notification
+    await _resetTaskStatisticsWithoutNotification();
+    
+    // Then show a notification
     NotificationHelper.showNotification(
       context,
       "Statistics Reset",
@@ -186,15 +187,10 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
 
   // Reinitialize the workmanager
   void _reinitializeWorkmanager() {
+    // Initialize the background tasks
     AppInitialization.initializeBackgroundTasks(isDebugMode: isDebugMode);
 
-    NotificationHelper.showNotification(
-      context,
-      "Tasks Reinitialized",
-      "Background tasks have been successfully reinitialized",
-      ContentType.help,
-    );
-
+    // Log the action
     log(
       'Workmanager reinitialized manually from Advanced Settings',
       name: 'AdvancedSettingsScreen',
@@ -202,8 +198,27 @@ class AdvancedSettingsScreenState extends State<AdvancedSettingsScreen> {
       time: DateTime.now(),
     );
 
-    // Also reset task statistics
-    _resetTaskStatistics();
+    // Reset task statistics but don't show notification from there
+    // since we'll show a combined notification here
+    _resetTaskStatisticsWithoutNotification();
+    
+    // Show a single notification for both actions
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        NotificationHelper.showNotification(
+          context,
+          "Tasks Reinitialized",
+          "Background tasks have been successfully reinitialized and statistics reset",
+          ContentType.help,
+        );
+      }
+    });
+  }
+  
+  // Reset task statistics without showing a notification
+  Future<void> _resetTaskStatisticsWithoutNotification() async {
+    await _taskStatusService.resetTaskStatistics();
+    await _loadTaskStatus();
   }
 
   @override
