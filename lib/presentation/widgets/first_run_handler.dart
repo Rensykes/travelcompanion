@@ -534,13 +534,31 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         // Name text field
                         TextField(
                           controller: _nameController,
+                          style: const TextStyle(color: AppThemes.lightGreen),
+                          cursorColor: AppThemes.primaryGreen,
                           decoration: const InputDecoration(
                             labelText: "What's your name?*",
-                            border: OutlineInputBorder(),
-                            filled: true,
-                            fillColor: Colors.white,
-                            prefixIcon: Icon(Icons.person),
+                            border: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: AppThemes.lightGreen, width: 1),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: AppThemes.lightGreen, width: 1),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: AppThemes.primaryGreen, width: 2),
+                            ),
+                            filled: false,
+                            prefixIcon: Icon(
+                              Icons.person_outline,
+                              color: AppThemes.lightGreen,
+                            ),
                             helperText: "Required",
+                            labelStyle: TextStyle(color: AppThemes.lightGreen),
+                            helperStyle: TextStyle(color: AppThemes.lightGreen),
+                            contentPadding: EdgeInsets.only(bottom: 8),
                           ),
                           onChanged: (_) => _validateForm(),
                         ),
@@ -550,66 +568,58 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                         _buildCountrySelectionField(),
                         const SizedBox(height: 20),
 
-                        // Battery optimization heading
-                        const Padding(
-                          padding: EdgeInsets.only(left: 4.0, bottom: 8.0),
-                          child: Text(
-                            'Settings',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-
                         // Battery optimization switch
-                        SwitchListTile(
-                          title: const Text(
-                            'Allow background location tracking',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black87,
+                        CardHelper.standardCard(
+                          elevation: 0,
+                          child: SwitchListTile(
+                            title: const Text(
+                              'Allow background location tracking',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black87,
+                              ),
                             ),
-                          ),
-                          subtitle: const Text(
-                            'Enabling this will improve accuracy but may use more battery',
-                            style:
-                                TextStyle(fontSize: 14, color: Colors.black54),
-                          ),
-                          value: _batteryOptimizationEnabled,
-                          onChanged: (value) {
-                            setState(() {
-                              _batteryOptimizationEnabled = value;
-                            });
-                            // Use _navigatorKey.currentContext to show SnackBar
-                            if (_navigatorKey.currentContext != null) {
-                              ScaffoldMessenger.of(
-                                      _navigatorKey.currentContext!)
-                                  .showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    value
-                                        ? 'Background tracking enabled'
-                                        : 'Background tracking disabled',
-                                    style: const TextStyle(color: Colors.white),
+                            subtitle: const Text(
+                              "Don't worry, I won't use too much battery!",
+                              style: TextStyle(
+                                  fontSize: 14, color: Colors.black54),
+                            ),
+                            value: _batteryOptimizationEnabled,
+                            onChanged: (value) {
+                              setState(() {
+                                _batteryOptimizationEnabled = value;
+                              });
+                              // Use _navigatorKey.currentContext to show SnackBar
+                              if (_navigatorKey.currentContext != null) {
+                                ScaffoldMessenger.of(
+                                        _navigatorKey.currentContext!)
+                                    .showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      value
+                                          ? 'Background tracking enabled'
+                                          : 'Background tracking disabled',
+                                      style:
+                                          const TextStyle(color: Colors.white),
+                                    ),
+                                    duration: const Duration(seconds: 2),
+                                    backgroundColor:
+                                        Theme.of(context).primaryColor,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    margin: const EdgeInsets.all(10),
                                   ),
-                                  duration: const Duration(seconds: 2),
-                                  backgroundColor:
-                                      Theme.of(context).primaryColor,
-                                ),
-                              );
-                            }
-                          },
-                          tileColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: BorderSide(color: Colors.grey.shade300),
+                                );
+                              }
+                            },
+                            activeColor: AppThemes.primaryGreen,
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            dense: false,
                           ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 4),
-                          dense: true,
                         ),
 
                         if (!_isFormValid)
@@ -660,12 +670,30 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 decoration: InputDecoration(
                   labelText: 'Where are you located?*',
                   hintText: 'Select a country',
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.flag),
+                  border: const UnderlineInputBorder(
+                    borderSide:
+                        BorderSide(color: AppThemes.lightGreen, width: 1),
+                  ),
+                  enabledBorder: const UnderlineInputBorder(
+                    borderSide:
+                        BorderSide(color: AppThemes.lightGreen, width: 1),
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide:
+                        BorderSide(color: AppThemes.primaryGreen, width: 2),
+                  ),
+                  errorBorder: UnderlineInputBorder(
+                    borderSide:
+                        BorderSide(color: Colors.red.shade300, width: 1),
+                  ),
+                  prefixIcon: const Icon(Icons.public_outlined,
+                      color: AppThemes.lightGreen),
                   errorText: field.errorText,
-                  filled: true,
-                  fillColor: Colors.white,
+                  filled: false,
                   helperText: "Required",
+                  labelStyle: const TextStyle(color: AppThemes.lightGreen),
+                  helperStyle: const TextStyle(color: AppThemes.lightGreen),
+                  contentPadding: const EdgeInsets.only(bottom: 8),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -675,10 +703,11 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           ? _buildCountryDisplay(_selectedCountryCode!)
                           : const Text(
                               'Select a country',
-                              style: TextStyle(color: Colors.grey),
+                              style: TextStyle(color: AppThemes.lightGreen),
                             ),
                     ),
-                    const Icon(Icons.arrow_drop_down),
+                    const Icon(Icons.arrow_drop_down,
+                        color: AppThemes.lightGreen),
                   ],
                 ),
               ),
@@ -706,7 +735,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           width: 30,
           height: 24,
           decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
             borderRadius: BorderRadius.circular(4),
           ),
           alignment: Alignment.center,
@@ -720,6 +748,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           child: Text(
             countryName,
             overflow: TextOverflow.ellipsis,
+            style: const TextStyle(color: AppThemes.lightGreen),
           ),
         ),
       ],
@@ -748,8 +777,10 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       isDismissible: true,
       enableDrag: true,
       barrierColor: Colors.black54,
+      elevation: 10,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (BuildContext modalContext) {
         // Calculate a higher position to avoid keyboard
@@ -774,45 +805,93 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   child: Container(
                     height: modalHeight,
                     padding:
-                        const EdgeInsets.only(top: 16, left: 16, right: 16),
+                        const EdgeInsets.only(top: 16, left: 20, right: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(20)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          spreadRadius: 5,
+                          offset: const Offset(0, -2),
+                        ),
+                      ],
+                    ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Top handle indicator for bottom sheet
+                        Container(
+                          width: 40,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
                         // Title row with close button
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Select Country',
                               style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade800,
+                              ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.close),
+                              icon: const Icon(Icons.close, size: 24),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.grey.shade100,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
                               onPressed: () => Navigator.of(modalContext).pop(),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 16),
                         // Search field
                         TextField(
                           controller: cubit.searchController,
                           autofocus: false,
+                          style: const TextStyle(color: AppThemes.lightGreen),
+                          cursorColor: AppThemes.primaryGreen,
                           decoration: InputDecoration(
                             hintText: 'Search countries...',
-                            prefixIcon: const Icon(Icons.search),
+                            hintStyle: const TextStyle(fontSize: 14),
+                            prefixIcon: const Icon(Icons.search,
+                                color: AppThemes.lightGreen),
                             suffixIcon: cubit.searchController.text.isNotEmpty
                                 ? IconButton(
-                                    icon: const Icon(Icons.clear),
+                                    icon: const Icon(Icons.clear,
+                                        color: AppThemes.lightGreen),
                                     onPressed: () {
                                       cubit.searchController.clear();
                                       cubit.filterCountries();
                                     },
                                   )
                                 : null,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                            border: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: AppThemes.lightGreen, width: 1),
                             ),
+                            enabledBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: AppThemes.lightGreen, width: 1),
+                            ),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: AppThemes.primaryGreen, width: 2),
+                            ),
+                            filled: false,
+                            contentPadding: const EdgeInsets.only(bottom: 8),
                           ),
                           onChanged: (value) => cubit.filterCountries(),
                         ),
@@ -830,55 +909,80 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                                   itemBuilder: (context, index) {
                                     final country =
                                         state.filteredCountries[index];
-                                    return ListTile(
-                                      leading: SizedBox(
-                                        width: 40,
-                                        child: CountryFlag.fromCountryCode(
-                                          country.alpha2Code,
-                                          height: 30,
-                                          width: 40,
-                                          shape: const RoundedRectangle(4),
+                                    return Card(
+                                      elevation: 0,
+                                      color: Colors.transparent,
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 4),
+                                      child: ListTile(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
+                                        tileColor: Colors.grey.shade50,
+                                        leading: SizedBox(
+                                          width: 40,
+                                          child: CountryFlag.fromCountryCode(
+                                            country.alpha2Code,
+                                            height: 30,
+                                            width: 40,
+                                            shape: const RoundedRectangle(4),
+                                          ),
+                                        ),
+                                        title: Text(
+                                          '${country.alpha2Code} - ${country.name}',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        onTap: () {
+                                          // 1. Get the country code
+                                          final String selectedCode =
+                                              country.alpha2Code;
+
+                                          // 2. Set autofocus to false on the text field first
+                                          cubit.searchController.text = '';
+
+                                          // 3. Clear focus
+                                          FocusScope.of(modalContext).unfocus();
+
+                                          // 4. Dismiss with the correct Navigator context
+                                          Navigator.of(modalContext).pop();
+
+                                          // 5. Update the state after modal is closed
+                                          Future.microtask(() {
+                                            if (mounted) {
+                                              setState(() {
+                                                _selectedCountryCode =
+                                                    selectedCode;
+                                              });
+                                              _validateForm();
+
+                                              // 6. Ensure the parent screen doesn't focus on any field
+                                              FocusScope.of(context).unfocus();
+                                            }
+                                          });
+                                        },
                                       ),
-                                      title: Text(
-                                        '${country.alpha2Code} - ${country.name}',
-                                        style: const TextStyle(fontSize: 16),
-                                      ),
-                                      onTap: () {
-                                        // 1. Get the country code
-                                        final String selectedCode =
-                                            country.alpha2Code;
-
-                                        // 2. Set autofocus to false on the text field first
-                                        cubit.searchController.text = '';
-
-                                        // 3. Clear focus
-                                        FocusScope.of(modalContext).unfocus();
-
-                                        // 4. Dismiss with the correct Navigator context
-                                        Navigator.of(modalContext).pop();
-
-                                        // 5. Update the state after modal is closed
-                                        Future.microtask(() {
-                                          if (mounted) {
-                                            setState(() {
-                                              _selectedCountryCode =
-                                                  selectedCode;
-                                            });
-                                            _validateForm();
-
-                                            // 6. Ensure the parent screen doesn't focus on any field
-                                            FocusScope.of(context).unfocus();
-                                          }
-                                        });
-                                      },
                                     );
                                   },
                                 )
-                              : const Center(
-                                  child: Text(
-                                    'No countries found',
-                                    style: TextStyle(fontSize: 16),
+                              : Center(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.search_off,
+                                          size: 48,
+                                          color: Colors.grey.shade400),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        'No countries found',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                         ),
